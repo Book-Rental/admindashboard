@@ -1,16 +1,43 @@
+import { useEffect, useState } from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import "@rentbook/rentbook-ui-lib/microfrontend.min.css";
 
+import OrderList from "./pages/OrderList";
+import ProductList from "./pages/ProductList";
+import Sidebar from "./components/sidebar";
 
-function App() {
+const client = new QueryClient();
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white shadow-lg rounded-xl p-10">
-        <h1 className="text-5xl font-extrabold text-red-700 text-center underline decoration-blue-500">
-          Admin Dashboard
-        </h1>
-      </div>
-    </div>
-  )
+function Router() {
+  const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const onPopState = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  if (path.startsWith("/orders")) return <OrderList />;
+  if (path.startsWith("/products")) return <ProductList />;
+
+  // default landing page
+  return <ProductList />;
 }
 
-export default App
+function App() {
+  return (
+    <QueryClientProvider client={client}>
+      <div className="flex flex-col md:flex-row">
+        <Sidebar />
+        <div className="flex-1 min-w-0 pt-16 md:pt-0">
+          <Router />
+        </div>
+      </div>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
