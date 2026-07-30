@@ -135,22 +135,14 @@ export default function OrderList() {
                         Showing 1-{orders.length} of{" "}
                         {data?.data.meta.totalRecords ?? 0}
                     </p>
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        siblingCount={1}
+                        disabled={isFetching}
+                        onPageChange={setPage}
+                    />
 
-
-                    <div
-                        className="
-        [&_.pagination__button]:!text-gray-700
-        [&_.pagination__button--active]:!text-white
-    "
-                    >                        <Pagination
-                            currentPage={page}
-                            totalPages={Number(totalPages)}
-                            siblingCount={1}
-                            disabled={isFetching}
-                            onPageChange={setPage}
-                        />
-
-                    </div>
 
                 </div>
             )}

@@ -31,11 +31,7 @@ const orderBadge = (status: Order["orderStatus"]) => {
     }
 };
 const formatOrderNumber = (orderNumber: string) => {
-    if (orderNumber.length <= 6) {
-        return `#${orderNumber}`;
-    }
-
-    return `#${orderNumber.slice(0, 3)}...${orderNumber.slice(-3)}`;
+    return `${orderNumber.slice(-6)}`;
 };
 export default function OrderTable({ orders }: Props) {
     return (
@@ -56,8 +52,23 @@ export default function OrderTable({ orders }: Props) {
                     {orders.map((order) => (
                         <tr key={order.orderId} className="border-b hover:bg-gray-50">
                             <td className="p-4 text-gray-700 font-medium">
-                                {formatOrderNumber(order.orderNumber)}
+                                <div className="relative group inline-block">
+                                    <span className="cursor-pointer">
+                                        {formatOrderNumber(order.orderNumber)}
+                                    </span>
+
+                                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block z-50">
+                                        <div className="bg-gray-800 text-white text-xs rounded-md px-3 py-2 whitespace-nowrap shadow-lg">
+                                            {order.orderNumber}
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
+                            {/* <td className="p-4 text-gray-700 font-medium">
+                                <span title={order.orderNumber}>
+                                    {formatOrderNumber(order.orderNumber)}
+                                </span>
+                            </td> */}
 
                             <td className="p-4">
                                 <div className="flex items-center gap-3">
