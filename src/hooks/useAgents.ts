@@ -21,9 +21,6 @@ import {
 
 export const AGENTS_QUERY_KEY = ["agents"];
 
-/**
- * Get all agents
- */
 export function useAgents() {
     return useQuery<Agent[]>({
         queryKey: AGENTS_QUERY_KEY,
@@ -31,12 +28,7 @@ export function useAgents() {
     });
 }
 
-/**
- * Get single agent by ID
- *
- * GET /agent/:agentId returns AgentDetails,
- * not Agent.
- */
+
 export function useAgent(agentId: string) {
     return useQuery<AgentDetails>({
         queryKey: [
@@ -48,9 +40,6 @@ export function useAgent(agentId: string) {
     });
 }
 
-/**
- * Create agent
- */
 export function useCreateAgent() {
     const queryClient = useQueryClient();
 
@@ -66,9 +55,7 @@ export function useCreateAgent() {
     });
 }
 
-/**
- * Update agent
- */
+
 export function useUpdateAgent() {
     const queryClient = useQueryClient();
 

@@ -132,30 +132,28 @@ export default function AgentDetails() {
 
     if (isError || !agent) {
         return (
-            <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
-                <div className="mx-auto max-w-[1400px]">
-                    <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm sm:p-8">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500">
-                                <FaCircle className="text-xs" />
-                            </div>
-
-                            <p className="text-sm text-red-500">
-                                Unable to load agent details.
-                            </p>
+            <div className="min-h-screen w-full bg-gray-50 p-4 sm:p-6">
+                <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm sm:p-8">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500">
+                            <FaCircle className="text-xs" />
                         </div>
 
-                        <Rb_Button
-                            type="button"
-                            className="mt-5"
-                            onClick={goBack}
-                        >
-                            <span className="inline-flex items-center gap-2">
-                                <FaArrowLeft />
-                                Back to Agents
-                            </span>
-                        </Rb_Button>
+                        <p className="text-sm text-red-500">
+                            Unable to load agent details.
+                        </p>
                     </div>
+
+                    <Rb_Button
+                        type="button"
+                        className="mt-5"
+                        onClick={goBack}
+                    >
+                        <span className="inline-flex items-center gap-2">
+                            <FaArrowLeft />
+                            Back to Agents
+                        </span>
+                    </Rb_Button>
                 </div>
             </div>
         );
@@ -178,44 +176,43 @@ export default function AgentDetails() {
 
     return (
         <>
-            <div className="min-h-screen w-full bg-gray-50 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
-                <div className="mx-auto max-w-[1400px]">
+            <div className="min-h-screen w-full mx-auto bg-gray-50 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
 
 
 
-                    <div className="mb-6 sm:mb-8">
-                        <Rb_Button
-                            type="button"
-                            onClick={goBack}
-                            className="!mb-4 !inline-flex !items-center !gap-1.5 !rounded-lg !border-0 !bg-transparent !p-0 !text-sm !font-medium !text-gray-500 !shadow-none !transition-colors hover:!text-gray-900"
-                        >
-                            <FaArrowLeft aria-hidden="true" />
+                <div className="mb-6 sm:mb-8">
+                    <Rb_Button
+                        type="button"
+                        onClick={goBack}
+                        className="!mb-4 !inline-flex !items-center !gap-1.5 !rounded-lg !border-0 !bg-transparent !p-0 !text-sm !font-medium !text-gray-500 !shadow-none !transition-colors hover:!text-gray-900"
+                    >
+                        <FaArrowLeft aria-hidden="true" />
 
-                            <span className="truncate">
-                                Delivery Agents / Agent Details
-                            </span>
-                        </Rb_Button>
-                    </div>
+                        <span className="truncate">
+                            Delivery Agents / Agent Details
+                        </span>
+                    </Rb_Button>
+                </div>
 
-                    {/* =================================================
+                {/* =================================================
                         HERO
                     ================================================= */}
 
-                    <div className="mb-6 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+                <div className="mb-6 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
 
-                        {/* Background */}
-                        <div className="h-24 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 sm:h-28" />
+                    {/* Background */}
+                    <div className="h-24 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 sm:h-28" />
 
-                        <div className="px-5 pb-5 sm:px-7 sm:pb-6">
-                            <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between">
+                    <div className="px-5 pb-5 sm:px-7 sm:pb-6">
+                        <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between">
 
-                                {/* PROFILE */}
-                                <div className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-end">
+                            {/* PROFILE */}
+                            <div className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-end">
 
-                                    {/* AVATAR */}
-                                    <div className="relative -mt-12 shrink-0 sm:-mt-14">
-                                        <div
-                                            className="
+                                {/* AVATAR */}
+                                <div className="relative -mt-12 shrink-0 sm:-mt-14">
+                                    <div
+                                        className="
                                                 flex
                                                 h-24
                                                 w-24
@@ -234,24 +231,24 @@ export default function AgentDetails() {
                                                 sm:w-28
                                                 sm:text-3xl
                                             "
-                                        >
-                                            {photo ? (
-                                                <Rb_Image
-                                                    src={photo}
-                                                    alt={fullName || "Agent"}
-                                                    className="!h-full !w-full !rounded-full object-cover"
-                                                />
-                                            ) : (
-                                                <span className="select-none">
-                                                    {initials}
-                                                </span>
-                                            )}
-                                        </div>
+                                    >
+                                        {photo ? (
+                                            <Rb_Image
+                                                src={photo}
+                                                alt={fullName || "Agent"}
+                                                className="!h-full !w-full !rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="select-none">
+                                                {initials}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                        {/* Active indicator */}
-                                        {agent.isActive && (
-                                            <span
-                                                className="
+                                    {/* Active indicator */}
+                                    {agent.isActive && (
+                                        <span
+                                            className="
                                                     absolute
                                                     bottom-1
                                                     right-1
@@ -264,14 +261,14 @@ export default function AgentDetails() {
                                                     sm:h-6
                                                     sm:w-6
                                                 "
-                                                aria-label="Active"
-                                            />
-                                        )}
-                                    </div>
+                                            aria-label="Active"
+                                        />
+                                    )}
+                                </div>
 
-                                    {/* NAME + META */}
-                                    <div
-                                        className="
+                                {/* NAME + META */}
+                                <div
+                                    className="
                                             min-w-0
                                             flex-1
                                             pt-4
@@ -279,11 +276,11 @@ export default function AgentDetails() {
                                             sm:pb-1
                                             sm:pt-0
                                         "
-                                    >
-                                        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+                                >
+                                    <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
 
-                                            <h1
-                                                className="
+                                        <h1
+                                            className="
                                                     min-w-0
                                                     max-w-full
                                                     break-words
@@ -294,18 +291,18 @@ export default function AgentDetails() {
                                                     text-gray-900
                                                     sm:text-3xl
                                                 "
-                                            >
-                                                {fullName || "-"}
-                                            </h1>
+                                        >
+                                            {fullName || "-"}
+                                        </h1>
 
-                                            <StatusBadge
-                                                status={agent.status}
-                                            />
-                                        </div>
+                                        <StatusBadge
+                                            status={agent.status}
+                                        />
+                                    </div>
 
-                                        {/* META */}
-                                        <div
-                                            className="
+                                    {/* META */}
+                                    <div
+                                        className="
                                                 mt-2
                                                 flex
                                                 flex-col
@@ -317,40 +314,40 @@ export default function AgentDetails() {
                                                 sm:items-center
                                                 sm:gap-x-4
                                             "
-                                        >
-                                            <span className="inline-flex min-w-0 items-center gap-1.5">
-                                                <FaIdCard className="shrink-0 text-xs text-gray-400" />
+                                    >
+                                        <span className="inline-flex min-w-0 items-center gap-1.5">
+                                            <FaIdCard className="shrink-0 text-xs text-gray-400" />
 
-                                                <span className="shrink-0">
-                                                    Agent ID:
-                                                </span>
-
-                                                <span className="min-w-0 break-all font-medium text-gray-700">
-                                                    {agent._id}
-                                                </span>
+                                            <span className="shrink-0">
+                                                Agent ID:
                                             </span>
 
-                                            <span className="hidden text-gray-300 sm:inline">
-                                                •
+                                            <span className="min-w-0 break-all font-medium text-gray-700">
+                                                {agent._id}
                                             </span>
+                                        </span>
 
-                                            <span className="inline-flex items-center gap-1.5">
-                                                <FaCalendarAlt className="shrink-0 text-xs text-gray-400" />
+                                        <span className="hidden text-gray-300 sm:inline">
+                                            •
+                                        </span>
 
-                                                <span>
-                                                    Joined{" "}
-                                                    {formatDate(
-                                                        agent.joinedOn
-                                                    )}
-                                                </span>
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <FaCalendarAlt className="shrink-0 text-xs text-gray-400" />
+
+                                            <span>
+                                                Joined{" "}
+                                                {formatDate(
+                                                    agent.joinedOn
+                                                )}
                                             </span>
-                                        </div>
+                                        </span>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* ACTIONS */}
-                                <div
-                                    className="
+                            {/* ACTIONS */}
+                            <div
+                                className="
                                         mt-5
                                         flex
                                         w-full
@@ -362,304 +359,304 @@ export default function AgentDetails() {
                                         lg:w-auto
                                         lg:shrink-0
                                     "
+                            >
+                                <Rb_Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={goToEdit}
+                                    className="!w-full sm:!w-auto"
                                 >
-                                    <Rb_Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={goToEdit}
-                                        className="!w-full sm:!w-auto"
-                                    >
-                                        <span className="inline-flex items-center justify-center gap-2">
-                                            <FaEdit />
-                                            Edit Agent
-                                        </span>
-                                    </Rb_Button>
+                                    <span className="inline-flex items-center justify-center gap-2">
+                                        <FaEdit />
+                                        Edit Agent
+                                    </span>
+                                </Rb_Button>
 
-                                    <Rb_Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() =>
-                                            setShowDeleteModal(true)
-                                        }
-                                        className="
+                                <Rb_Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() =>
+                                        setShowDeleteModal(true)
+                                    }
+                                    className="
                                             !w-full
                                             !border-red-200
                                             !text-red-600
                                             hover:!bg-red-50
                                             sm:!w-auto
                                         "
-                                    >
-                                        <span className="inline-flex items-center justify-center gap-2">
-                                            <FaTrash />
-                                            Delete Agent
-                                        </span>
-                                    </Rb_Button>
-                                </div>
+                                >
+                                    <span className="inline-flex items-center justify-center gap-2">
+                                        <FaTrash />
+                                        Delete Agent
+                                    </span>
+                                </Rb_Button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* =================================================
+                {/* =================================================
                         INFORMATION GRID
                     ================================================= */}
 
-                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
-                        {/* CONTACT */}
-                        <SectionCard
-                            title="Contact Information"
-                            description="Agent communication details."
-                            icon={<FaUser />}
-                            iconClass="bg-blue-500"
-                        >
-                            <div>
-                                <Info
-                                    label="Full Name"
-                                    value={agent.fullName}
-                                    icon={<FaUser />}
-                                />
+                    {/* CONTACT */}
+                    <SectionCard
+                        title="Contact Information"
+                        description="Agent communication details."
+                        icon={<FaUser />}
+                        iconClass="bg-blue-500"
+                    >
+                        <div>
+                            <Info
+                                label="Full Name"
+                                value={agent.fullName}
+                                icon={<FaUser />}
+                            />
 
-                                <Info
-                                    label="Email Address"
-                                    value={agent.email}
-                                    icon={<FaEnvelope />}
-                                />
+                            <Info
+                                label="Email Address"
+                                value={agent.email}
+                                icon={<FaEnvelope />}
+                            />
 
-                                <Info
-                                    label="Phone Number"
-                                    value={agent.phoneNumber}
-                                    icon={<FaPhone />}
-                                />
+                            <Info
+                                label="Phone Number"
+                                value={agent.phoneNumber}
+                                icon={<FaPhone />}
+                            />
 
-                                <Info
-                                    label="Emergency Contact"
-                                    value={agent.emergencyContact}
-                                    icon={<FaPhone />}
-                                />
+                            <Info
+                                label="Emergency Contact"
+                                value={agent.emergencyContact}
+                                icon={<FaPhone />}
+                            />
 
-                                <Info
-                                    label="Address"
-                                    value={agent.address}
-                                    icon={<FaMapMarkerAlt />}
-                                />
-                            </div>
-                        </SectionCard>
+                            <Info
+                                label="Address"
+                                value={agent.address}
+                                icon={<FaMapMarkerAlt />}
+                            />
+                        </div>
+                    </SectionCard>
 
-                        {/* VEHICLE & HUB */}
-                        <SectionCard
-                            title="Vehicle & Hub"
-                            description="Vehicle and assigned hub information."
-                            icon={<FaCar />}
-                            iconClass="bg-purple-500"
-                        >
-                            <div>
-                                <Info
-                                    label="Vehicle Type"
-                                    value={agent.vehicleType}
-                                    icon={<FaCar />}
-                                />
+                    {/* VEHICLE & HUB */}
+                    <SectionCard
+                        title="Vehicle & Hub"
+                        description="Vehicle and assigned hub information."
+                        icon={<FaCar />}
+                        iconClass="bg-purple-500"
+                    >
+                        <div>
+                            <Info
+                                label="Vehicle Type"
+                                value={agent.vehicleType}
+                                icon={<FaCar />}
+                            />
 
-                                <Info
-                                    label="Vehicle Number"
-                                    value={agent.vehicleNumber}
-                                    icon={<FaHashtag />}
-                                />
+                            <Info
+                                label="Vehicle Number"
+                                value={agent.vehicleNumber}
+                                icon={<FaHashtag />}
+                            />
 
-                                <Info
-                                    label="Hub ID"
-                                    value={hubId}
-                                    icon={<FaIdCard />}
-                                />
+                            <Info
+                                label="Hub ID"
+                                value={hubId}
+                                icon={<FaIdCard />}
+                            />
 
-                                <Info
-                                    label="Hub Code"
-                                    value={hubCode}
-                                    icon={<FaHashtag />}
-                                />
+                            <Info
+                                label="Hub Code"
+                                value={hubCode}
+                                icon={<FaHashtag />}
+                            />
 
-                                <Info
-                                    label="Location Type"
-                                    value={
-                                        agent.currentLocation?.type || "-"
-                                    }
-                                    icon={<FaMapMarkerAlt />}
-                                />
-                            </div>
-                        </SectionCard>
+                            <Info
+                                label="Location Type"
+                                value={
+                                    agent.currentLocation?.type || "-"
+                                }
+                                icon={<FaMapMarkerAlt />}
+                            />
+                        </div>
+                    </SectionCard>
 
-                        {/* ACCOUNT */}
-                        <SectionCard
-                            title="Account Status"
-                            description="Current agent account information."
-                            icon={<FaShieldAlt />}
-                            iconClass="bg-emerald-500"
-                        >
-                            <div>
-                                <Info
-                                    label="Status"
-                                    value={agent.status}
-                                    icon={<FaCheckCircle />}
-                                    valueComponent={
-                                        <StatusBadge
-                                            status={agent.status}
-                                        />
-                                    }
-                                />
+                    {/* ACCOUNT */}
+                    <SectionCard
+                        title="Account Status"
+                        description="Current agent account information."
+                        icon={<FaShieldAlt />}
+                        iconClass="bg-emerald-500"
+                    >
+                        <div>
+                            <Info
+                                label="Status"
+                                value={agent.status}
+                                icon={<FaCheckCircle />}
+                                valueComponent={
+                                    <StatusBadge
+                                        status={agent.status}
+                                    />
+                                }
+                            />
 
-                                <Info
-                                    label="Availability"
-                                    value={
-                                        agent.isAvailable
-                                            ? "Available"
-                                            : "Unavailable"
-                                    }
-                                    icon={<FaClock />}
-                                    valueClass={
-                                        agent.isAvailable
-                                            ? "text-green-600"
-                                            : "text-gray-700"
-                                    }
-                                />
+                            <Info
+                                label="Availability"
+                                value={
+                                    agent.isAvailable
+                                        ? "Available"
+                                        : "Unavailable"
+                                }
+                                icon={<FaClock />}
+                                valueClass={
+                                    agent.isAvailable
+                                        ? "text-green-600"
+                                        : "text-gray-700"
+                                }
+                            />
 
-                                <Info
-                                    label="Account"
-                                    value={
-                                        agent.isActive
-                                            ? "Active"
-                                            : "Inactive"
-                                    }
-                                    icon={<FaCheckCircle />}
-                                    valueClass={
-                                        agent.isActive
-                                            ? "text-green-600"
-                                            : "text-gray-700"
-                                    }
-                                />
+                            <Info
+                                label="Account"
+                                value={
+                                    agent.isActive
+                                        ? "Active"
+                                        : "Inactive"
+                                }
+                                icon={<FaCheckCircle />}
+                                valueClass={
+                                    agent.isActive
+                                        ? "text-green-600"
+                                        : "text-gray-700"
+                                }
+                            />
 
-                                <Info
-                                    label="Joined On"
-                                    value={formatDate(agent.joinedOn)}
-                                    icon={<FaCalendarAlt />}
-                                />
+                            <Info
+                                label="Joined On"
+                                value={formatDate(agent.joinedOn)}
+                                icon={<FaCalendarAlt />}
+                            />
 
-                                <Info
-                                    label="Agent ID"
-                                    value={agent._id}
-                                    icon={<FaIdCard />}
-                                />
-                            </div>
-                        </SectionCard>
-                    </div>
+                            <Info
+                                label="Agent ID"
+                                value={agent._id}
+                                icon={<FaIdCard />}
+                            />
+                        </div>
+                    </SectionCard>
+                </div>
 
-                    {/* =================================================
+                {/* =================================================
                         CURRENT LOCATION
                     ================================================= */}
 
-                    <div className="mt-6">
-                        <SectionCard
-                            title="Current Location"
-                            description="Latest location information for the agent."
-                            icon={<FaMapMarkerAlt />}
-                            iconClass="bg-orange-500"
-                        >
-                            <div className="grid grid-cols-1 md:grid-cols-3">
-                                <Info
-                                    label="Location Type"
-                                    value={
-                                        agent.currentLocation?.type || "-"
-                                    }
-                                    icon={<FaMapMarkerAlt />}
-                                />
+                <div className="mt-6">
+                    <SectionCard
+                        title="Current Location"
+                        description="Latest location information for the agent."
+                        icon={<FaMapMarkerAlt />}
+                        iconClass="bg-orange-500"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-3">
+                            <Info
+                                label="Location Type"
+                                value={
+                                    agent.currentLocation?.type || "-"
+                                }
+                                icon={<FaMapMarkerAlt />}
+                            />
 
-                                <Info
-                                    label="Coordinates"
-                                    value={
-                                        agent.currentLocation?.coordinates
-                                            ? agent.currentLocation.coordinates.join(
-                                                ", "
-                                            )
-                                            : "-"
-                                    }
-                                    icon={<FaLocationArrow />}
-                                />
+                            <Info
+                                label="Coordinates"
+                                value={
+                                    agent.currentLocation?.coordinates
+                                        ? agent.currentLocation.coordinates.join(
+                                            ", "
+                                        )
+                                        : "-"
+                                }
+                                icon={<FaLocationArrow />}
+                            />
 
-                                <Info
-                                    label="Location Updated At"
-                                    value={formatDate(
-                                        agent.currentLocation?.updatedAt
-                                    )}
-                                    icon={<FaCalendarAlt />}
-                                />
-                            </div>
-                        </SectionCard>
-                    </div>
+                            <Info
+                                label="Location Updated At"
+                                value={formatDate(
+                                    agent.currentLocation?.updatedAt
+                                )}
+                                icon={<FaCalendarAlt />}
+                            />
+                        </div>
+                    </SectionCard>
+                </div>
 
-                    {/* =================================================
+                {/* =================================================
                         SYSTEM INFORMATION
                     ================================================= */}
 
-                    <div className="mt-6">
-                        <SectionCard
-                            title="System Information"
-                            description="Agent record timestamps."
-                            icon={<FaCalendarAlt />}
-                            iconClass="bg-blue-500"
-                        >
-                            <div className="grid grid-cols-1 md:grid-cols-2">
-                                <Info
-                                    label="Created At"
-                                    value={formatDate(agent.createdAt)}
-                                    icon={<FaCalendarAlt />}
-                                />
+                <div className="mt-6">
+                    <SectionCard
+                        title="System Information"
+                        description="Agent record timestamps."
+                        icon={<FaCalendarAlt />}
+                        iconClass="bg-blue-500"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2">
+                            <Info
+                                label="Created At"
+                                value={formatDate(agent.createdAt)}
+                                icon={<FaCalendarAlt />}
+                            />
 
-                                <Info
-                                    label="Last Updated"
-                                    value={formatDate(agent.updatedAt)}
-                                    icon={<FaClock />}
-                                />
-                            </div>
-                        </SectionCard>
-                    </div>
+                            <Info
+                                label="Last Updated"
+                                value={formatDate(agent.updatedAt)}
+                                icon={<FaClock />}
+                            />
+                        </div>
+                    </SectionCard>
+                </div>
 
-                    {/* =================================================
+                {/* =================================================
                         NOTES
                     ================================================= */}
 
-                    {agent.notes && (
-                        <div className="mt-6">
-                            <SectionCard
-                                title="Notes"
-                                description="Additional information about this agent."
-                                icon={<FaStickyNote />}
-                                iconClass="bg-amber-500"
-                            >
-                                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                                    <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
-                                        {agent.notes}
-                                    </p>
-                                </div>
-                            </SectionCard>
-                        </div>
-                    )}
+                {agent.notes && (
+                    <div className="mt-6">
+                        <SectionCard
+                            title="Notes"
+                            description="Additional information about this agent."
+                            icon={<FaStickyNote />}
+                            iconClass="bg-amber-500"
+                        >
+                            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
+                                    {agent.notes}
+                                </p>
+                            </div>
+                        </SectionCard>
+                    </div>
+                )}
 
-                    {/* =================================================
+                {/* =================================================
                         PHOTO
                     ================================================= */}
 
-                    {photo && (
-                        <div className="mt-6">
-                            <SectionCard
-                                title="Agent Photo"
-                                description="Profile photo of the delivery agent."
-                                icon={<FaCamera />}
-                                iconClass="bg-gray-800"
-                            >
-                                <div className="flex justify-center">
-                                    <div className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 p-2 shadow-sm">
-                                        <Rb_Image
-                                            src={photo}
-                                            alt={fullName || "Agent"}
-                                            className="
+                {photo && (
+                    <div className="mt-6">
+                        <SectionCard
+                            title="Agent Photo"
+                            description="Profile photo of the delivery agent."
+                            icon={<FaCamera />}
+                            iconClass="bg-gray-800"
+                        >
+                            <div className="flex justify-center">
+                                <div className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 p-2 shadow-sm">
+                                    <Rb_Image
+                                        src={photo}
+                                        alt={fullName || "Agent"}
+                                        className="
                                                 !h-56
                                                 !w-56
                                                 !rounded-2xl
@@ -667,13 +664,12 @@ export default function AgentDetails() {
                                                 sm:!h-72
                                                 sm:!w-72
                                             "
-                                        />
-                                    </div>
+                                    />
                                 </div>
-                            </SectionCard>
-                        </div>
-                    )}
-                </div>
+                            </div>
+                        </SectionCard>
+                    </div>
+                )}
             </div>
 
             {/* =========================================================

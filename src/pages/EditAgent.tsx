@@ -87,31 +87,29 @@ export default function EditAgent() {
 
     if (isError || !agent) {
         return (
-            <div className="min-h-screen bg-gray-50 p-6">
-                <div className="mx-auto max-w-[1400px]">
-                    <div className="rounded-2xl border border-red-100 bg-white p-8 shadow-sm">
+            <div className="min-h-screen mx-auto w-full bg-gray-50 p-6">
+                <div className="rounded-2xl border border-red-100 bg-white p-8 shadow-sm">
 
-                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-xl text-red-500">
-                            <FaExclamationCircle />
-                        </div>
-
-                        <h2 className="text-lg font-semibold text-gray-900">
-                            Unable to load agent
-                        </h2>
-
-                        <p className="mt-1 text-sm text-gray-500">
-                            We couldn't load the agent details.
-                            Please try again.
-                        </p>
-
-                        <Rb_Button
-                            type="button"
-                            className="mt-5"
-                            onClick={goBack}
-                        >
-                            Back to Agents
-                        </Rb_Button>
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-xl text-red-500">
+                        <FaExclamationCircle />
                     </div>
+
+                    <h2 className="text-lg font-semibold text-gray-900">
+                        Unable to load agent
+                    </h2>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        We couldn't load the agent details.
+                        Please try again.
+                    </p>
+
+                    <Rb_Button
+                        type="button"
+                        className="mt-5"
+                        onClick={goBack}
+                    >
+                        Back to Agents
+                    </Rb_Button>
                 </div>
             </div>
         );

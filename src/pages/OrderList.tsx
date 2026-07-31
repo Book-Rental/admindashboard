@@ -75,7 +75,7 @@ export default function OrderList() {
     };
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+        <div className="p-4 w-full sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h1 className="text-2xl sm:text-3xl font-semibold">Order Lists</h1>
             </div>
