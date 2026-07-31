@@ -8,6 +8,7 @@ import {
 const API_BASE_URL =
     "https://be-logistics-service.onrender.com/api/agent";
 
+
 export const getAgents = async (): Promise<Agent[]> => {
     const response = await fetch(API_BASE_URL);
 
@@ -24,9 +25,7 @@ export const getAgents = async (): Promise<Agent[]> => {
 export const getAgentById = async (
     id: string
 ): Promise<AgentDetails> => {
-    const response = await fetch(
-        `${API_BASE_URL}/${id}`
-    );
+    const response = await fetch(`${API_BASE_URL}/${id}`);
 
     if (!response.ok) {
         throw new Error("Failed to fetch agent");
@@ -34,10 +33,7 @@ export const getAgentById = async (
 
     const result = await response.json();
 
-
-    return result.agent ??
-        result.data ??
-        result;
+    return result.agent ?? result.data ?? result;
 };
 
 
@@ -60,27 +56,17 @@ export const createAgent = async (
     );
     formData.append("notes", data.notes.trim());
 
-    formData.append(
-        "status",
-        data.isActive ? "Active" : "Inactive"
-    );
-
-    formData.append("isAvailable", "true");
     formData.append("isActive", String(data.isActive));
 
-    // IMPORTANT
-    // Backend multer expects: profilePic
+    // Backend multer expects "photo"
     if (data.photo instanceof File) {
-        formData.append("profilePic", data.photo);
+        formData.append("photo", data.photo);
     }
 
-    const response = await fetch(
-        `${API_BASE_URL}/create`,
-        {
-            method: "POST",
-            body: formData,
-        }
-    );
+    const response = await fetch(`${API_BASE_URL}/create`, {
+        method: "POST",
+        body: formData,
+    });
 
     if (!response.ok) {
         const error = await response.json().catch(() => null);
@@ -92,46 +78,101 @@ export const createAgent = async (
 
     const result = await response.json();
 
-    return (
-        result.agent ??
-        result.data ??
-        result
-    );
+    return result.agent ?? result.data ?? result;
 };
-
-
 
 export const updateAgent = async (
     id: string,
     data: UpdateAgentData
 ): Promise<AgentDetails> => {
-    const payload: Record<string, unknown> = {
-        fullName: data.fullName?.trim() ?? "",
-        email: data.email?.trim() ?? "",
-        phoneNumber: data.phoneNumber?.trim() ?? "",
-        vehicleType: data.vehicleType ?? "",
-        vehicleNumber: data.vehicleNumber?.trim() ?? "",
-        address: data.address?.trim() ?? "",
-        emergencyContact: data.emergencyContact?.trim() ?? "",
-        notes: data.notes?.trim() ?? "",
-        status: data.isActive ? "Active" : "Inactive",
-        isActive: data.isActive ?? false,
-    };
+    const formData = new FormData();
 
-    // Photo upload will be implemented later with Cloudinary.
-    // Do NOT send File as JSON.
-    if (typeof data.photo === "string") {
-        payload.photo = data.photo;
+    if (data.fullName !== undefined) {
+        formData.append("fullName", data.fullName.trim());
+    }
+
+    if (data.email !== undefined) {
+        formData.append("email", data.email.trim());
+    }
+
+    if (data.phoneNumber !== undefined) {
+        formData.append(
+            "phoneNumber",
+            data.phoneNumber.trim()
+        );
+    }
+
+    if (data.vehicleType !== undefined) {
+        formData.append(
+            "vehicleType",
+            data.vehicleType
+        );
+    }
+
+    if (data.vehicleNumber !== undefined) {
+        formData.append(
+            "vehicleNumber",
+            data.vehicleNumber.trim()
+        );
+    }
+
+    if (data.address !== undefined) {
+        formData.append(
+            "address",
+            data.address.trim()
+        );
+    }
+
+    if (data.emergencyContact !== undefined) {
+        formData.append(
+            "emergencyContact",
+            data.emergencyContact.trim()
+        );
+    }
+
+    if (data.notes !== undefined) {
+        formData.append(
+            "notes",
+            data.notes.trim()
+        );
+    }
+
+    // IMPORTANT:
+    // Send boolean as string because this is multipart/form-data
+    if (data.isActive !== undefined) {
+        formData.append(
+            "isActive",
+            String(data.isActive)
+        );
+    }
+
+    if (data.status !== undefined) {
+        formData.append(
+            "status",
+            data.status
+        );
+    }
+
+    if (data.hubId !== undefined) {
+        formData.append(
+            "hubId",
+            data.hubId
+        );
+    }
+
+    // New profile image
+    if (data.photo instanceof File) {
+        formData.append(
+            "photo",
+            data.photo
+        );
     }
 
     const response = await fetch(
         `${API_BASE_URL}/${id}`,
         {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
+            body: formData,
         }
     );
 
@@ -145,15 +186,10 @@ export const updateAgent = async (
 
     const result = await response.json();
 
-    return (
-        result.agent ??
-        result.data ??
-        result
-    );
+    return result.agent ?? result.data ?? result;
 };
-/**
- * DELETE AGENT
- */
+
+
 export const deleteAgent = async (
     id: string,
     updatedBy: string
@@ -168,15 +204,13 @@ export const deleteAgent = async (
             body: JSON.stringify({
                 updatedBy,
             }),
-        },
-
+        }
     );
 
     if (!response.ok) {
-        const error =
-            await response.json().catch(
-                () => null
-            );
+        const error = await response
+            .json()
+            .catch(() => null);
 
         throw new Error(
             error?.message ||

@@ -5,8 +5,9 @@ export type VehicleType =
 
 export type AgentStatus =
     | "Active"
-    | "On Delivery"
-    | "Inactive";
+    | "OnDelivery"
+    | "Inactive"
+    | "Off Duty";
 
 export interface CurrentLocation {
     type: "Point";
@@ -14,7 +15,6 @@ export interface CurrentLocation {
     updatedAt: string | null;
 }
 
-/* GET ALL AGENTS */
 export interface Agent {
     agentId: string;
     hubId: string;
@@ -27,7 +27,6 @@ export interface Agent {
     joinedAt: string;
 }
 
-/* GET AGENT BY ID */
 export interface AgentDetails {
     _id: string;
 
@@ -45,7 +44,9 @@ export interface AgentDetails {
     address: string;
     emergencyContact: string;
     notes: string;
+
     photo: string | null;
+
     currentShipmentId: string | null;
 
     isAvailable: boolean;
@@ -54,6 +55,7 @@ export interface AgentDetails {
     currentLocation: CurrentLocation;
 
     status: AgentStatus;
+
     createdBy: string;
 
     joinedOn: string;
@@ -61,7 +63,6 @@ export interface AgentDetails {
     updatedAt: string;
 }
 
-/* FORM */
 export interface AgentFormData {
     hubId: string;
 
@@ -79,20 +80,28 @@ export interface AgentFormData {
     notes: string;
 
     photo: File | string | null;
+
     isActive: boolean;
 }
+
 export interface UpdateAgentData {
     fullName?: string;
     email?: string;
     phoneNumber?: string;
+
     vehicleType?: VehicleType | "";
+
     vehicleNumber?: string;
     address?: string;
     emergencyContact?: string;
     notes?: string;
+
     photo?: File | string | null;
+
     status?: AgentStatus;
     hubId?: string;
+
     isActive?: boolean;
+
     updatedBy?: string;
 }
