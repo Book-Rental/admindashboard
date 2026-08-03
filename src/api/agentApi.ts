@@ -1,26 +1,26 @@
+import axios from "axios";
 import {
     Agent,
     AgentDetails,
     AgentFormData,
+    AgentResponse,
     UpdateAgentData,
 } from "../types/agent";
 
 const API_BASE_URL =
     "https://be-logistics-service.onrender.com/api/agent";
 
+export const getAgents = async (
+  hubId: string,
+  page = 1,
+  limit = 10
+): Promise<AgentResponse> => {
+  const { data } = await axios.get<AgentResponse>(
+    `${API_BASE_URL}/hub/${hubId}?page=${page}&limit=${limit}`
+  );
 
-export const getAgents = async (): Promise<Agent[]> => {
-    const response = await fetch(API_BASE_URL);
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch agents");
-    }
-
-    const result = await response.json();
-
-    return result.agents ?? [];
+  return data;
 };
-
 
 export const getAgentById = async (
     id: string

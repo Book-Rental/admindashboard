@@ -18,7 +18,10 @@ import { AgentFormData } from "../types/agent";
 
 export default function EditAgent() {
     const agentId = window.location.pathname.split("/")[2];
+    console.log("Agent ID:", agentId);
+const params = new URLSearchParams(window.location.search);
 
+const hubId = params.get("hubId") || "";
     const {
         data: agent,
         isLoading,
@@ -41,7 +44,9 @@ export default function EditAgent() {
     };
 
     const handleSubmit = (data: AgentFormData) => {
+            console.log("Submitting Update:", data);
         const updateData = {
+             hubId: data.hubId, 
             fullName: data.fullName,
             email: data.email,
             phoneNumber: data.phoneNumber,
@@ -118,6 +123,7 @@ export default function EditAgent() {
     return (
         <>
             <AgentForm
+              hubId={hubId}
                 initialData={agent}
                 onSubmit={handleSubmit}
                 onCancel={goBack}

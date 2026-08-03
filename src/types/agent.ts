@@ -1,7 +1,7 @@
 export type VehicleType =
-    | "Bike"
-    | "Scooter"
-    | "Car";
+  | "Bike"
+  | "Scooter"
+  | "Car";
 
 export type AgentStatus =
     | "Active"
@@ -10,98 +10,147 @@ export type AgentStatus =
     | "Off Duty";
 
 export interface CurrentLocation {
-    type: "Point";
-    coordinates: [number, number];
-    updatedAt: string | null;
+  type: "Point";
+  coordinates: [number, number];
+  updatedAt: string | null;
 }
+
+/* ===========================
+   GET AGENTS BY HUB
+=========================== */
 
 export interface Agent {
-    agentId: string;
-    hubId: string;
-    name: string;
-    email: string;
-    phone: string;
-    agentStatus: AgentStatus;
-    vehicleType: VehicleType;
-    currentLocation: CurrentLocation;
-    joinedAt: string;
+  agentId: string;
+
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+
+  status: AgentStatus;
+
+  isAvailable: boolean;
+
+  vehicle: {
+    type: VehicleType;
+    number: string;
+  };
+
+  currentLocation: CurrentLocation;
+
+  currentShipmentId: string | null;
+
+  photo: string;
+
+  joinedOn: string;
 }
+
+export interface AgentMeta {
+  totalRecords: number;
+  totalPages: number;
+  currentPage: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export interface AgentResponse {
+  status: string;
+  message: string;
+  data: {
+    agents: Agent[];
+    meta: AgentMeta;
+  };
+}
+
+/* ===========================
+   GET AGENT BY ID
+=========================== */
 
 export interface AgentDetails {
-    _id: string;
+  _id: string;
 
-    hubId: {
+  hubId:
+    | {
         _id: string;
         hubCode: string;
-    } | string;
+      }
+    | string;
 
-    fullName: string;
-    email: string;
-    phoneNumber: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
 
-    vehicleType: VehicleType;
-    vehicleNumber: string;
-    address: string;
-    emergencyContact: string;
-    notes: string;
+  vehicleType: VehicleType;
+  vehicleNumber: string;
 
-    photo: string | null;
+  address: string;
+  emergencyContact: string;
+  notes: string;
 
-    currentShipmentId: string | null;
+  photo: string | null;
 
-    isAvailable: boolean;
-    isActive: boolean;
+  currentShipmentId: string | null;
 
-    currentLocation: CurrentLocation;
+  isAvailable: boolean;
+  isActive: boolean;
 
-    status: AgentStatus;
+  currentLocation: CurrentLocation;
 
-    createdBy: string;
+  status: AgentStatus;
 
-    joinedOn: string;
-    createdAt: string;
-    updatedAt: string;
+  createdBy: string;
+
+  joinedOn: string;
+  createdAt: string;
+  updatedAt: string;
 }
+
+/* ===========================
+   CREATE AGENT
+=========================== */
 
 export interface AgentFormData {
-    hubId: string;
+  hubId: string;
 
-    fullName: string;
-    email: string;
-    phoneNumber: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
 
-    password: string;
+  vehicleType: VehicleType | "";
+  vehicleNumber: string;
 
-    vehicleType: VehicleType | "";
+  address: string;
+  emergencyContact: string;
+  notes: string;
 
-    vehicleNumber: string;
-    address: string;
-    emergencyContact: string;
-    notes: string;
+  photo: File | string | null;
 
-    photo: File | string | null;
-
-    isActive: boolean;
+  isActive: boolean;
 }
 
+/* ===========================
+   UPDATE AGENT
+=========================== */
+
 export interface UpdateAgentData {
-    fullName?: string;
-    email?: string;
-    phoneNumber?: string;
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
 
-    vehicleType?: VehicleType | "";
+  vehicleType?: VehicleType | "";
+  vehicleNumber?: string;
 
-    vehicleNumber?: string;
-    address?: string;
-    emergencyContact?: string;
-    notes?: string;
+  address?: string;
+  emergencyContact?: string;
+  notes?: string;
 
-    photo?: File | string | null;
+  photo?: File | string | null;
 
-    status?: AgentStatus;
-    hubId?: string;
+  status?: AgentStatus;
 
-    isActive?: boolean;
+  hubId?: string;
 
-    updatedBy?: string;
+  isActive?: boolean;
+
+  updatedBy?: string;
 }

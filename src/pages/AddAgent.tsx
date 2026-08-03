@@ -4,7 +4,9 @@ import { AgentFormData } from "../types/agent";
 
 export default function AddAgent() {
     const createAgentMutation = useCreateAgent();
+    const params = new URLSearchParams(window.location.search);
 
+    const hubId = params.get("hubId") || "";
     const goBack = () => {
         window.history.pushState({}, "", "/agents");
         window.dispatchEvent(new PopStateEvent("popstate"));
@@ -18,6 +20,7 @@ export default function AddAgent() {
 
     return (
         <AgentForm
+            hubId={hubId}
             onSubmit={handleSubmit}
             onCancel={goBack}
             isLoading={createAgentMutation.isPending}

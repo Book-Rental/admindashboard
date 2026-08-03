@@ -21,13 +21,18 @@ import {
 
 export const AGENTS_QUERY_KEY = ["agents"];
 
-export function useAgents() {
-    return useQuery<Agent[]>({
-        queryKey: AGENTS_QUERY_KEY,
-        queryFn: getAgents,
-    });
-}
 
+export const useAgents = (
+  hubId: string,
+  page = 1,
+  limit = 10
+) => {
+  return useQuery({
+    queryKey: ["agents", hubId, page, limit],
+    queryFn: () => getAgents(hubId, page, limit),
+    enabled: !!hubId,
+  });
+};
 
 export function useAgent(agentId: string) {
     return useQuery<AgentDetails>({

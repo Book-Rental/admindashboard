@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import {
   QueryClient,
   QueryClientProvider,
@@ -7,12 +6,12 @@ import {
 
 import "@rentbook/rentbook-ui-lib/microfrontend.min.css";
 
+import Sidebar from "./components/sidebar";
+
 import OrderList from "./pages/OrderList";
-import AgentList from "./pages/AgentList";
+import DeliveryAgentList from "./pages/DeliveryAgentList";
 import AddAgent from "./pages/AddAgent";
 import EditAgent from "./pages/EditAgent";
-
-import Sidebar from "./components/sidebar";
 import AgentDetails from "./pages/AgentDetails";
 
 const client = new QueryClient();
@@ -24,11 +23,6 @@ function Router() {
 
   useEffect(() => {
     const onPopState = () => {
-      console.log(
-        "PopState path:",
-        window.location.pathname
-      );
-
       setPath(window.location.pathname);
     };
 
@@ -49,38 +43,40 @@ function Router() {
   const currentPath =
     path.replace(/\/+$/, "") || "/";
 
-  console.log("Router currentPath:", currentPath);
-
-  if (currentPath === "/agents") {
-    return <AgentList />;
+  // Home
+  if (currentPath === "/") {
+    return <DeliveryAgentList />;
   }
 
+  // Agent List
+  if (currentPath === "/agents") {
+    return <DeliveryAgentList />;
+  }
+
+  // Add Agent
   if (currentPath === "/agents/new") {
     return <AddAgent />;
   }
+
+  // Edit Agent
   if (
     /^\/agents\/[^/]+\/edit$/.test(
       currentPath
     )
   ) {
-    console.log(
-      "Matched EditAgent route"
-    );
-
     return <EditAgent />;
   }
+
+  // Agent Details
   if (
     /^\/agents\/[^/]+$/.test(
       currentPath
     )
   ) {
-    console.log(
-      "Matched AgentDetails route"
-    );
-
     return <AgentDetails />;
   }
 
+  // Orders
   if (
     currentPath === "/orders" ||
     currentPath.startsWith("/orders/")
@@ -88,25 +84,18 @@ function Router() {
     return <OrderList />;
   }
 
-
-
-  console.log(
-    "No route matched:",
-    currentPath
-  );
-
-  return <OrderList />;
+  return <DeliveryAgentList />;
 }
 
 function App() {
   return (
     <QueryClientProvider client={client}>
-      <div className="flex flex-col md:flex-row">
+      <div className="bg-[#F5F7FB] h-screen overflow-hidden">
         <Sidebar />
 
-        <div className="flex-1 min-w-0 pt-16 md:pt-0">
+        <main className="md:ml-64 h-screen overflow-y-auto">
           <Router />
-        </div>
+        </main>
       </div>
     </QueryClientProvider>
   );

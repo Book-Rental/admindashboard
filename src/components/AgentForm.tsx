@@ -27,6 +27,7 @@ import {
 } from "../types/agent";
 
 interface Props {
+       hubId: string;
     initialData?: AgentDetails;
     isLoading?: boolean;
     onSubmit: (data: AgentFormData) => void;
@@ -36,10 +37,9 @@ interface Props {
     submitText?: string;
 }
 
-const HUB_ID = "6a6aeb9b18b80d35a476f97d";
-
+// const HUB_ID = "6a6aeb9b18b80d35a476f97d";
 const emptyForm: AgentFormData = {
-    hubId: HUB_ID,
+    hubId:"",
     fullName: "",
     email: "",
     phoneNumber: "",
@@ -63,14 +63,15 @@ const controlClass =
     "!h-11 !w-full !rounded-lg !border !border-gray-300 !bg-white !px-3.5 !text-sm !text-gray-900 !shadow-sm !outline-none !transition-colors placeholder:!text-gray-400 hover:!border-gray-400 focus:!border-gray-300 focus:!shadow-sm disabled:!border-gray-200 disabled:!bg-gray-50 disabled:!text-gray-400";
 
 export default function AgentForm({
+    hubId,
     initialData,
     isLoading = false,
     onSubmit,
     onCancel,
     title = initialData ? "Edit Agent" : "Add New Agent",
     description = initialData
-        ? "Update the agent's information and save the latest details."
-        : "Create a delivery agent profile and assign their vehicle details.",
+        ? "Update the agent's information."
+        : "Create a delivery agent profile.",
     submitText = initialData ? "Save Changes" : "Create Agent",
 }: Props) {
     const {
@@ -94,17 +95,22 @@ export default function AgentForm({
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
-        if (!initialData) {
-            reset(emptyForm);
-            setPhotoFile(null);
-            setDisplayPhoto(null);
-            return;
-        }
+      if (!initialData) {
+    reset({
+        ...emptyForm,
+        hubId,
+    });
 
-        const hubId =
-            typeof initialData.hubId === "string"
-                ? initialData.hubId
-                : initialData.hubId?._id || HUB_ID;
+    setPhotoFile(null);
+    setDisplayPhoto(null);
+    return;
+}
+        
+
+  const selectedHubId =
+    typeof initialData.hubId === "string"
+        ? initialData.hubId
+        : initialData.hubId?._id || hubId;
 
         const existingPhoto =
             typeof initialData.photo === "string"
@@ -112,7 +118,7 @@ export default function AgentForm({
                 : null;
 
         reset({
-            hubId,
+            hubId:selectedHubId,
             fullName: initialData.fullName || "",
             email: initialData.email || "",
             phoneNumber: initialData.phoneNumber || "",
@@ -128,7 +134,7 @@ export default function AgentForm({
 
         setPhotoFile(null);
         setDisplayPhoto(existingPhoto);
-    }, [initialData, reset]);
+    }, [initialData, hubId, reset]);
 
     const fullName = watch("fullName");
 
