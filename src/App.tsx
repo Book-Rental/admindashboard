@@ -3,6 +3,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+
 import "@rentbook/rentbook-ui-lib/microfrontend.min.css";
 import './index.css'
 
@@ -12,6 +13,8 @@ import DeliveryAgentList from "./pages/DeliveryAgentList";
 import AddAgent from "./pages/AddAgent";
 import EditAgent from "./pages/EditAgent";
 import AgentDetails from "./pages/AgentDetails";
+import ShipmentList from "./pages/ShipmentList";
+import ShipmentDetails from "./pages/ShipmentDetails";
 
 const client = new QueryClient();
 
@@ -41,7 +44,7 @@ function Router() {
   // Remove trailing slash
   const currentPath =
     path.replace(/\/+$/, "") || "/";
-
+ console.log("Current Path:", currentPath);
   // Home
   if (currentPath === "/") {
     return <DeliveryAgentList />;
@@ -75,7 +78,17 @@ function Router() {
     return <AgentDetails />;
   }
 
+  // Orders
+ // Shipment Details
+if (/^\/orders\/[^/]+$/.test(currentPath)) {
+  
+  return <ShipmentDetails />;
+}
 
+// Shipment List
+if (currentPath === "/orders") {
+  return <ShipmentList />;
+}
 
   return <DeliveryAgentList />;
 }

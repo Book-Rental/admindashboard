@@ -6,6 +6,7 @@ import {
   FaTimes,
   FaHome,
   FaPlus,
+  FaClipboardList,
 } from "react-icons/fa";
 
 interface NavItem {
@@ -30,6 +31,8 @@ const NAV_ITEMS: NavItem[] = [
     path: "/agents/new",
     icon: FaPlus,
   },
+   { label: "Orders", path: "/orders", icon: FaClipboardList },
+
 ];
 function navigate(path: string) {
   if (window.location.pathname === path) {
