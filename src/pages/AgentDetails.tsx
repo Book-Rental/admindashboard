@@ -28,14 +28,14 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
+    Rb_BreadCrumb,
 } from "@rentbook/rentbook-ui-lib";
 
 import {
     useAgent,
     useDeleteAgent,
 } from "../hooks/useAgents";
-
-
+import { showToast } from "../utils/showToaster";
 
 const getInitials = (name: string = "") => {
     const trimmedName = name.trim();
@@ -80,6 +80,8 @@ export default function AgentDetails() {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+
+
     const {
         data: agent,
         isLoading,
@@ -111,12 +113,42 @@ export default function AgentDetails() {
 
 
     const handleDelete = () => {
-        deleteMutation.mutate({ id: agentId, updatedBy: "6a6aeb9b18b80d35a476f97d" }, {
-            onSuccess: () => {
-                setShowDeleteModal(false);
-                goBack();
+        const updatedBy =
+            typeof agent?.hubId === "string"
+                ? agent.hubId
+                : agent?.hubId?._id || "";
+
+        deleteMutation.mutate(
+            {
+                id: agentId,
+                updatedBy,
             },
-        });
+            {
+                onSuccess: () => {
+                    setShowDeleteModal(false);
+                    showToast("Agent deleted successfully", "success");
+                    goBack();
+                },
+
+                onError: (error: unknown) => {
+                    const axiosError = error as {
+                        response?: {
+                            data?: {
+                                message?: string;
+                            };
+                        };
+                    };
+
+                    const message =
+                        axiosError.response?.data?.message ||
+                        (error instanceof Error
+                            ? error.message
+                            : "Failed to delete agent");
+
+                    showToast(message, "error");
+                },
+            }
+        );
     };
 
 
@@ -178,29 +210,28 @@ export default function AgentDetails() {
         <>
             <div className="min-h-screen w-full mx-auto bg-gray-50 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
 
+                <div className="mb-8 sm:mb-10">
+                    <Rb_BreadCrumb
+                        items={[
+                            {
+                                label: "Delivery Agents",
+                                path: "/agents",
+                            },
+                            {
+                                label: agent.fullName || "Agent Details",
+                            },
+                        ]}
+                        onNavigate={(path) => {
+                            window.history.pushState({}, "", path);
 
-
-                <div className="mb-6 sm:mb-8">
-                    <Rb_Button
-                        type="button"
-                        onClick={goBack}
-                        className="!mb-4 !inline-flex !items-center !gap-1.5 !rounded-lg !border-0 !bg-transparent !p-0 !text-sm !font-medium !text-gray-500 !shadow-none !transition-colors hover:!text-gray-900"
-                    >
-                        <FaArrowLeft aria-hidden="true" />
-
-                        <span className="truncate">
-                            Delivery Agents / Agent Details
-                        </span>
-                    </Rb_Button>
+                            window.dispatchEvent(
+                                new PopStateEvent("popstate")
+                            );
+                        }}
+                    />
                 </div>
 
-                {/* =================================================
-                        HERO
-                    ================================================= */}
-
                 <div className="mb-6 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-
-                    {/* Background */}
                     <div className="h-24 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 sm:h-28" />
 
                     <div className="px-5 pb-5 sm:px-7 sm:pb-6">
@@ -345,7 +376,6 @@ export default function AgentDetails() {
                                 </div>
                             </div>
 
-                            {/* ACTIONS */}
                             <div
                                 className="
                                         mt-5
@@ -396,18 +426,14 @@ export default function AgentDetails() {
                     </div>
                 </div>
 
-                {/* =================================================
-                        INFORMATION GRID
-                    ================================================= */}
 
                 <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
-                    {/* CONTACT */}
                     <SectionCard
                         title="Contact Information"
                         description="Agent communication details."
                         icon={<FaUser />}
-                        iconClass="bg-blue-500"
+                        iconClass="bg-blue-100 text-blue-600"
                     >
                         <div>
                             <Info
@@ -442,12 +468,11 @@ export default function AgentDetails() {
                         </div>
                     </SectionCard>
 
-                    {/* VEHICLE & HUB */}
                     <SectionCard
                         title="Vehicle & Hub"
                         description="Vehicle and assigned hub information."
                         icon={<FaCar />}
-                        iconClass="bg-purple-500"
+                        iconClass="bg-blue-100 text-blue-600"
                     >
                         <div>
                             <Info
@@ -489,7 +514,7 @@ export default function AgentDetails() {
                         title="Account Status"
                         description="Current agent account information."
                         icon={<FaShieldAlt />}
-                        iconClass="bg-emerald-500"
+                        iconClass="bg-blue-100 text-blue-600"
                     >
                         <div>
                             <Info
@@ -548,23 +573,18 @@ export default function AgentDetails() {
                     </SectionCard>
                 </div>
 
-                {/* =================================================
-                        CURRENT LOCATION
-                    ================================================= */}
 
                 <div className="mt-6">
                     <SectionCard
                         title="Current Location"
                         description="Latest location information for the agent."
                         icon={<FaMapMarkerAlt />}
-                        iconClass="bg-orange-500"
+                        iconClass="bg-blue-100 text-blue-600"
                     >
-                        <div className="grid grid-cols-1 md:grid-cols-3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-x-6">
                             <Info
                                 label="Location Type"
-                                value={
-                                    agent.currentLocation?.type || "-"
-                                }
+                                value={agent.currentLocation?.type || "-"}
                                 icon={<FaMapMarkerAlt />}
                             />
 
@@ -572,9 +592,7 @@ export default function AgentDetails() {
                                 label="Coordinates"
                                 value={
                                     agent.currentLocation?.coordinates
-                                        ? agent.currentLocation.coordinates.join(
-                                            ", "
-                                        )
+                                        ? agent.currentLocation.coordinates.join(", ")
                                         : "-"
                                 }
                                 icon={<FaLocationArrow />}
@@ -582,27 +600,22 @@ export default function AgentDetails() {
 
                             <Info
                                 label="Location Updated At"
-                                value={formatDate(
-                                    agent.currentLocation?.updatedAt
-                                )}
+                                value={formatDate(agent.currentLocation?.updatedAt)}
                                 icon={<FaCalendarAlt />}
                             />
                         </div>
                     </SectionCard>
                 </div>
 
-                {/* =================================================
-                        SYSTEM INFORMATION
-                    ================================================= */}
-
+                {/* SYSTEM INFORMATION */}
                 <div className="mt-6">
                     <SectionCard
                         title="System Information"
                         description="Agent record timestamps."
                         icon={<FaCalendarAlt />}
-                        iconClass="bg-blue-500"
+                        iconClass="bg-blue-100 text-blue-600"
                     >
-                        <div className="grid grid-cols-1 md:grid-cols-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-6">
                             <Info
                                 label="Created At"
                                 value={formatDate(agent.createdAt)}
@@ -618,9 +631,6 @@ export default function AgentDetails() {
                     </SectionCard>
                 </div>
 
-                {/* =================================================
-                        NOTES
-                    ================================================= */}
 
                 {agent.notes && (
                     <div className="mt-6">
@@ -628,7 +638,7 @@ export default function AgentDetails() {
                             title="Notes"
                             description="Additional information about this agent."
                             icon={<FaStickyNote />}
-                            iconClass="bg-amber-500"
+                            iconClass="bg-blue-100 text-blue-600"
                         >
                             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                                 <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
@@ -639,9 +649,6 @@ export default function AgentDetails() {
                     </div>
                 )}
 
-                {/* =================================================
-                        PHOTO
-                    ================================================= */}
 
                 {photo && (
                     <div className="mt-6">
@@ -649,7 +656,7 @@ export default function AgentDetails() {
                             title="Agent Photo"
                             description="Profile photo of the delivery agent."
                             icon={<FaCamera />}
-                            iconClass="bg-gray-800"
+                            iconClass="bg-blue-100 text-blue-600"
                         >
                             <div className="flex justify-center">
                                 <div className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 p-2 shadow-sm">
@@ -670,11 +677,8 @@ export default function AgentDetails() {
                         </SectionCard>
                     </div>
                 )}
-            </div>
+            </div >
 
-            {/* =========================================================
-                DELETE MODAL
-            ========================================================= */}
 
             <Modal
                 isOpen={showDeleteModal}
@@ -742,10 +746,6 @@ export default function AgentDetails() {
     );
 }
 
-/* =========================================================
-   SECTION CARD
-========================================================= */
-
 interface SectionCardProps {
     title: string;
     description: string;
@@ -765,7 +765,6 @@ function SectionCard({
         <section className="h-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
             <div className="p-5 sm:p-6">
 
-                {/* HEADER */}
                 <div className="mb-5 flex items-center gap-3">
                     <div
                         className={`
@@ -777,7 +776,6 @@ function SectionCard({
                             justify-center
                             rounded-xl
                             text-sm
-                            text-white
                             ${iconClass}
                         `}
                     >
@@ -795,7 +793,6 @@ function SectionCard({
                     </div>
                 </div>
 
-                {/* CONTENT */}
                 <div>
                     {children}
                 </div>
@@ -804,9 +801,7 @@ function SectionCard({
     );
 }
 
-/* =========================================================
-   INFO
-========================================================= */
+
 
 interface InfoProps {
     label: string;
@@ -826,7 +821,6 @@ function Info({
     return (
         <div className="flex min-w-0 items-start gap-3 border-b border-gray-100 py-3.5 last:border-b-0">
 
-            {/* ICON */}
             {icon && (
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center text-sm text-gray-400">
                     {icon}
@@ -834,7 +828,7 @@ function Info({
             )}
 
             {/* CONTENT */}
-            <div className="grid min-w-0 flex-1 grid-cols-1 gap-1 sm:grid-cols-2 sm:gap-4">
+            <div className="grid min-w-0 flex-1 grid-cols-1 gap-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-4">
                 <p className="text-sm text-gray-500">
                     {label}
                 </p>
@@ -861,10 +855,6 @@ function Info({
         </div>
     );
 }
-
-/* =========================================================
-   STATUS BADGE
-========================================================= */
 
 interface StatusBadgeProps {
     status?: string | null;

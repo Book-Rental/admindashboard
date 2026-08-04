@@ -3,12 +3,11 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-
 import "@rentbook/rentbook-ui-lib/microfrontend.min.css";
+import './index.css'
 
 import Sidebar from "./components/sidebar";
 
-import OrderList from "./pages/OrderList";
 import DeliveryAgentList from "./pages/DeliveryAgentList";
 import AddAgent from "./pages/AddAgent";
 import EditAgent from "./pages/EditAgent";
@@ -76,13 +75,7 @@ function Router() {
     return <AgentDetails />;
   }
 
-  // Orders
-  if (
-    currentPath === "/orders" ||
-    currentPath.startsWith("/orders/")
-  ) {
-    return <OrderList />;
-  }
+
 
   return <DeliveryAgentList />;
 }

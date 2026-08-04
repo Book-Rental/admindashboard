@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-  FaClipboardList,
   FaTruck,
   FaBookOpen,
   FaBars,
   FaTimes,
+  FaHome,
+  FaPlus,
 } from "react-icons/fa";
 
 interface NavItem {
@@ -15,17 +16,21 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
+    label: "Dashboard",
+    path: "/",
+    icon: FaHome,
+  },
+  {
     label: "Delivery Agents",
     path: "/agents",
     icon: FaTruck,
   },
   {
-    label: "Orders",
-    path: "/orders",
-    icon: FaClipboardList,
+    label: "Add Agent",
+    path: "/agents/new",
+    icon: FaPlus,
   },
 ];
-
 function navigate(path: string) {
   if (window.location.pathname === path) {
     return;
@@ -185,20 +190,18 @@ export default function Sidebar() {
                       font-medium
                       transition-colors
                       duration-150
-                      ${
-                        active
-                          ? "bg-blue-50 text-blue-700"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      ${active
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }
                     `}
                   >
 
                     <Icon
-                      className={`text-base ${
-                        active
-                          ? "text-blue-600"
-                          : "text-slate-400"
-                      }`}
+                      className={`text-base ${active
+                        ? "text-blue-600"
+                        : "text-slate-400"
+                        }`}
                     />
 
                     <span>{label}</span>

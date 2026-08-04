@@ -67,7 +67,7 @@ const StatsCards = ({
   ).length;
 
   const onDeliveryAgents = agents.filter(
-    (agent) => agent.status === "On Delivery"
+    (agent) => agent.status === "OnDelivery"
   ).length;
 
   const inactiveAgents = agents.filter(
