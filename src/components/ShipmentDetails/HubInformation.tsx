@@ -1,5 +1,7 @@
+import { Infrastructure,   Hub,} from "../../types/shipmentDetails";
+
 interface HubInformationProps {
-  infrastructure: any;
+  infrastructure: Infrastructure;
 }
 
 const HubCard = ({
@@ -7,7 +9,7 @@ const HubCard = ({
   hub,
 }: {
   title: string;
-  hub: any;
+  hub: Hub;
 }) => {
   if (!hub) return null;
 

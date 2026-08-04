@@ -1,5 +1,11 @@
+import { AssignedAgent as Agent } from "../../types/shipmentDetails";
+
+
 interface AssignedAgentProps {
-  agent: any;
+  agent: Agent | null;
+}
+interface AssignedAgentProps {
+  agent: Agent | null;
 }
 
 export default function AssignedAgent({

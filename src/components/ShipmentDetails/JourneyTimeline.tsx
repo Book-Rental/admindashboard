@@ -1,5 +1,7 @@
+import { JourneyHistory } from "../../types/shipmentDetails";
+
 interface JourneyTimelineProps {
-  history: any[];
+  history: JourneyHistory[];
 }
 
 const formatDate = (date: string) =>

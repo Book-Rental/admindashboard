@@ -1,5 +1,7 @@
+import { ShipmentDetailsData } from "../../types/shipmentDetails";
+
 interface ShipmentSummaryProps {
-  shipment: any;
+  shipment: ShipmentDetailsData;
 }
 
 const formatDate = (date: string) =>
