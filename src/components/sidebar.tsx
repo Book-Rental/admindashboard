@@ -4,6 +4,8 @@ import {
   FaBookOpen,
   FaBars,
   FaTimes,
+  FaHome,
+  FaPlus,
 } from "react-icons/fa";
 
 interface NavItem {
@@ -14,13 +16,21 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
+    label: "Dashboard",
+    path: "/",
+    icon: FaHome,
+  },
+  {
     label: "Delivery Agents",
     path: "/agents",
     icon: FaTruck,
   },
-
+  {
+    label: "Add Agent",
+    path: "/agents/new",
+    icon: FaPlus,
+  },
 ];
-
 function navigate(path: string) {
   if (window.location.pathname === path) {
     return;
