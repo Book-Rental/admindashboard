@@ -4,8 +4,6 @@ import {
   FaBookOpen,
   FaBars,
   FaTimes,
-  FaHome,
-  FaPlus,
 } from "react-icons/fa";
 
 interface NavItem {
@@ -15,21 +13,13 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  {
-    label: "Dashboard",
-    path: "/",
-    icon: FaHome,
-  },
+
   {
     label: "Delivery Agents",
     path: "/agents",
     icon: FaTruck,
   },
-  {
-    label: "Add Agent",
-    path: "/agents/new",
-    icon: FaPlus,
-  },
+
 ];
 function navigate(path: string) {
   if (window.location.pathname === path) {
@@ -88,16 +78,20 @@ export default function Sidebar() {
 
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 left-4 z-50 md:hidden h-11 w-11 rounded-xl bg-blue-600 text-white shadow-lg flex items-center justify-center"
+        className="fixed top-20 left-4 z-50 md:hidden h-11 w-11 rounded-xl bg-blue-600 text-white shadow-lg flex items-center justify-center"
       >
         <FaBars />
       </button>
 
-      {/* Overlay */}
-
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="  fixed
+      top-16
+      inset-x-0
+      bottom-0
+      bg-black/40
+      z-40
+      md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -107,9 +101,9 @@ export default function Sidebar() {
       <aside
         className={`
           fixed
-          top-0
+    top-16
           left-0
-          h-screen
+    h-[calc(100vh-64px)]
           w-64
           z-40
           bg-white

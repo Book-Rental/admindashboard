@@ -12,6 +12,7 @@ import {
 import { AgentFormData } from "../types/agent";
 import { showToast } from "../utils/showToaster";
 import { AxiosError } from "axios";
+import { useEffect } from "react";
 
 export default function EditAgent() {
     const agentId = window.location.pathname.split("/")[2];
@@ -19,11 +20,21 @@ export default function EditAgent() {
 
     const {
         data: agent,
-        isLoading,
+        isLoading: isAgentLoading,
         isError,
     } = useAgent(agentId);
 
     const updateAgentMutation = useUpdateAgent();
+    const isLoading =
+        isAgentLoading || updateAgentMutation.isPending;
+
+    useEffect(() => {
+        const event = new CustomEvent("widget-loading-status", {
+            detail: isLoading,
+        });
+
+        window.dispatchEvent(event);
+    }, [isLoading]);
 
     const goBack = () => {
         window.history.pushState({}, "", "/agents");
@@ -73,7 +84,7 @@ export default function EditAgent() {
             }
         );
     };
-    if (isLoading) {
+    if (isAgentLoading) {
         return (
             <Rb_LoadingSpinner
                 text="Loading agent details..."

@@ -3,12 +3,22 @@ import AgentForm from "../components/AgentForm";
 import { AgentFormData } from "../types/agent";
 import { AxiosError } from "axios";
 import { showToast } from "../utils/showToaster";
+import { useEffect } from "react";
 
 export default function AddAgent() {
     const createAgentMutation = useCreateAgent();
     const params = new URLSearchParams(window.location.search);
 
     const hubId = params.get("hubId") || "";
+
+    const isLoading = createAgentMutation.isPending;
+    useEffect(() => {
+        const event = new CustomEvent("widget-loading-status", {
+            detail: isLoading,
+        });
+
+        window.dispatchEvent(event);
+    }, [isLoading]);
 
     const goBack = () => {
         window.history.pushState({}, "", "/agents");
@@ -43,7 +53,7 @@ export default function AddAgent() {
             hubId={hubId}
             onSubmit={handleSubmit}
             onCancel={goBack}
-            isLoading={createAgentMutation.isPending}
+            isLoading={isLoading}
             title="Add New Agent"
             description="Create a delivery agent profile and assign their vehicle details."
             submitText="Create Agent"

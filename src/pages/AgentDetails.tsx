@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     FaArrowLeft,
     FaEdit,
@@ -89,6 +89,13 @@ export default function AgentDetails() {
     } = useAgent(agentId);
 
     const deleteMutation = useDeleteAgent();
+    useEffect(() => {
+        const event = new CustomEvent("widget-loading-status", {
+            detail: isLoading,
+        });
+
+        window.dispatchEvent(event);
+    }, [isLoading]);
 
 
     const goBack = () => {
