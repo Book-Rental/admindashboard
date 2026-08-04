@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-query";
 
 import {
-    Agent,
     AgentDetails,
     AgentFormData,
     UpdateAgentData,
@@ -13,25 +12,25 @@ import {
 
 import {
     getAgents,
-    getAgentById,
     createAgent,
     updateAgent,
     deleteAgent,
+    getAgentById,
 } from "../api/agentApi";
 
 export const AGENTS_QUERY_KEY = ["agents"];
 
 
 export const useAgents = (
-  hubId: string,
-  page = 1,
-  limit = 10
+    hubId: string,
+    page = 1,
+    limit = 10
 ) => {
-  return useQuery({
-    queryKey: ["agents", hubId, page, limit],
-    queryFn: () => getAgents(hubId, page, limit),
-    enabled: !!hubId,
-  });
+    return useQuery({
+        queryKey: ["agents", hubId, page, limit],
+        queryFn: () => getAgents(hubId, page, limit),
+        enabled: !!hubId,
+    });
 };
 
 export function useAgent(agentId: string) {

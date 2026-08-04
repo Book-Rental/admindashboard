@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  FaClipboardList,
   FaTruck,
   FaBookOpen,
   FaBars,
@@ -19,11 +18,7 @@ const NAV_ITEMS: NavItem[] = [
     path: "/agents",
     icon: FaTruck,
   },
-  {
-    label: "Orders",
-    path: "/orders",
-    icon: FaClipboardList,
-  },
+
 ];
 
 function navigate(path: string) {
@@ -185,20 +180,18 @@ export default function Sidebar() {
                       font-medium
                       transition-colors
                       duration-150
-                      ${
-                        active
-                          ? "bg-blue-50 text-blue-700"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      ${active
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }
                     `}
                   >
 
                     <Icon
-                      className={`text-base ${
-                        active
-                          ? "text-blue-600"
-                          : "text-slate-400"
-                      }`}
+                      className={`text-base ${active
+                        ? "text-blue-600"
+                        : "text-slate-400"
+                        }`}
                     />
 
                     <span>{label}</span>

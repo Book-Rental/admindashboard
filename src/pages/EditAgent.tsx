@@ -1,9 +1,4 @@
-import { useState } from "react";
 import {
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
     Rb_Button,
     Rb_LoadingSpinner,
 } from "@rentbook/rentbook-ui-lib";
@@ -15,13 +10,13 @@ import {
     useUpdateAgent,
 } from "../hooks/useAgents";
 import { AgentFormData } from "../types/agent";
+import { showToast } from "../utils/showToaster";
+import { AxiosError } from "axios";
 
 export default function EditAgent() {
     const agentId = window.location.pathname.split("/")[2];
     console.log("Agent ID:", agentId);
-const params = new URLSearchParams(window.location.search);
 
-const hubId = params.get("hubId") || "";
     const {
         data: agent,
         isLoading,
@@ -30,23 +25,16 @@ const hubId = params.get("hubId") || "";
 
     const updateAgentMutation = useUpdateAgent();
 
-    const [showModal, setShowModal] = useState(false);
-    const [validationMessage, setValidationMessage] = useState("");
-
     const goBack = () => {
         window.history.pushState({}, "", "/agents");
         window.dispatchEvent(new PopStateEvent("popstate"));
     };
 
-    const showError = (message: string) => {
-        setValidationMessage(message);
-        setShowModal(true);
-    };
+
 
     const handleSubmit = (data: AgentFormData) => {
-            console.log("Submitting Update:", data);
         const updateData = {
-             hubId: data.hubId, 
+            hubId: data.hubId,
             fullName: data.fullName,
             email: data.email,
             phoneNumber: data.phoneNumber,
@@ -65,23 +53,26 @@ const hubId = params.get("hubId") || "";
                 data: updateData,
             },
             {
-                onSuccess: goBack,
-                onError: (error) => {
-                    console.error(
-                        "Update agent error:",
-                        error
-                    );
+                onSuccess: () => {
+                    showToast("Agent updated successfully", "success");
+                    goBack();
+                },
 
-                    showError(
-                        error instanceof Error
+                onError: (error: unknown) => {
+                    const axiosError =
+                        error as AxiosError<{ message?: string }>;
+
+                    const message =
+                        axiosError.response?.data?.message ||
+                        (error instanceof Error
                             ? error.message
-                            : "Failed to update agent. Please try again."
-                    );
+                            : "Failed to update agent");
+
+                    showToast(message, "error");
                 },
             }
         );
     };
-
     if (isLoading) {
         return (
             <Rb_LoadingSpinner
@@ -123,7 +114,7 @@ const hubId = params.get("hubId") || "";
     return (
         <>
             <AgentForm
-              hubId={hubId}
+                hubId={typeof agent.hubId === "string" ? agent.hubId : agent.hubId._id}
                 initialData={agent}
                 onSubmit={handleSubmit}
                 onCancel={goBack}
@@ -133,36 +124,7 @@ const hubId = params.get("hubId") || "";
                 submitText="Save Changes"
             />
 
-            <Modal
-                isOpen={showModal}
-                onClose={() => setShowModal(false)}
-            >
-                <ModalHeader
-                    onClose={() => setShowModal(false)}
-                >
-                    Update Error
-                </ModalHeader>
 
-                <ModalBody>
-                    <div className="flex items-start gap-3 rounded-xl bg-red-50 p-4">
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-500">
-                            <FaExclamationCircle />
-                        </div>
-
-                        <p className="text-sm leading-5 text-red-700">
-                            {validationMessage}
-                        </p>
-                    </div>
-                </ModalBody>
-
-                <ModalFooter>
-                    <Rb_Button
-                        onClick={() => setShowModal(false)}
-                    >
-                        OK
-                    </Rb_Button>
-                </ModalFooter>
-            </Modal>
         </>
     );
 }
