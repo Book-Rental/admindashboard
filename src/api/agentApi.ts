@@ -11,15 +11,15 @@ const API_BASE_URL =
     "https://be-logistics-service.onrender.com/api/agent";
 
 export const getAgents = async (
-  hubId: string,
-  page = 1,
-  limit = 10
+    hubId: string,
+    page = 1,
+    limit = 10
 ): Promise<AgentResponse> => {
-  const { data } = await axios.get<AgentResponse>(
-    `${API_BASE_URL}/hub/${hubId}?page=${page}&limit=${limit}`
-  );
+    const { data } = await axios.get<AgentResponse>(
+        `${API_BASE_URL}/hub/${hubId}?page=${page}&limit=${limit}`
+    );
 
-  return data;
+    return data;
 };
 
 export const getAgentById = async (

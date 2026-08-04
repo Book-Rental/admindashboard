@@ -4,16 +4,16 @@ export type VehicleType =
   | "Car";
 
 export type AgentStatus =
-    | "Active"
-    | "OnDelivery"
-    | "Inactive"
-    | "Off Duty";
+  | "Active"
+  | "OnDelivery"
+  | "Inactive"
+  | "Off Duty";
 
 export interface CurrentLocation {
   type: "Point";
   coordinates: [number, number];
   updatedAt: string | null;
-}
+};
 
 /* ===========================
    GET AGENTS BY HUB
@@ -27,7 +27,6 @@ export interface Agent {
   phoneNumber: string;
 
   status: AgentStatus;
-
   isAvailable: boolean;
 
   vehicle: {
@@ -39,7 +38,7 @@ export interface Agent {
 
   currentShipmentId: string | null;
 
-  photo: string;
+  photo: string | null;
 
   joinedOn: string;
 }
@@ -69,11 +68,11 @@ export interface AgentDetails {
   _id: string;
 
   hubId:
-    | {
-        _id: string;
-        hubCode: string;
-      }
-    | string;
+  | {
+    _id: string;
+    hubCode: string;
+  }
+  | string;
 
   fullName: string;
   email: string;

@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import {
     Checkbox,
     Dropdown,
+    Rb_BreadCrumb,
     Rb_Button,
     Rb_Image,
     Rb_Input,
@@ -11,7 +12,6 @@ import {
 } from "@rentbook/rentbook-ui-lib";
 
 import {
-    FaArrowLeft,
     FaCamera,
     FaCircle,
     FaStickyNote,
@@ -25,9 +25,10 @@ import {
     AgentFormData,
     VehicleType,
 } from "../types/agent";
+import { showToast } from "../utils/showToaster";
 
 interface Props {
-       hubId: string;
+    hubId: string;
     initialData?: AgentDetails;
     isLoading?: boolean;
     onSubmit: (data: AgentFormData) => void;
@@ -37,9 +38,8 @@ interface Props {
     submitText?: string;
 }
 
-// const HUB_ID = "6a6aeb9b18b80d35a476f97d";
 const emptyForm: AgentFormData = {
-    hubId:"",
+    hubId: "",
     fullName: "",
     email: "",
     phoneNumber: "",
@@ -95,22 +95,22 @@ export default function AgentForm({
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
-      if (!initialData) {
-    reset({
-        ...emptyForm,
-        hubId,
-    });
+        if (!initialData) {
+            reset({
+                ...emptyForm,
+                hubId,
+            });
 
-    setPhotoFile(null);
-    setDisplayPhoto(null);
-    return;
-}
-        
+            setPhotoFile(null);
+            setDisplayPhoto(null);
+            return;
+        }
 
-  const selectedHubId =
-    typeof initialData.hubId === "string"
-        ? initialData.hubId
-        : initialData.hubId?._id || hubId;
+
+        const selectedHubId =
+            typeof initialData.hubId === "string"
+                ? initialData.hubId
+                : initialData.hubId?._id || hubId;
 
         const existingPhoto =
             typeof initialData.photo === "string"
@@ -118,7 +118,7 @@ export default function AgentForm({
                 : null;
 
         reset({
-            hubId:selectedHubId,
+            hubId: selectedHubId,
             fullName: initialData.fullName || "",
             email: initialData.email || "",
             phoneNumber: initialData.phoneNumber || "",
@@ -210,7 +210,7 @@ export default function AgentForm({
             shouldValidate: true,
         });
 
-        setPhotoError("");
+        showToast("Photo selected successfully.", "success");
     };
 
     const removePhoto = () => {
@@ -231,6 +231,8 @@ export default function AgentForm({
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
+        showToast("Photo removed successfully.", "success");
+
     };
 
     useEffect(() => {
@@ -246,22 +248,31 @@ export default function AgentForm({
 
             {/* HEADER */}
             <div className="mb-6 sm:mb-8">
-                <Rb_Button
-                    type="button"
-                    onClick={onCancel}
-                    className="!mb-4 !inline-flex !items-center !gap-1.5 !rounded-lg !border-0 !bg-transparent !p-0 !text-sm !font-medium !text-gray-500 !shadow-none !transition-colors hover:!text-gray-900"
-                >
-                    <FaArrowLeft aria-hidden="true" />
+                <div className="mb-4 flex items-center gap-3">
+                    <Rb_BreadCrumb
+                        items={[
+                            {
+                                label: "Delivery Agents",
+                                path: `/agents?hubId=${hubId}`,
+                            },
+                            {
+                                label: initialData?.fullName || "Agent Details",
+                            },
+                        ]}
+                        onNavigate={(path) => {
+                            window.history.pushState({}, "", path);
 
-                    <span className="truncate">
-                        Delivery Agents / {title}
-                    </span>
-                </Rb_Button>
+                            window.dispatchEvent(
+                                new PopStateEvent("popstate")
+                            );
+                        }}
+                    />
+                </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
                     <div className="flex items-start gap-3 sm:items-center">
 
-                        <div className="hidden h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-gray-900 text-xl text-white shadow-sm sm:flex">
+                        <div className="hidden h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 text-xl shadow-sm sm:flex">
                             <FaUser />
                         </div>
 
@@ -298,7 +309,7 @@ export default function AgentForm({
                         <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-5 py-4 sm:px-6 sm:py-5">
                             <div className="flex items-center gap-3">
 
-                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-900 text-lg text-white shadow-sm">
+                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-lg text-blue-600 shadow-sm">
                                     <FaUser />
                                 </div>
 
@@ -611,7 +622,7 @@ export default function AgentForm({
                             <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-5 py-4 sm:px-6 sm:py-5">
                                 <div className="flex items-center gap-3">
 
-                                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-900 text-lg text-white shadow-sm">
+                                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-lg text-blue-600 shadow-sm">
                                         <FaCamera />
                                     </div>
 
@@ -672,7 +683,7 @@ export default function AgentForm({
                                         }
                                         className="group flex min-h-[200px] w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/70 px-5 transition-all hover:border-gray-400 hover:bg-gray-50 sm:min-h-[220px]"
                                     >
-                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm transition-transform group-hover:scale-105 sm:h-14 sm:w-14">
+                                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 shadow-sm transition-transform group-hover:scale-105 sm:h-14 sm:w-14">
                                             <FaUpload className="text-xl" />
                                         </div>
 
@@ -707,7 +718,7 @@ export default function AgentForm({
                             <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-5 py-4 sm:px-6 sm:py-5">
                                 <div className="flex items-center gap-3">
 
-                                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-900 text-lg text-white shadow-sm">
+                                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-lg text-blue-600 shadow-sm">
                                         <FaStickyNote />
                                     </div>
 
