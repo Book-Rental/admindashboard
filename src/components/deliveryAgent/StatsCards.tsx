@@ -1,14 +1,14 @@
 import {
   FaUsers,
-  FaMotorcycle,
   FaCheckCircle,
   FaTimesCircle,
+  FaUserClock,
 } from "react-icons/fa";
 
-import { Agent } from "../../types/agent";
+import { AgentAnalytics } from "../../types/agent";
 
 interface StatsCardsProps {
-  agents: Agent[];
+  analytics: AgentAnalytics;
 }
 
 interface StatCardProps {
@@ -34,7 +34,7 @@ const StatCard = ({
         <div
           className={`h-11 w-11 rounded-xl flex items-center justify-center ${iconBg}`}
         >
-          <div className={`text-lg ${iconColor}`}>
+          <div className={`text-base ${iconColor}`}>
             {icon}
           </div>
         </div>
@@ -58,28 +58,14 @@ const StatCard = ({
 };
 
 const StatsCards = ({
-  agents,
+  analytics,
 }: StatsCardsProps) => {
-  const totalAgents = agents.length;
-
-  const activeAgents = agents.filter(
-    (agent) => agent.status === "Active"
-  ).length;
-
-  const onDeliveryAgents = agents.filter(
-    (agent) => agent.status === "OnDelivery"
-  ).length;
-
-  const inactiveAgents = agents.filter(
-    (agent) => agent.status === "Inactive"
-  ).length;
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 
       <StatCard
         title="Total Agents"
-        value={totalAgents}
+        value={analytics.totalAgents}
         subtitle="Registered agents"
         icon={<FaUsers />}
         iconBg="bg-blue-100"
@@ -88,7 +74,7 @@ const StatsCards = ({
 
       <StatCard
         title="Active Agents"
-        value={activeAgents}
+        value={analytics.activeAgents}
         subtitle="Currently Active"
         icon={<FaCheckCircle />}
         iconBg="bg-green-100"
@@ -96,17 +82,17 @@ const StatsCards = ({
       />
 
       <StatCard
-        title="On Delivery"
-        value={onDeliveryAgents}
-        subtitle="Currently Delivering"
-        icon={<FaMotorcycle />}
+        title="Off Duty"
+        value={analytics.offDutyAgents}
+        subtitle="Currently Off Duty"
+        icon={<FaUserClock />}
         iconBg="bg-amber-100"
         iconColor="text-amber-600"
       />
 
       <StatCard
         title="Inactive Agents"
-        value={inactiveAgents}
+        value={analytics.inactiveAgents}
         subtitle="Unavailable"
         icon={<FaTimesCircle />}
         iconBg="bg-red-100"

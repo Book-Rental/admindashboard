@@ -57,47 +57,33 @@ export interface SenderReceiver {
 
 
 export interface ShipmentDetailsData {
-
   shipmentId: string;
-
   awbNumber: string;
-
   orderId: string;
-
   shipmentType: string;
-
   currentStatus: string;
-
   paymentMode: string;
-
   codAmount: number;
-
   expectedDeliveryDate: string;
-
   createdAt: string;
-
   updatedAt: string;
-
   sender: SenderReceiver;
-
   receiver: SenderReceiver;
-
   infrastructure: Infrastructure;
-
   assignedAgent: AssignedAgent | null;
-
   journeyHistory: JourneyHistory[];
 
   orderDetails: null | {
     orderId: string;
-    orderItem: {
-      orderItemId: string;
-      bookId: string;
-      bookName: string;
-      author: string;
-      coverImage: string;
-      quantity: number;
-      itemStatus: string;
-    };
+    orderItem: OrderItem;
   };
+}
+export interface OrderItem {
+  orderItemId: string;
+  bookId: string;
+  bookName: string;
+  author: string;
+  coverImage: string;
+  quantity: number;
+  itemStatus: string;
 }

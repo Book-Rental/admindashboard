@@ -20,83 +20,73 @@ const AddressCard = ({
 }: {
   title: string;
   person: Address;
-}) => (
-  <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+}) => {
+  const fullAddress = [
+    person.addressLine1,
+    person.addressLine2,
+    person.city,
+    person.state,
+    person.pincode,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
-    <h3 className="font-semibold text-lg mb-5">
-      {title}
-    </h3>
+  return (
+    <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+      <h3 className="text-base font-semibold text-slate-700 mb-5">
+        {title}
+      </h3>
 
-    <div className="space-y-3">
-
-      <div>
-        <p className="text-xs text-slate-500">
-          Name
-        </p>
-
-        <p className="font-medium">
-          {person.name}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-xs text-slate-500">
-          Phone
-        </p>
-
-        <p>{person.phone}</p>
-      </div>
-
-      {person.email && (
+      <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+        {/* Name */}
         <div>
-          <p className="text-xs text-slate-500">
-            Email
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            Name
           </p>
 
-          <p>{person.email}</p>
+          <p className="mt-1 text-sm font-semibold text-slate-700">
+            {person.name}
+          </p>
         </div>
-      )}
 
-      <div>
-        <p className="text-xs text-slate-500">
-          Address
-        </p>
+        {/* Phone */}
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            Phone
+          </p>
 
-        <p>
-          {person.addressLine1}
-          {person.addressLine2 &&
-            `, ${person.addressLine2}`}
-        </p>
+          <p className="mt-1 text-sm font-semibold text-slate-700">
+            {person.phone}
+          </p>
+        </div>
+
+        {/* Email */}
+        {person.email && (
+          <div className="col-span-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              Email
+            </p>
+
+            <p className="mt-1 text-sm font-semibold text-slate-700 break-all">
+              {person.email}
+            </p>
+          </div>
+        )}
+
+        {/* Address */}
+        <div className="col-span-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            Address
+          </p>
+
+          <p className="mt-1 text-sm font-semibold text-slate-700 leading-6">
+            {fullAddress}
+          </p>
+        </div>
       </div>
-
-      <div>
-        <p className="text-xs text-slate-500">
-          City
-        </p>
-
-        <p>{person.city}</p>
-      </div>
-
-      <div>
-        <p className="text-xs text-slate-500">
-          State
-        </p>
-
-        <p>{person.state}</p>
-      </div>
-
-      <div>
-        <p className="text-xs text-slate-500">
-          Pincode
-        </p>
-
-        <p>{person.pincode}</p>
-      </div>
-
     </div>
-
-  </div>
-);
+  );
+};
 
 export default function SenderReceiver({
   sender,
@@ -104,13 +94,11 @@ export default function SenderReceiver({
 }: SenderReceiverProps) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-
-      <h2 className="text-xl font-semibold mb-6">
+      <h2 className="text-base font-semibold text-slate-800 mb-6">
         Sender & Receiver
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
         <AddressCard
           title="Sender Details"
           person={sender}
@@ -120,9 +108,7 @@ export default function SenderReceiver({
           title="Receiver Details"
           person={receiver}
         />
-
       </div>
-
     </div>
   );
 }

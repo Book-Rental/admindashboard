@@ -1,12 +1,16 @@
-import { FaChevronDown } from "react-icons/fa";
 import { Search } from "@rentbook/rentbook-ui-lib";
 import { useHubs } from "../../hooks/useHubs";
 
 interface DeliveryAgentHeaderProps {
   hubId: string;
+  search: string;
+  onSearchChange: (value: string) => void;
 }
-
-const DeliveryAgentHeader = ({ hubId }: DeliveryAgentHeaderProps) => {
+const DeliveryAgentHeader = ({
+  hubId,
+  search,
+  onSearchChange,
+}: DeliveryAgentHeaderProps) => {
   const { data, isLoading } = useHubs();
 
   const hub = data?.data?.find((item) => item._id === hubId);
@@ -27,8 +31,11 @@ const DeliveryAgentHeader = ({ hubId }: DeliveryAgentHeaderProps) => {
       <div className="flex flex-col items-end gap-3">
         <div className="flex items-center gap-3">
           <Search
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search agents by name, email or phone..."
             containerClassName="w-56 sm:w-64"
+            className="!pl-10"
           />
 
           <button className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-slate-50 transition-colors shrink-0">
@@ -36,14 +43,14 @@ const DeliveryAgentHeader = ({ hubId }: DeliveryAgentHeaderProps) => {
               {isLoading ? "--" : hub?.hubId?.slice(0, 2) || "--"}
             </div>
 
-  
+
             <div className="text-left hidden sm:block">
               <p className="text-sm font-semibold text-slate-800 leading-tight whitespace-nowrap">
                 {isLoading ? "Loading..." : hub?.hubId || "Unknown Hub"}
               </p>
             </div>
 
-            <FaChevronDown className="text-slate-400 text-xs hidden sm:block" />
+
           </button>
         </div>
       </div>

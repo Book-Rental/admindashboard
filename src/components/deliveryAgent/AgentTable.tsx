@@ -186,11 +186,13 @@ const AgentTable = ({
           agents
         </p>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={meta.totalPages}
-          onPageChange={onPageChange}
-        />
+        {meta.totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={meta.totalPages}
+            onPageChange={onPageChange}
+          />
+        )}
       </div>
     </div>
   );
