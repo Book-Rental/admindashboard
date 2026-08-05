@@ -331,6 +331,7 @@ export default function AgentForm({
 
                                 {/* FULL NAME */}
                                 <FormField
+                                    id="fullName"
                                     label="Full Name"
                                     required
                                     error={errors.fullName?.message}
@@ -363,6 +364,7 @@ export default function AgentForm({
 
                                 {/* EMAIL */}
                                 <FormField
+                                    id="email"
                                     label="Email Address"
                                     required
                                     error={errors.email?.message}
@@ -387,6 +389,7 @@ export default function AgentForm({
 
                                 {/* PASSWORD */}
                                 <FormField
+                                    id="password"
                                     label="Password"
                                     required={!initialData}
                                     error={errors.password?.message}
@@ -427,6 +430,7 @@ export default function AgentForm({
 
                                 {/* PHONE */}
                                 <FormField
+                                    id="phoneNumber"
                                     label="Phone Number"
                                     required
                                     error={errors.phoneNumber?.message}
@@ -456,6 +460,7 @@ export default function AgentForm({
 
                                 {/* VEHICLE TYPE */}
                                 <FormField
+                                    id="vehicleType"
                                     label="Vehicle Type"
                                     required
                                     error={errors.vehicleType?.message}
@@ -506,6 +511,7 @@ export default function AgentForm({
 
                                 {/* VEHICLE NUMBER */}
                                 <FormField
+                                    id="vehicleNumber"
                                     label="Vehicle Number"
                                     error={errors.vehicleNumber?.message}
                                 >
@@ -528,6 +534,7 @@ export default function AgentForm({
 
                                 {/* EMERGENCY CONTACT */}
                                 <FormField
+                                    id="emergencyContact"
                                     label="Emergency Contact"
                                     error={
                                         errors.emergencyContact?.message
@@ -564,7 +571,7 @@ export default function AgentForm({
                             {/* ADDRESS */}
                             <div className="mt-6 border-t border-gray-100 pt-5 sm:mt-7 sm:pt-6">
                                 <div className="mb-2 flex items-center justify-between">
-                                    <Rb_Label>
+                                    <Rb_Label htmlFor="address">
                                         Address
                                     </Rb_Label>
 
@@ -736,7 +743,7 @@ export default function AgentForm({
 
                             <div className="p-5 sm:p-6">
                                 <div className="mb-2 flex items-center justify-between">
-                                    <Rb_Label>
+                                    <Rb_Label htmlFor="notes">
                                         Additional Notes
                                     </Rb_Label>
 
@@ -795,9 +802,12 @@ function FormField({
     label,
     required = false,
     error,
+    id,
+
     children,
 }: {
     label: string;
+    id: string;
     required?: boolean;
     error?: string;
     children: React.ReactNode;
@@ -805,7 +815,7 @@ function FormField({
     return (
         <div className="min-w-0">
             <div className="mb-2 flex items-center gap-1">
-                <Rb_Label>{label}</Rb_Label>
+                <Rb_Label htmlFor={id}>{label}</Rb_Label>
 
                 {required && (
                     <span className="font-medium text-red-500">
