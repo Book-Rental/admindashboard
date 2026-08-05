@@ -79,6 +79,7 @@ export default function Sidebar() {
       {/* Mobile Toggle */}
 
       <button
+        aria-label="Open sidebar"
         onClick={() => setIsOpen(true)}
         className="fixed top-20 left-4 z-50 md:hidden h-11 w-11 rounded-xl bg-blue-600 text-white shadow-lg flex items-center justify-center"
       >
@@ -142,6 +143,8 @@ export default function Sidebar() {
           </div>
 
           <button
+            aria-label="Close sidebar"
+
             className="md:hidden"
             onClick={() => setIsOpen(false)}
           >

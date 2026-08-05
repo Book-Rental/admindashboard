@@ -12,6 +12,8 @@ import {
 } from "@rentbook/rentbook-ui-lib";
 
 import { useAgents, useDeleteAgent } from "../hooks/useAgents";
+import { showToast } from "../utils/showToaster";
+import { AxiosError } from "axios";
 
 const hubId = "6a6aeb9b18b80d35a476f97d";
 const DeliveryAgentList = () => {
@@ -58,19 +60,14 @@ const DeliveryAgentList = () => {
 
   const confirmDelete = () => {
     if (!selectedAgentId) return;
-
-    deleteAgentMutation.mutate(
-      {
-        id: selectedAgentId,
-        updatedBy: selectedAgentId,
+    deleteAgentMutation.mutate({ id: selectedAgentId, updatedBy: selectedAgentId, }, {
+      onSuccess: () => { setShowDeleteModal(false); setSelectedAgentId(""); showToast("Agent deleted successfully", "success"); },
+      onError: (error: unknown) => {
+        const axiosError = error as AxiosError<{ message?: string; }>;
+        const message = axiosError.response?.data?.message || (error instanceof Error ? error.message : "Failed to delete agent");
+        showToast(message, "error");
       },
-      {
-        onSuccess: () => {
-          setShowDeleteModal(false);
-          setSelectedAgentId("");
-        },
-      }
-    );
+    });
   };
 
   const closeDeleteModal = () => {
