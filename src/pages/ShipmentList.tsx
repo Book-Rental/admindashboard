@@ -108,8 +108,8 @@ export default function ShipmentList() {
 
   const hasActiveFilters = Boolean(
     debouncedSearch ||
-      status ||
-      paymentMode
+    status ||
+    paymentMode
   );
 
   const clearFilters = () => {
@@ -117,7 +117,9 @@ export default function ShipmentList() {
     setStatus("");
     setPaymentMode("");
   };
-
+  useEffect(() => {
+    console.log("Current page:", page);
+  }, [page]);
   useEffect(() => {
     setPage(1);
   }, [
@@ -153,7 +155,7 @@ export default function ShipmentList() {
       );
     }
   }, [isError]);
-    return (
+  return (
     <div className="p-4 w-full sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
@@ -164,13 +166,13 @@ export default function ShipmentList() {
 
       {/* Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
-    <SearchField
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  placeholder="Search by AWB, Receiver or City"
-  containerClassName="lg:w-80"
-  className="!pl-12"
-/>
+        <SearchField
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by AWB, Receiver or City"
+          containerClassName="lg:w-80"
+          className="!pl-12"
+        />
 
         <div className="w-full lg:w-56">
           <Dropdown
@@ -203,40 +205,46 @@ export default function ShipmentList() {
 
       {/* Table */}
       <div className="relative overflow-x-auto rounded-xl">
-        <ShipmentTable shipments={filteredShipments} />
-
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-50/60 rounded-xl">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
             <Rb_LoadingSpinner />
           </div>
+        ) : (
+          <>
+            {/* Table */}
+            <div className="overflow-x-auto rounded-xl">
+              <ShipmentTable shipments={filteredShipments} />
+            </div>
+
+            {/* Error */}
+            {isError && (
+              <div className="mt-5 text-red-500 text-sm">
+                Failed to load shipments.
+              </div>
+            )}
+
+            {/* Footer */}
+            {!isError && (
+              <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <p className="text-sm text-gray-500">
+                  Showing {filteredShipments.length} of {totalRecords} shipments
+                </p>
+
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    siblingCount={1}
+                    disabled={isFetching}
+                    onPageChange={setPage}
+                  />
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Error */}
-      {isError && !isLoading && (
-        <div className="mt-5 text-red-500 text-sm">
-          Failed to load shipments.
-        </div>
-      )}
-
-      {/* Footer */}
-      {!isError && (
-        <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-sm text-gray-500">
-            Showing {filteredShipments.length} of {totalRecords} shipments
-          </p>
-
-       {totalPages > 1 && (
-  <Pagination
-    currentPage={page}
-    totalPages={totalPages}
-    siblingCount={1}
-    disabled={isFetching}
-    onPageChange={setPage}
-  />
-)}
-        </div>
-      )}
     </div>
   );
 }

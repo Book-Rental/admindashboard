@@ -17,6 +17,7 @@ const hubId = "6a6aeb9b18b80d35a476f97d";
 const DeliveryAgentList = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
+  const [search, setSearch] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState("");
 
@@ -86,15 +87,29 @@ const DeliveryAgentList = () => {
       </div>
     );
   }
+const filteredAgents =
+  data?.data.agents.filter((agent) => {
+    const query = search.toLowerCase();
 
+    return (
+      agent.fullName.toLowerCase().includes(query) ||
+      agent.email.toLowerCase().includes(query) ||
+      agent.phoneNumber.includes(query)
+    );
+  }) ?? [];
   return (
     <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto">
-      <DeliveryAgentHeader hubId={hubId} />
+     <DeliveryAgentHeader
+  hubId={hubId}
+  search={search}
+  onSearchChange={setSearch}
+/>
 
-      <StatsCards agents={data.data.agents} />
+   <StatsCards analytics={data.data.analytics} />
 
       <AgentTable
-        agents={data.data.agents}
+        agents={filteredAgents}
+        // agents={data.data.agents}
         meta={data.data.meta}
         currentPage={page}
         onPageChange={setPage}

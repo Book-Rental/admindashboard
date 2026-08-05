@@ -3,16 +3,12 @@ export interface Shipment {
     awbNumber: string;
     orderId: string;
     orderItemId: string;
-
     shipmentType: string;
     currentStatus: string;
-
     paymentMode: string;
     codAmount: number;
-
     expectedDeliveryDate: string;
     createdAt: string;
-
     receiverName: string;
     receiverCity: string;
 

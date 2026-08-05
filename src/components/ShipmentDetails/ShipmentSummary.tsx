@@ -21,11 +21,11 @@ const SummaryItem = ({
   value: React.ReactNode;
 }) => (
   <div>
-    <p className="text-xs uppercase tracking-wide text-slate-500">
+    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
       {label}
     </p>
 
-    <p className="mt-1 font-semibold text-slate-800 break-words">
+    <p className="mt-1 text-sm font-semibold text-slate-600 break-words">
       {value}
     </p>
   </div>
@@ -37,7 +37,7 @@ export default function ShipmentSummary({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
 
-      <h2 className="text-xl font-semibold mb-6">
+      <h2 className="text-base font-semibold text-slate-800 mb-6">
         Shipment Summary
       </h2>
 

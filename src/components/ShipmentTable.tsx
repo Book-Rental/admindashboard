@@ -7,22 +7,36 @@ interface Props {
 const shipmentBadge = (status: string) => {
   switch (status) {
     case "Created":
-      return "bg-blue-100 text-blue-700";
+      return "bg-blue-50 text-blue-700";
+
+    case "Ready For Pickup":
+      return "bg-gray-50 text-gray-700";
 
     case "Pickup Assigned":
-      return "bg-purple-100 text-purple-700";
+      return "bg-violet-50 text-violet-700";
 
-    case "Picked Up":
-      return "bg-yellow-100 text-yellow-700";
+    case "Out For Pickup":
+      return "bg-blue-50 text-blue-700";
+
+    case "Pickup Completed":
+      return "bg-emerald-50 text-emerald-700";
+    case "Arrived At Origin Hub":
+      return "bg-cyan-50 text-cyan-700";
+
+    case "Delivery Agent Assigned":
+      return "bg-violet-50 text-violet-700";
+
+    case "Out For Delivery":
+      return "bg-blue-50 text-blue-700";
 
     case "In Transit":
-      return "bg-orange-100 text-orange-700";
+      return "bg-orange-50 text-orange-700";
 
     case "Delivered":
-      return "bg-green-100 text-green-700";
+      return "bg-emerald-50 text-emerald-700";
 
     case "Cancelled":
-      return "bg-red-100 text-red-700";
+      return "bg-red-50 text-red-700";
 
     default:
       return "bg-gray-100 text-gray-700";
@@ -57,7 +71,7 @@ export default function ShipmentTable({ shipments }: Props) {
             <th className="p-4 text-left">AWB</th>
             <th className="p-4 text-left">Receiver</th>
             <th className="p-4 text-left">Created</th>
-            <th className="p-4 text-left">Route</th>
+            {/* <th className="p-4 text-left">Route</th> */}
             <th className="p-4 text-left">Payment</th>
             <th className="p-4 text-left">Agent</th>
             <th className="p-4 text-left">Status</th>
@@ -66,19 +80,19 @@ export default function ShipmentTable({ shipments }: Props) {
 
         <tbody>
           {shipments.map((shipment) => (
-          <tr
-  key={shipment.shipmentId}
-  onClick={() => {
-    window.history.pushState(
-      {},
-      "",
-      `/orders/${shipment.shipmentId}`
-    );
+            <tr
+              key={shipment.shipmentId}
+              onClick={() => {
+                window.history.pushState(
+                  {},
+                  "",
+                  `/orders/${shipment.shipmentId}`
+                );
 
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }}
-  className="border-b hover:bg-gray-50 transition cursor-pointer"
->
+                window.dispatchEvent(new PopStateEvent("popstate"));
+              }}
+              className="border-b hover:bg-gray-50 transition cursor-pointer"
+            >
               {/* AWB */}
               <td className="p-4 font-medium text-gray-700">
                 <div className="relative inline-block group">
@@ -117,7 +131,7 @@ export default function ShipmentTable({ shipments }: Props) {
               </td>
 
               {/* Route */}
-              <td className="p-4">
+              {/* <td className="p-4">
                 <div className="font-medium text-gray-700">
                   {shipment.originHub.hubCode}
                 </div>
@@ -127,7 +141,7 @@ export default function ShipmentTable({ shipments }: Props) {
                 <div className="font-medium text-gray-700">
                   {shipment.destinationHub.hubCode}
                 </div>
-              </td>
+              </td> */}
 
               {/* Payment */}
               <td className="p-4">
