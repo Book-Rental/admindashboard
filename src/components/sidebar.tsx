@@ -4,6 +4,7 @@ import {
   FaBookOpen,
   FaBars,
   FaTimes,
+  FaClipboardList,
 } from "react-icons/fa";
 
 interface NavItem {
@@ -19,6 +20,7 @@ const NAV_ITEMS: NavItem[] = [
     path: "/agents",
     icon: FaTruck,
   },
+  { label: "Orders", path: "/orders", icon: FaClipboardList },
 
 ];
 function navigate(path: string) {

@@ -10,7 +10,9 @@ export interface WidgetOptions {
     | "agents"
     | "create-agent"
     | "agent-details"
-    | "edit-agent";
+    | "edit-agent"
+    | "orders"
+    | "order-details";
 
 }
 

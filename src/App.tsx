@@ -12,6 +12,8 @@ import DeliveryAgentList from "./pages/DeliveryAgentList";
 import AddAgent from "./pages/AddAgent";
 import EditAgent from "./pages/EditAgent";
 import AgentDetails from "./pages/AgentDetails";
+import ShipmentList from "./pages/ShipmentList";
+import ShipmentDetails from "./pages/ShipmentDetails";
 
 const client = new QueryClient();
 
@@ -21,7 +23,9 @@ interface AppProps {
   | "agents"
   | "create-agent"
   | "agent-details"
-  | "edit-agent";
+  | "edit-agent"
+  | "orders"
+  | "order-details";
 }
 
 function App({ view }: AppProps) {
@@ -38,7 +42,10 @@ function App({ view }: AppProps) {
 
       case "agent-details":
         return <AgentDetails />;
-
+      case "orders":
+        return <ShipmentList />;
+      case "order-details":
+        return <ShipmentDetails />;
       case "admin":
       default:
         return <DeliveryAgentList />;
