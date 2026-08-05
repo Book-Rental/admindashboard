@@ -1,5 +1,5 @@
-import { render, screen, act } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
 import App from "../App";
 
 // Mock Sidebar
@@ -38,19 +38,13 @@ vi.mock("../pages/ShipmentDetails", () => ({
 }));
 
 describe("App Component", () => {
-  beforeEach(() => {
-    window.history.pushState({}, "", "/");
-  });
-
   it("renders Sidebar", () => {
     render(<App />);
 
     expect(screen.getByText("Sidebar")).toBeInTheDocument();
   });
 
-  it("renders DeliveryAgentList on default route", () => {
-    window.history.pushState({}, "", "/");
-
+  it("renders DeliveryAgentList by default", () => {
     render(<App />);
 
     expect(
@@ -58,147 +52,56 @@ describe("App Component", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders DeliveryAgentList on /agents route", () => {
-    window.history.pushState({}, "", "/agents");
-
-    render(<App />);
+  it("renders DeliveryAgentList for admin view", () => {
+    render(<App view="admin" />);
 
     expect(
       screen.getByText("Delivery Agent List Page")
     ).toBeInTheDocument();
   });
 
-  it("renders AddAgent on /agents/new route", () => {
-    window.history.pushState({}, "", "/agents/new");
+  it("renders DeliveryAgentList for agents view", () => {
+    render(<App view="agents" />);
 
-    render(<App />);
+    expect(
+      screen.getByText("Delivery Agent List Page")
+    ).toBeInTheDocument();
+  });
+
+  it("renders AddAgent for create-agent view", () => {
+    render(<App view="create-agent" />);
 
     expect(
       screen.getByText("Add Agent Page")
     ).toBeInTheDocument();
   });
 
-  it("renders EditAgent on /agents/:id/edit route", () => {
-    window.history.pushState({}, "", "/agents/123/edit");
-
-    render(<App />);
+  it("renders EditAgent for edit-agent view", () => {
+    render(<App view="edit-agent" />);
 
     expect(
       screen.getByText("Edit Agent Page")
     ).toBeInTheDocument();
   });
 
-  it("renders AgentDetails on /agents/:id route", () => {
-    window.history.pushState({}, "", "/agents/123");
-
-    render(<App />);
+  it("renders AgentDetails for agent-details view", () => {
+    render(<App view="agent-details" />);
 
     expect(
       screen.getByText("Agent Details Page")
     ).toBeInTheDocument();
   });
 
-  it("renders ShipmentList on /orders route", () => {
-    window.history.pushState({}, "", "/orders");
-
-    render(<App />);
+  it("renders ShipmentList for orders view", () => {
+    render(<App view="orders" />);
 
     expect(
       screen.getByText("Shipment List Page")
     ).toBeInTheDocument();
   });
 
-  it("renders ShipmentDetails on /orders/:id route", () => {
-    window.history.pushState({}, "", "/orders/123");
-
-    render(<App />);
-
-    expect(
-      screen.getByText("Shipment Details Page")
-    ).toBeInTheDocument();
-  });
-
-  it("renders DeliveryAgentList for unknown routes", () => {
-    window.history.pushState({}, "", "/unknown-route");
-
-    render(<App />);
-
-    expect(
-      screen.getByText("Delivery Agent List Page")
-    ).toBeInTheDocument();
-  });
-
-  it("handles trailing slash on /agents route", () => {
-    window.history.pushState({}, "", "/agents/");
-
-    render(<App />);
-
-    expect(
-      screen.getByText("Delivery Agent List Page")
-    ).toBeInTheDocument();
-  });
-
-  it("handles trailing slash on /agents/new route", () => {
-    window.history.pushState({}, "", "/agents/new/");
-
-    render(<App />);
-
-    expect(
-      screen.getByText("Add Agent Page")
-    ).toBeInTheDocument();
-  });
-
-  it("handles trailing slash on /orders route", () => {
-    window.history.pushState({}, "", "/orders/");
-
-    render(<App />);
-
-    expect(
-      screen.getByText("Shipment List Page")
-    ).toBeInTheDocument();
-  });
-
-  it("handles trailing slash on /orders/:id route", () => {
-    window.history.pushState({}, "", "/orders/123/");
-
-    render(<App />);
-
-    expect(
-      screen.getByText("Shipment Details Page")
-    ).toBeInTheDocument();
-  });
-
-  it("updates route when popstate event is triggered", () => {
-    window.history.pushState({}, "", "/");
-
-    render(<App />);
-
-    expect(
-      screen.getByText("Delivery Agent List Page")
-    ).toBeInTheDocument();
-
-    act(() => {
-      window.history.pushState({}, "", "/agents/new");
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    });
-
-    expect(
-      screen.getByText("Add Agent Page")
-    ).toBeInTheDocument();
-
-    act(() => {
-      window.history.pushState({}, "", "/orders");
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    });
-
-    expect(
-      screen.getByText("Shipment List Page")
-    ).toBeInTheDocument();
-
-    act(() => {
-      window.history.pushState({}, "", "/orders/123");
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    });
+  it("renders ShipmentDetails for order-details view", () => {
+    render(<App view="order-details" />);
 
     expect(
       screen.getByText("Shipment Details Page")

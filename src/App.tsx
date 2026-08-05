@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
 import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
 
 import "@rentbook/rentbook-ui-lib/microfrontend.min.css";
-import './index.css'
+import "./index.css";
 
 import Sidebar from "./components/sidebar";
 
@@ -18,89 +17,48 @@ import ShipmentDetails from "./pages/ShipmentDetails";
 
 const client = new QueryClient();
 
-function Router() {
-  const [path, setPath] = useState(
-    window.location.pathname
-  );
-
-  useEffect(() => {
-    const onPopState = () => {
-      setPath(window.location.pathname);
-    };
-
-    window.addEventListener(
-      "popstate",
-      onPopState
-    );
-
-    return () => {
-      window.removeEventListener(
-        "popstate",
-        onPopState
-      );
-    };
-  }, []);
-
-  // Remove trailing slash
-  const currentPath =
-    path.replace(/\/+$/, "") || "/";
- console.log("Current Path:", currentPath);
-  // Home
-  if (currentPath === "/") {
-    return <DeliveryAgentList />;
-  }
-
-  // Agent List
-  if (currentPath === "/agents") {
-    return <DeliveryAgentList />;
-  }
-
-  // Add Agent
-  if (currentPath === "/agents/new") {
-    return <AddAgent />;
-  }
-
-  // Edit Agent
-  if (
-    /^\/agents\/[^/]+\/edit$/.test(
-      currentPath
-    )
-  ) {
-    return <EditAgent />;
-  }
-
-  // Agent Details
-  if (
-    /^\/agents\/[^/]+$/.test(
-      currentPath
-    )
-  ) {
-    return <AgentDetails />;
-  }
-
-  // Orders
- // Shipment Details
-if (/^\/orders\/[^/]+$/.test(currentPath)) {
-  
-  return <ShipmentDetails />;
+interface AppProps {
+  view?:
+  | "admin"
+  | "agents"
+  | "create-agent"
+  | "agent-details"
+  | "edit-agent"
+  | "orders"
+  | "order-details";
 }
 
-// Shipment List
-if (currentPath === "/orders") {
-  return <ShipmentList />;
-}
+function App({ view }: AppProps) {
+  const renderView = () => {
+    switch (view) {
+      case "agents":
+        return <DeliveryAgentList />;
 
-  return <DeliveryAgentList />;
-}
+      case "create-agent":
+        return <AddAgent />;
 
-function App() {
+      case "edit-agent":
+        return <EditAgent />;
+
+      case "agent-details":
+        return <AgentDetails />;
+      case "orders":
+        return <ShipmentList />;
+      case "order-details":
+        return <ShipmentDetails />;
+      case "admin":
+      default:
+        return <DeliveryAgentList />;
+    }
+  };
+
   return (
     <QueryClientProvider client={client}>
-      <div className="bg-[#F5F7FB] h-screen overflow-hidden">
+      <div className="bg-[#F5F7FB] min-h-screen overflow-hidden">
         <Sidebar />
 
-        <main className="md:ml-64 h-screen overflow-y-auto">
-          <Router />
+        <main className="md:ml-64 min-h-screen overflow-y-auto">
+          {renderView()}
         </main>
       </div>
     </QueryClientProvider>

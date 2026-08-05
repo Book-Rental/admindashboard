@@ -5,6 +5,14 @@ import App from "./App";
 export interface WidgetOptions {
     containerElementId: string,
     name: string;
+    view?:
+    | "admin"
+    | "agents"
+    | "create-agent"
+    | "agent-details"
+    | "edit-agent"
+    | "orders"
+    | "order-details";
 
 }
 
@@ -22,6 +30,9 @@ const widgetRoots: Record<string, ReactRoot> = {}
 const getOptionsFromDataAttributes = (el: HTMLElement): Partial<WidgetOptions> => {
     return {
         name: el.getAttribute('data-name') || '',
+        view:
+            (el.getAttribute("data-view") as WidgetOptions["view"]) ||
+            undefined,
     }
 }
 
@@ -60,7 +71,7 @@ window.renderReactWidget = (config: string) => {
     const root = createRoot(container);
     root.render(
         <React.StrictMode>
-            <App />
+            <App view={finalOptions.view} />
         </React.StrictMode>
     )
     widgetRoots[containerId] = root;

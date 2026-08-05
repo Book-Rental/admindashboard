@@ -1,7 +1,7 @@
 import DeliveryAgentHeader from "../components/deliveryAgent/DeliveryAgentHeader";
 import StatsCards from "../components/deliveryAgent/StatsCards";
 import AgentTable from "../components/deliveryAgent/AgentTable";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Modal,
@@ -23,6 +23,14 @@ const DeliveryAgentList = () => {
   const deleteAgentMutation = useDeleteAgent();
 
   const { data, isLoading, isError } = useAgents(hubId, page, limit);
+
+  useEffect(() => {
+    const event = new CustomEvent("widget-loading-status", {
+      detail: isLoading,
+    });
+
+    window.dispatchEvent(event);
+  }, [isLoading]);
   const handleAdd = () => {
     window.history.pushState(
       {},
