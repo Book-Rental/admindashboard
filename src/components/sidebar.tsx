@@ -183,6 +183,7 @@ export default function Sidebar() {
                       items-center
                       gap-3
                       rounded-lg
+                      border-l-2
                       px-3
                       py-2.5
                       text-sm
@@ -190,8 +191,8 @@ export default function Sidebar() {
                       transition-colors
                       duration-150
                       ${active
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        ? "border-blue-600 bg-blue-50 text-blue-600 font-medium"
+                        : "border-transparent text-slate-600 hover:bg-slate-50"
                       }
                     `}
                   >
