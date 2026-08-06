@@ -7,16 +7,14 @@ import {
     UpdateAgentData,
 } from "../types/agent";
 
-const API_BASE_URL =
-    "https://be-logistics-service.onrender.com/api/agent";
-
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export const getAgents = async (
     hubId: string,
     page = 1,
     limit = 10
 ): Promise<AgentResponse> => {
     const { data } = await axios.get<AgentResponse>(
-        `${API_BASE_URL}/hub/${hubId}?page=${page}&limit=${limit}`
+        `${API_BASE_URL}/agent/hub/${hubId}?page=${page}&limit=${limit}`
     );
 
     return data;
@@ -25,7 +23,7 @@ export const getAgents = async (
 export const getAgentById = async (
     id: string
 ): Promise<AgentDetails> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/agent/${id}`);
 
     if (!response.ok) {
         throw new Error("Failed to fetch agent");
@@ -63,7 +61,7 @@ export const createAgent = async (
         formData.append("photo", data.photo);
     }
 
-    const response = await fetch(`${API_BASE_URL}/create`, {
+    const response = await fetch(`${API_BASE_URL}/agent/create`, {
         method: "POST",
         body: formData,
     });
@@ -167,9 +165,15 @@ export const updateAgent = async (
             data.photo
         );
     }
+//     if (data.photo === null) {
+//   formData.append("photo", "");
+// }
+// else if (data.photo instanceof File) {
+//   formData.append("photo", data.photo);
+// }
 
     const response = await fetch(
-        `${API_BASE_URL}/${id}`,
+        `${API_BASE_URL}/agent/${id}`,
         {
             method: "PATCH",
             body: formData,
@@ -195,7 +199,7 @@ export const deleteAgent = async (
     updatedBy: string
 ): Promise<string> => {
     const response = await fetch(
-        `${API_BASE_URL}/${id}`,
+        `${API_BASE_URL}/agent/${id}`,
         {
             method: "DELETE",
             headers: {

@@ -15,8 +15,8 @@ import { useAgents, useDeleteAgent } from "../hooks/useAgents";
 import { showToast } from "../utils/showToaster";
 import { AxiosError } from "axios";
 
-const hubId = "6a6aeb9b18b80d35a476f97d";
 const DeliveryAgentList = () => {
+    const hubId = window.HOST_USER_INFO?.referenceId ?? "";
   const [page, setPage] = useState(1);
   const limit = 10;
   const [search, setSearch] = useState("");
@@ -38,7 +38,7 @@ const DeliveryAgentList = () => {
     window.history.pushState(
       {},
       "",
-      `/agents/new?hubId=${hubId}`
+      `/agents/new`
     );
 
     window.dispatchEvent(new PopStateEvent("popstate"));

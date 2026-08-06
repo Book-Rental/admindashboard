@@ -3,12 +3,15 @@ import { getShipments } from "../api/shipmentApi";
 
 export const useShipments = (
     hubId: string,
-    page: number
+    page: number,
+    status:string,
+     paymentMode: string,
+  search: string
 ) => {
 
     return useQuery({
-        queryKey: ["shipments", hubId, page],
-        queryFn: () => getShipments(hubId, page),
+        queryKey: ["shipments", hubId, page,status,paymentMode,search,],
+        queryFn: () => getShipments(hubId, page,status,paymentMode,search,),
         placeholderData: (previous) => previous,
         enabled: !!hubId,
     });

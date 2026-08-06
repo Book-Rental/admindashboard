@@ -1,11 +1,10 @@
 import axios from "axios";
 import { HubResponse } from "../types/hub";
 
-const API_URL = "https://be-logistics-service.onrender.com/api";
-
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export const getHubs = async (): Promise<HubResponse> => {
   const { data } = await axios.get<HubResponse>(
-    `${API_URL}/hub`
+    `${API_BASE_URL}/hub`
   );
 
   return data;

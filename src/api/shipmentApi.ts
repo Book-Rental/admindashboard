@@ -1,28 +1,32 @@
 import axios from "axios";
 import { ShipmentResponse } from "../types/shipment";
-
-const API_URL =
-  "https://be-logistics-service.onrender.com/api/hub/shipment";
-
-const SHIPMENT_API =
-  "https://be-logistics-service.onrender.com/api/shipment";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export const getShipments = async (
   hubId: string,
-  page = 1
+  page = 1,
+  status = "",
+  paymentMode = "",
+  search = ""
 ): Promise<ShipmentResponse> => {
-  console.log("Fetching page:", page);
   const response = await axios.get(
-    `${API_URL}/${hubId}?page=${page}`,
+    `${API_BASE_URL}/hub/shipment/${hubId}`,
     {
+      params: {
+        page,
+        currentStatus: status,
+        paymentMode,
+        search,
+      },
       withCredentials: true,
     }
   );
 
   return response.data;
 };
+
 export const getShipmentById = async (shipmentId: string) => {
   const response = await axios.get(
-    `https://be-logistics-service.onrender.com/api/shipment/${shipmentId}`,
+    `${API_BASE_URL}/shipment/${shipmentId}`,
     {
       withCredentials: true,
     }
@@ -41,7 +45,7 @@ export const updateShipmentStatus = async (
   }
 ) => {
   return axios.patch(
-    `${SHIPMENT_API}/${shipmentId}/status`,
+    `${API_BASE_URL}/shipment/${shipmentId}/status`,
     data,
     {
       withCredentials: true,
