@@ -97,10 +97,28 @@ const AgentTable = ({
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm uppercase">
-                        {agent.fullName.slice(0, 2)}
-                      </div>
+                    <div className="h-10 w-10 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
+  {agent.photo ? (
+    <img
+      src={agent.photo}
+      alt={agent.fullName}
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+        const fallback = e.currentTarget.nextElementSibling as HTMLDivElement;
+        if (fallback) fallback.style.display = "flex";
+      }}
+    />
+  ) : null}
 
+  <div
+    className={`w-full h-full items-center justify-center text-white font-semibold text-sm uppercase ${
+      agent.photo ? "hidden" : "flex"
+    }`}
+  >
+    {agent.fullName.slice(0, 2)}
+  </div>
+</div>
                       <div>
                         <p className="text-sm font-semibold text-slate-800">
                           {agent.fullName}

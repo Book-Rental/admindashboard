@@ -25,21 +25,18 @@ const STATUS_OPTIONS = [
     value: "Pickup Assigned",
   },
   {
-    label: "Picked Up",
-    value: "Picked Up",
+    label: "Out For Pickup",
+    value: "Out For Pickup",
   },
   {
-    label: "In Transit",
-    value: "In Transit",
+    label: "Pickup Completed",
+    value: "Pickup Completed",
   },
   {
-    label: "Delivered",
-    value: "Delivered",
-  },
-  {
-    label: "Cancelled",
-    value: "Cancelled",
-  },
+    label: "Arrived At Origin Hub",
+    value: "Arrived At Origin Hub",
+  }
+
 ];
 
 const PAYMENT_OPTIONS = [
@@ -58,9 +55,7 @@ const PAYMENT_OPTIONS = [
 ];
 
 export default function ShipmentList() {
-  // Replace with logged-in hub id later
-  const hubId = "6a6aeb9b18b80d35a476f97d";
-
+  const hubId = window.HOST_USER_INFO?.referenceId ?? "";
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -73,38 +68,11 @@ export default function ShipmentList() {
     isLoading,
     isFetching,
     isError,
-  } = useShipments(hubId, page);
+  } = useShipments(hubId, page, status, paymentMode, debouncedSearch);
 
   const shipments = data?.data.shipments ?? [];
   const totalPages = data?.data.meta.totalPages ?? 1;
   const totalRecords = data?.data.meta.totalRecords ?? 0;
-
-  const filteredShipments = shipments.filter((shipment) => {
-    const matchesSearch =
-      shipment.awbNumber
-        .toLowerCase()
-        .includes(debouncedSearch.toLowerCase()) ||
-      shipment.receiverName
-        .toLowerCase()
-        .includes(debouncedSearch.toLowerCase()) ||
-      shipment.receiverCity
-        .toLowerCase()
-        .includes(debouncedSearch.toLowerCase());
-
-    const matchesStatus =
-      !status ||
-      shipment.currentStatus === status;
-
-    const matchesPayment =
-      !paymentMode ||
-      shipment.paymentMode === paymentMode;
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesPayment
-    );
-  });
 
   const hasActiveFilters = Boolean(
     debouncedSearch ||
@@ -113,20 +81,15 @@ export default function ShipmentList() {
   );
 
   const clearFilters = () => {
+    setPage(1);
     setSearch("");
     setStatus("");
     setPaymentMode("");
   };
-  useEffect(() => {
-    console.log("Current page:", page);
-  }, [page]);
+
   useEffect(() => {
     setPage(1);
-  }, [
-    debouncedSearch,
-    status,
-    paymentMode,
-  ]);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     window.dispatchEvent(
@@ -168,7 +131,9 @@ export default function ShipmentList() {
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
         <SearchField
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
           placeholder="Search by AWB, Receiver or City"
           containerClassName="lg:w-80"
           className="!pl-12"
@@ -177,7 +142,10 @@ export default function ShipmentList() {
         <div className="w-full lg:w-56">
           <Dropdown
             value={status}
-            onChange={setStatus}
+            onChange={(value) => {
+              setPage(1);
+              setStatus(value);
+            }}
             options={STATUS_OPTIONS}
             placeholder="Shipment Status"
           />
@@ -186,7 +154,10 @@ export default function ShipmentList() {
         <div className="w-full lg:w-48">
           <Dropdown
             value={paymentMode}
-            onChange={setPaymentMode}
+            onChange={(value) => {
+              setPage(1);
+              setPaymentMode(value);
+            }}
             options={PAYMENT_OPTIONS}
             placeholder="Payment"
           />
@@ -213,7 +184,7 @@ export default function ShipmentList() {
           <>
             {/* Table */}
             <div className="overflow-x-auto rounded-xl">
-              <ShipmentTable shipments={filteredShipments} />
+              <ShipmentTable shipments={shipments} />
             </div>
 
             {/* Error */}
@@ -227,7 +198,7 @@ export default function ShipmentList() {
             {!isError && (
               <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <p className="text-sm text-gray-500">
-                  Showing {filteredShipments.length} of {totalRecords} shipments
+                  Showing {shipments.length} of {totalRecords} shipments
                 </p>
 
                 {totalPages > 1 && (
