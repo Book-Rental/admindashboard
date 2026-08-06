@@ -21,14 +21,14 @@ describe("Sidebar", () => {
     it("marks Delivery Agents as active when current path is /agents", () => {
         render(<Sidebar />);
 
-        const deliveryAgentsButton =
-            screen.getByRole("button", {
-                name: /delivery agents/i,
-            });
+        const deliveryAgentsButton = screen.getByRole("button", {
+            name: /delivery agents/i,
+        });
 
         expect(deliveryAgentsButton).toHaveClass(
             "bg-blue-50",
-            "text-blue-700"
+            "text-blue-600",
+            "border-blue-600"
         );
     });
 
@@ -43,23 +43,21 @@ describe("Sidebar", () => {
 
         expect(ordersButton).toHaveClass(
             "bg-blue-50",
-            "text-blue-700"
+            "text-blue-600",
+            "border-blue-600"
         );
     });
 
     it("navigates to Orders when Orders is clicked", () => {
         render(<Sidebar />);
 
-        const dispatchEventSpy = vi.spyOn(
-            window,
-            "dispatchEvent"
+        const dispatchEventSpy = vi.spyOn(window, "dispatchEvent");
+
+        fireEvent.click(
+            screen.getByRole("button", {
+                name: /orders/i,
+            })
         );
-
-        const ordersButton = screen.getByRole("button", {
-            name: /orders/i,
-        });
-
-        fireEvent.click(ordersButton);
 
         expect(window.location.pathname).toBe("/orders");
 
@@ -77,12 +75,11 @@ describe("Sidebar", () => {
 
         render(<Sidebar />);
 
-        const deliveryAgentsButton =
+        fireEvent.click(
             screen.getByRole("button", {
                 name: /delivery agents/i,
-            });
-
-        fireEvent.click(deliveryAgentsButton);
+            })
+        );
 
         expect(window.location.pathname).toBe("/agents");
     });
@@ -90,22 +87,14 @@ describe("Sidebar", () => {
     it("does not navigate when clicking the current active route", () => {
         render(<Sidebar />);
 
-        const pushStateSpy = vi.spyOn(
-            window.history,
-            "pushState"
-        );
+        const pushStateSpy = vi.spyOn(window.history, "pushState");
+        const dispatchEventSpy = vi.spyOn(window, "dispatchEvent");
 
-        const dispatchEventSpy = vi.spyOn(
-            window,
-            "dispatchEvent"
-        );
-
-        const deliveryAgentsButton =
+        fireEvent.click(
             screen.getByRole("button", {
                 name: /delivery agents/i,
-            });
-
-        fireEvent.click(deliveryAgentsButton);
+            })
+        );
 
         expect(pushStateSpy).not.toHaveBeenCalled();
         expect(dispatchEventSpy).not.toHaveBeenCalled();
@@ -114,43 +103,30 @@ describe("Sidebar", () => {
         dispatchEventSpy.mockRestore();
     });
 
-    it("closes the mobile sidebar when close button is clicked", () => {
+    it("opens and closes the mobile sidebar using buttons", () => {
         render(<Sidebar />);
 
-        const menuButton = screen.getByRole("button", {
-            name: "Open sidebar",
-        });
-
-        fireEvent.click(menuButton);
+        fireEvent.click(screen.getByLabelText("Open sidebar"));
 
         const sidebar = screen.getByRole("complementary");
 
         expect(sidebar).toHaveClass("translate-x-0");
 
-        const closeButton = screen.getByRole("button", {
-            name: "Close sidebar",
-        });
+        fireEvent.click(screen.getByLabelText("Close sidebar"));
 
-        fireEvent.click(closeButton);
-
-        expect(sidebar).toHaveClass(
-            "-translate-x-full"
-        );
+        expect(sidebar).toHaveClass("-translate-x-full");
     });
 
-
     it("closes the mobile sidebar when overlay is clicked", () => {
-        render(<Sidebar />);
+        const { container } = render(<Sidebar />);
 
-        const menuButton = screen.getAllByRole("button")[0];
-
-        fireEvent.click(menuButton);
+        fireEvent.click(screen.getByLabelText("Open sidebar"));
 
         const sidebar = screen.getByRole("complementary");
 
         expect(sidebar).toHaveClass("translate-x-0");
 
-        const overlay = document.querySelector(
+        const overlay = container.querySelector(
             ".fixed.top-16.inset-x-0.bottom-0"
         );
 
@@ -158,9 +134,7 @@ describe("Sidebar", () => {
 
         fireEvent.click(overlay!);
 
-        expect(sidebar).toHaveClass(
-            "-translate-x-full"
-        );
+        expect(sidebar).toHaveClass("-translate-x-full");
     });
 
     it("updates active route when popstate event is triggered", () => {
@@ -174,9 +148,7 @@ describe("Sidebar", () => {
 
         act(() => {
             window.history.pushState({}, "", "/orders");
-            window.dispatchEvent(
-                new PopStateEvent("popstate")
-            );
+            window.dispatchEvent(new PopStateEvent("popstate"));
         });
 
         expect(
@@ -191,42 +163,37 @@ describe("Sidebar", () => {
 
         render(<Sidebar />);
 
-        const ordersButton = screen.getByRole("button", {
-            name: /orders/i,
-        });
-
-        expect(ordersButton).toHaveClass(
+        expect(
+            screen.getByRole("button", {
+                name: /orders/i,
+            })
+        ).toHaveClass(
             "bg-blue-50",
-            "text-blue-700"
+            "text-blue-600",
+            "border-blue-600"
         );
     });
 
     it("keeps Delivery Agents active for nested agent routes", () => {
-        window.history.pushState(
-            {},
-            "",
-            "/agents/edit/123"
-        );
+        window.history.pushState({}, "", "/agents/edit/123");
 
         render(<Sidebar />);
 
-        const deliveryAgentsButton =
+        expect(
             screen.getByRole("button", {
                 name: /delivery agents/i,
-            });
-
-        expect(deliveryAgentsButton).toHaveClass(
+            })
+        ).toHaveClass(
             "bg-blue-50",
-            "text-blue-700"
+            "text-blue-600",
+            "border-blue-600"
         );
     });
 
     it("closes the mobile sidebar after navigation", () => {
         render(<Sidebar />);
 
-        const menuButton = screen.getAllByRole("button")[0];
-
-        fireEvent.click(menuButton);
+        fireEvent.click(screen.getByLabelText("Open sidebar"));
 
         const sidebar = screen.getByRole("complementary");
 
@@ -238,8 +205,6 @@ describe("Sidebar", () => {
             })
         );
 
-        expect(sidebar).toHaveClass(
-            "-translate-x-full"
-        );
+        expect(sidebar).toHaveClass("-translate-x-full");
     });
 });

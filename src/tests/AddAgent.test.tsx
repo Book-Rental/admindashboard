@@ -4,11 +4,21 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import AddAgent from "../pages/AddAgent";
 import { AgentFormData } from "../types/agent";
 
+beforeEach(() => {
+    vi.clearAllMocks();
+
+    window.HOST_USER_INFO = {
+        referenceId: "hub123",
+    };
+
+    window.history.pushState({}, "", "/agents/add");
+});
 
 const { mockMutate, mockShowToast } = vi.hoisted(() => ({
     mockMutate: vi.fn(),
     mockShowToast: vi.fn(),
 }));
+
 vi.mock("../hooks/useAgents", () => ({
     useCreateAgent: () => ({
         mutate: mockMutate,
@@ -79,11 +89,15 @@ describe("AddAgent", () => {
     beforeEach(() => {
         vi.clearAllMocks();
 
-        window.history.pushState(
-            {},
-            "",
-            "/agents/add?hubId=hub123"
-        );
+        Object.defineProperty(window, "HOST_USER_INFO", {
+            writable: true,
+            configurable: true,
+            value: {
+                referenceId: "hub123",
+            },
+        });
+
+        window.history.pushState({}, "", "/agents/add");
     });
 
     it("renders Add Agent form with correct props", () => {
@@ -114,18 +128,12 @@ describe("AddAgent", () => {
         ).toBeInTheDocument();
     });
 
-    it("uses empty hubId when hubId is not present", () => {
-        window.history.pushState(
-            {},
-            "",
-            "/agents/add"
-        );
+    it("uses empty hubId when HOST_USER_INFO is not present", () => {
+        window.HOST_USER_INFO = undefined;
 
         render(<AddAgent />);
 
-        expect(
-            screen.getByTestId("hub-id")
-        ).toHaveTextContent("");
+        expect(screen.getByTestId("hub-id")).toHaveTextContent("");
     });
 
     it("dispatches widget loading status event", () => {
@@ -179,6 +187,11 @@ describe("AddAgent", () => {
     });
 
     it("shows success toast and navigates to agents", () => {
+        const dispatchSpy = vi.spyOn(
+            window,
+            "dispatchEvent"
+        );
+
         render(<AddAgent />);
 
         fireEvent.click(
@@ -199,6 +212,14 @@ describe("AddAgent", () => {
         expect(window.location.pathname).toBe(
             "/agents"
         );
+
+        expect(dispatchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: "popstate",
+            })
+        );
+
+        dispatchSpy.mockRestore();
     });
 
     it("shows API error message when creation fails", () => {
@@ -212,15 +233,13 @@ describe("AddAgent", () => {
 
         const options = mockMutate.mock.calls[0][1];
 
-        const error: unknown = {
+        options.onError({
             response: {
                 data: {
                     message: "Email already exists",
                 },
             },
-        };
-
-        options.onError(error);
+        });
 
         expect(mockShowToast).toHaveBeenCalledWith(
             "Email already exists",
@@ -269,6 +288,11 @@ describe("AddAgent", () => {
     });
 
     it("navigates to agents when cancel is clicked", () => {
+        const dispatchSpy = vi.spyOn(
+            window,
+            "dispatchEvent"
+        );
+
         render(<AddAgent />);
 
         fireEvent.click(
@@ -280,5 +304,13 @@ describe("AddAgent", () => {
         expect(window.location.pathname).toBe(
             "/agents"
         );
+
+        expect(dispatchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: "popstate",
+            })
+        );
+
+        dispatchSpy.mockRestore();
     });
 });
