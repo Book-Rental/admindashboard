@@ -158,19 +158,13 @@ export const updateAgent = async (
         );
     }
 
-    // New profile image
-    if (data.photo instanceof File) {
-        formData.append(
-            "photo",
-            data.photo
-        );
+
+    if (data.photo === null) {
+        formData.append("photo", "");
     }
-//     if (data.photo === null) {
-//   formData.append("photo", "");
-// }
-// else if (data.photo instanceof File) {
-//   formData.append("photo", data.photo);
-// }
+    else if (data.photo instanceof File) {
+        formData.append("photo", data.photo);
+    }
 
     const response = await fetch(
         `${API_BASE_URL}/agent/${id}`,
