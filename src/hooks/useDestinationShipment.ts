@@ -5,8 +5,26 @@ import type {
 } from "../types/destinationShipment";
 
 import {
+    getHubById,
     getHubShipmentsByPincode,
-} from "../api/DestinationShipment";
+} from "../api/destinationShipmentApi";
+
+export const useHubById = (
+    hubId: string
+) => {
+    return useQuery({
+        queryKey: [
+            "hub",
+            hubId,
+        ],
+
+        queryFn: () => {
+            return getHubById(hubId);
+        },
+
+        enabled: Boolean(hubId),
+    });
+};
 
 export const useDestinationShipments = (
     hubId: string,

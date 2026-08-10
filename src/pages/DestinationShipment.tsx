@@ -10,6 +10,7 @@ import DestinationShipmentTable from "../components/DestinationShipmentTable";
 
 import {
     useDestinationShipments,
+    useHubById,
 } from "../hooks/useDestinationShipment";
 
 import type {
@@ -25,17 +26,36 @@ export default function DestinationShipment() {
     const hubId =
         window.HOST_USER_INFO?.referenceId ?? "";
 
-    const [selectedPincode, setSelectedPincode] =
-        useState("");
+    const [
+        selectedPincode,
+        setSelectedPincode,
+    ] = useState("");
 
-    const [selectedShipments, setSelectedShipments] =
-        useState<string[]>([]);
+    const [
+        selectedShipments,
+        setSelectedShipments,
+    ] = useState<string[]>([]);
+
+    /* -----------------------------------------
+       GET HUB DETAILS
+       Used for serviceablePincodes dropdown
+    ------------------------------------------ */
+
+    const {
+        data: hubData,
+        isLoading: isHubLoading,
+        isError: isHubError,
+    } = useHubById(hubId);
+
+    /* -----------------------------------------
+       GET SHIPMENTS BY PINCODE
+    ------------------------------------------ */
 
     const {
         data,
-        isLoading,
-        isFetching,
-        isError,
+        isLoading: isShipmentLoading,
+        isFetching: isShipmentFetching,
+        isError: isShipmentError,
     } = useDestinationShipments(
         hubId,
         selectedPincode || undefined
@@ -47,51 +67,108 @@ export default function DestinationShipment() {
     const totalRecords =
         data?.data?.meta?.totalRecords ?? 0;
 
-    /*
-     * Keep the initial/all shipment data separately
-     * for building the pincode dropdown.
-     */
-    const [allShipments, setAllShipments] =
-        useState<DestinationShipment[]>([]);
-
-
-    useEffect(() => {
-        if (
-            !selectedPincode &&
-            data?.data?.shipments
-        ) {
-            setAllShipments(
-                data.data.shipments
-            );
-        }
-    }, [
-        data,
-        selectedPincode,
-    ]);
-
+    /* -----------------------------------------
+       PINCODE DROPDOWN
+       
+       Comes from:
+       hubData.data.serviceablePincodes
+    ------------------------------------------ */
 
     const pincodeOptions: PincodeOption[] = useMemo(() => {
-        const uniquePincodes = Array.from(
-            new Set(
-                allShipments
-                    .map(
-                        (shipment: DestinationShipment) =>
-                            shipment.receiver?.pincode
-                    )
-                    .filter(
-                        (pincode): pincode is string =>
-                            Boolean(pincode)
-                    )
+        const serviceablePincodes =
+            hubData?.data?.serviceablePincodes ?? [];
+
+        return [
+            { label: "All Pincodes", value: "" },
+            ...serviceablePincodes.map(
+                (pincode: string) => ({
+                    label: pincode,
+                    value: pincode,
+                })
+            ),
+        ];
+    }, [hubData]);
+
+    /* -----------------------------------------
+       CLEAR SELECTED SHIPMENTS
+       WHEN PINCODE CHANGES
+    ------------------------------------------ */
+
+    useEffect(() => {
+        setSelectedShipments([]);
+    }, [selectedPincode]);
+
+    /* -----------------------------------------
+       LOADING STATUS
+    ------------------------------------------ */
+
+    useEffect(() => {
+        window.dispatchEvent(
+            new CustomEvent(
+                "widget-loading-status",
+                {
+                    detail:
+                        isHubLoading ||
+                        isShipmentLoading ||
+                        isShipmentFetching,
+                }
             )
         );
+    }, [
+        isHubLoading,
+        isShipmentLoading,
+        isShipmentFetching,
+    ]);
 
-        return uniquePincodes.map(
-            (pincode: string): PincodeOption => ({
-                label: pincode,
-                value: pincode,
-            })
+    /* -----------------------------------------
+       HUB ERROR
+    ------------------------------------------ */
+
+    useEffect(() => {
+        if (!isHubError) {
+            return;
+        }
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "app-toast-notification",
+                {
+                    detail: {
+                        message:
+                            "Failed to load hub details",
+                        type: "error",
+                    },
+                }
+            )
         );
-    }, [allShipments]);
+    }, [isHubError]);
+
+    /* -----------------------------------------
+       SHIPMENT ERROR
+    ------------------------------------------ */
+
+    useEffect(() => {
+        if (!isShipmentError) {
+            return;
+        }
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "app-toast-notification",
+                {
+                    detail: {
+                        message:
+                            "Failed to load shipments",
+                        type: "error",
+                    },
+                }
+            )
+        );
+    }, [isShipmentError]);
+
+    /* -----------------------------------------
+       TOGGLE SINGLE SHIPMENT
+    ------------------------------------------ */
 
     const handleToggleShipment = (
         shipmentId: string
@@ -117,6 +194,9 @@ export default function DestinationShipment() {
         );
     };
 
+    /* -----------------------------------------
+       TOGGLE ALL SHIPMENTS
+    ------------------------------------------ */
 
     const handleToggleAll = () => {
         const currentShipmentIds =
@@ -159,9 +239,7 @@ export default function DestinationShipment() {
                 currentShipmentIds.forEach(
                     (id) => {
                         if (
-                            !updated.includes(
-                                id
-                            )
+                            !updated.includes(id)
                         ) {
                             updated.push(id);
                         }
@@ -173,53 +251,17 @@ export default function DestinationShipment() {
         );
     };
 
+    /* -----------------------------------------
+       CLEAR SELECTION
+    ------------------------------------------ */
 
     const clearSelection = () => {
         setSelectedShipments([]);
     };
 
-
-    useEffect(() => {
-        setSelectedShipments([]);
-    }, [selectedPincode]);
-
-
-    useEffect(() => {
-        window.dispatchEvent(
-            new CustomEvent(
-                "widget-loading-status",
-                {
-                    detail:
-                        isLoading ||
-                        isFetching,
-                }
-            )
-        );
-    }, [
-        isLoading,
-        isFetching,
-    ]);
-
-
-    useEffect(() => {
-        if (!isError) {
-            return;
-        }
-
-        window.dispatchEvent(
-            new CustomEvent(
-                "app-toast-notification",
-                {
-                    detail: {
-                        message:
-                            "Failed to load shipments",
-                        type: "error",
-                    },
-                }
-            )
-        );
-    }, [isError]);
-
+    /* -----------------------------------------
+       SHOW AGENTS
+    ------------------------------------------ */
 
     const handleShowAgents = () => {
         console.log(
@@ -228,8 +270,25 @@ export default function DestinationShipment() {
         );
     };
 
+    /* -----------------------------------------
+       LOADING
+    ------------------------------------------ */
+
+    const isLoading =
+        isHubLoading ||
+        isShipmentLoading;
+
+    /* -----------------------------------------
+       ERROR
+    ------------------------------------------ */
+
+    const isError =
+        isHubError ||
+        isShipmentError;
+
     return (
         <div className="w-full min-w-0 p-3 sm:p-5 md:p-6">
+
             <div className="mb-4 flex items-center justify-between gap-4 sm:mb-6">
                 <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl md:text-3xl">
                     Shipment List
@@ -239,53 +298,65 @@ export default function DestinationShipment() {
             <div className="mb-4 flex flex-col gap-3 sm:gap-4 lg:mb-6 lg:flex-row lg:items-center lg:justify-between">
 
                 {/* Pincode Filter */}
+
                 <div
                     className="
-        w-full
-        max-w-full
-        sm:max-w-[355px]
-        sm:w-64
+                        w-full
+                        max-w-full
+                        sm:max-w-[355px]
+                        sm:w-64
 
-        [&_.dropdown]:!w-full
-        [&_.dropdown]:!max-w-full
+                        [&_.dropdown]:!w-full
+                        [&_.dropdown]:!max-w-full
 
-        [&_.dropdown__select]:!mt-0
-        [&_.dropdown__select]:!h-11
-        [&_.dropdown__select]:!w-full
-        [&_.dropdown__select]:!max-w-full
-        [&_.dropdown__select]:!min-w-0
-        [&_.dropdown__select]:!rounded-lg
-        [&_.dropdown__select]:!border
-        [&_.dropdown__select]:!border-gray-300
-        [&_.dropdown__select]:!bg-white
-        [&_.dropdown__select]:!px-3.5
-        [&_.dropdown__select]:!text-sm
-        [&_.dropdown__select]:!text-gray-900
-        [&_.dropdown__select]:!outline-none
-        [&_.dropdown__select]:!box-border
-        [&_.dropdown__select]:!transition-colors
+                        [&_.dropdown__select]:!mt-0
+                        [&_.dropdown__select]:!h-11
+                        [&_.dropdown__select]:!w-full
+                        [&_.dropdown__select]:!max-w-full
+                        [&_.dropdown__select]:!min-w-0
+                        [&_.dropdown__select]:!rounded-lg
+                        [&_.dropdown__select]:!border
+                        [&_.dropdown__select]:!border-gray-300
+                        [&_.dropdown__select]:!bg-white
+                        [&_.dropdown__select]:!px-3.5
+                        [&_.dropdown__select]:!text-sm
+                        [&_.dropdown__select]:!text-gray-900
+                        [&_.dropdown__select]:!outline-none
+                        [&_.dropdown__select]:!box-border
+                        [&_.dropdown__select]:!transition-colors
 
-        [&_.dropdown__select:hover]:!border-gray-400
+                        [&_.dropdown__select:hover]:!border-gray-400
 
-        [&_.dropdown__select:focus]:!border-blue-500
+                        [&_.dropdown__select:focus]:!border-blue-500
 
-        [&_.dropdown__select:disabled]:!border-gray-200
-        [&_.dropdown__select:disabled]:!bg-gray-50
-        [&_.dropdown__select:disabled]:!text-gray-400
-    "
+                        [&_.dropdown__select:disabled]:!border-gray-200
+                        [&_.dropdown__select:disabled]:!bg-gray-50
+                        [&_.dropdown__select:disabled]:!text-gray-400
+                    "
                 >
                     <Dropdown
                         label=""
                         value={selectedPincode}
                         onChange={(value: string) => {
-                            setSelectedPincode(value);
+                            setSelectedPincode(value === "ALL" ? "" : value);
+
                         }}
-                        options={pincodeOptions}
+                        options={
+                            pincodeOptions
+                        }
                         placeholder="Select Pincode"
+                        disabled={
+                            isHubLoading ||
+                            isHubError
+                        }
                     />
                 </div>
+
+                {/* Selected Shipment Actions */}
+
                 {selectedShipments.length > 0 && (
                     <div className="flex w-full flex-wrap items-center gap-2 sm:gap-3 lg:w-auto">
+
                         <span className="text-sm text-gray-600">
                             {
                                 selectedShipments.length
@@ -314,12 +385,15 @@ export default function DestinationShipment() {
                         >
                             Show Agents
                         </Rb_Button>
+
                     </div>
                 )}
             </div>
 
             {/* Shipment Table */}
+
             <div className="relative w-full min-w-0 overflow-x-auto rounded-lg">
+
                 {isLoading ? (
                     <div className="flex items-center justify-center py-16 sm:py-20">
                         <Rb_LoadingSpinner />
@@ -365,8 +439,8 @@ export default function DestinationShipment() {
                         )}
                     </>
                 )}
+
             </div>
         </div>
     );
 }
-

@@ -1,110 +1,214 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import {
+  render,
+  screen,
+} from "@testing-library/react";
+
+import {
+  describe,
+  it,
+  expect,
+  vi,
+} from "vitest";
+
 import App from "../App";
 
-// Mock Sidebar
+/* =========================================
+   Component mocks
+========================================= */
+
 vi.mock("../components/sidebar", () => ({
-  default: () => <div>Sidebar</div>,
+  default: () => (
+    <div>Sidebar</div>
+  ),
 }));
 
-// Mock DeliveryAgentList
 vi.mock("../pages/DeliveryAgentList", () => ({
-  default: () => <div>Delivery Agent List Page</div>,
+  default: () => (
+    <div>Delivery Agent List Page</div>
+  ),
 }));
 
-// Mock AddAgent
 vi.mock("../pages/AddAgent", () => ({
-  default: () => <div>Add Agent Page</div>,
+  default: () => (
+    <div>Add Agent Page</div>
+  ),
 }));
 
-// Mock EditAgent
 vi.mock("../pages/EditAgent", () => ({
-  default: () => <div>Edit Agent Page</div>,
+  default: () => (
+    <div>Edit Agent Page</div>
+  ),
 }));
 
-// Mock AgentDetails
 vi.mock("../pages/AgentDetails", () => ({
-  default: () => <div>Agent Details Page</div>,
+  default: () => (
+    <div>Agent Details Page</div>
+  ),
 }));
 
-// Mock ShipmentList
 vi.mock("../pages/ShipmentList", () => ({
-  default: () => <div>Shipment List Page</div>,
+  default: () => (
+    <div>Shipment List Page</div>
+  ),
 }));
 
-// Mock ShipmentDetails
 vi.mock("../pages/ShipmentDetails", () => ({
-  default: () => <div>Shipment Details Page</div>,
+  default: () => (
+    <div>Shipment Details Page</div>
+  ),
 }));
+
+vi.mock("../pages/DestinationShipment", () => ({
+  default: () => (
+    <div>
+      Destination Shipment Page
+    </div>
+  ),
+}));
+
+/* =========================================
+   Tests
+========================================= */
 
 describe("App Component", () => {
   it("renders Sidebar", () => {
     render(<App />);
 
-    expect(screen.getByText("Sidebar")).toBeInTheDocument();
-  });
-
-  it("renders DeliveryAgentList by default", () => {
-    render(<App />);
-
     expect(
-      screen.getByText("Delivery Agent List Page")
+      screen.getByText("Sidebar")
     ).toBeInTheDocument();
   });
 
-  it("renders DeliveryAgentList for admin view", () => {
-    render(<App view="admin" />);
+  it(
+    "renders DeliveryAgentList by default",
+    () => {
+      render(<App />);
 
-    expect(
-      screen.getByText("Delivery Agent List Page")
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(
+          "Delivery Agent List Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
 
-  it("renders DeliveryAgentList for agents view", () => {
-    render(<App view="agents" />);
+  it(
+    "renders DeliveryAgentList for admin view",
+    () => {
+      render(
+        <App view="admin" />
+      );
 
-    expect(
-      screen.getByText("Delivery Agent List Page")
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(
+          "Delivery Agent List Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
 
-  it("renders AddAgent for create-agent view", () => {
-    render(<App view="create-agent" />);
+  it(
+    "renders DeliveryAgentList for agents view",
+    () => {
+      render(
+        <App view="agents" />
+      );
 
-    expect(
-      screen.getByText("Add Agent Page")
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(
+          "Delivery Agent List Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
 
-  it("renders EditAgent for edit-agent view", () => {
-    render(<App view="edit-agent" />);
+  it(
+    "renders AddAgent for create-agent view",
+    () => {
+      render(
+        <App view="create-agent" />
+      );
 
-    expect(
-      screen.getByText("Edit Agent Page")
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(
+          "Add Agent Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
 
-  it("renders AgentDetails for agent-details view", () => {
-    render(<App view="agent-details" />);
+  it(
+    "renders EditAgent for edit-agent view",
+    () => {
+      render(
+        <App view="edit-agent" />
+      );
 
-    expect(
-      screen.getByText("Agent Details Page")
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(
+          "Edit Agent Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
 
-  it("renders ShipmentList for orders view", () => {
-    render(<App view="orders" />);
+  it(
+    "renders AgentDetails for agent-details view",
+    () => {
+      render(
+        <App view="agent-details" />
+      );
 
-    expect(
-      screen.getByText("Shipment List Page")
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(
+          "Agent Details Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
 
-  it("renders ShipmentDetails for order-details view", () => {
-    render(<App view="order-details" />);
+  it(
+    "renders ShipmentList for orders view",
+    () => {
+      render(
+        <App view="orders" />
+      );
 
-    expect(
-      screen.getByText("Shipment Details Page")
-    ).toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(
+          "Shipment List Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
+
+  it(
+    "renders ShipmentDetails for order-details view",
+    () => {
+      render(
+        <App view="order-details" />
+      );
+
+      expect(
+        screen.getByText(
+          "Shipment Details Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
+
+  it(
+    "renders DestinationShipment for destination-shipments view",
+    () => {
+      render(
+        <App view="destination-shipments" />
+      );
+
+      expect(
+        screen.getByText(
+          "Destination Shipment Page"
+        )
+      ).toBeInTheDocument();
+    }
+  );
 });
