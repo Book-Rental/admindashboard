@@ -21,6 +21,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: FaTruck,
   },
   { label: "Orders", path: "/orders", icon: FaClipboardList },
+  { label: "Destination hub orders", path: "/destination-shipments", icon: FaClipboardList },
 
 ];
 function navigate(path: string) {

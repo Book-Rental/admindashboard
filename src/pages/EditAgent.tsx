@@ -16,7 +16,6 @@ import { useEffect } from "react";
 
 export default function EditAgent() {
     const agentId = window.location.pathname.split("/")[2];
-    console.log("Agent ID:", agentId);
 
     const {
         data: agent,
