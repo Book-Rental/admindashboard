@@ -222,7 +222,8 @@ export default function ShipmentDetails() {
 <JourneyTimeline
   history={shipment.journeyHistory}
   shipmentId={shipment.shipmentId}
-  hubId={shipment.journeyHistory[shipment.journeyHistory.length - 1].hubId}
+  currentHubId={shipment.infrastructure.currentHub._id}
+  destinationHubId={shipment.infrastructure.destinationHub._id}
   refetch={refetch}
 />
 

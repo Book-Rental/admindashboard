@@ -6,10 +6,10 @@ import { updateShipmentStatus } from "../../api/shipmentApi";
 interface JourneyTimelineProps {
   history: JourneyHistory[];
   shipmentId: string;
-  hubId: string;
-  refetch: () => Promise<unknown>;
+  currentHubId: string;
+  destinationHubId: string;
+refetch: () => Promise<unknown>;
 }
-
 const formatDate = (date: string) =>
   new Date(date).toLocaleString("en-IN", {
     day: "2-digit",
@@ -22,7 +22,8 @@ const formatDate = (date: string) =>
 export default function JourneyTimeline({
   history,
   shipmentId,
-  hubId,
+  currentHubId,
+  destinationHubId,
   refetch,
 }: JourneyTimelineProps) {
   const [loading, setLoading] = useState(false);
@@ -31,27 +32,46 @@ export default function JourneyTimeline({
 
   const showReachedHubButton =
     latestJourney?.status === "Pickup Completed";
-
+const showDispatchButton =
+  latestJourney?.status === "Arrived At Origin Hub";
   const handleClick = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      await updateShipmentStatus(shipmentId, {
-        status: "Arrived At Origin Hub",
-        event: "Arrived At Hub",
-        hubId,
-        remarks: "Reached to hub.",
-        updatedBy: hubId,
-      });
+    await updateShipmentStatus(shipmentId, {
+      status: "Arrived At Origin Hub",
+      event: "Arrived At Hub",
+      hubId: currentHubId,
+      remarks: "Reached to hub.",
+      updatedBy: currentHubId,
+    });
 
-      await refetch();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    await refetch();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+const handleDispatch = async () => {
+  try {
+    setLoading(true);
 
+    await updateShipmentStatus(shipmentId, {
+      status: "Arrived At Destination Hub",
+      event: "Trip Completed",
+      hubId: destinationHubId,
+      remarks: "Trip Completed order reached the Destination hub",
+      updatedBy: destinationHubId,
+    });
+
+    await refetch();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       {/* Header */}
@@ -60,15 +80,27 @@ export default function JourneyTimeline({
           Shipment Journey
         </h2>
 
-        {showReachedHubButton && (
-          <button
-            onClick={handleClick}
-            disabled={loading}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition"
-          >
-            {loading ? "Updating..." : "Reached to Hub"}
-          </button>
-        )}
+     <div className="flex items-center gap-3">
+  {showReachedHubButton && (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition"
+    >
+      {loading ? "Updating..." : "Reached to Hub"}
+    </button>
+  )}
+
+  {showDispatchButton && (
+    <button
+      onClick={handleDispatch}
+      disabled={loading}
+      className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition"
+    >
+      {loading ? "Dispatching..." : "Dispatch to Destination Hub"}
+    </button>
+  )}
+</div>
       </div>
 
       {/* Timeline */}

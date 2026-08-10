@@ -40,13 +40,13 @@ const DeliveryAgentHeader = ({
 
           <button className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-slate-50 transition-colors shrink-0">
             <div className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold uppercase">
-              {isLoading ? "--" : hub?.hubId?.slice(0, 2) || "--"}
+              {isLoading ? "--" : hub?.hubName?.slice(0, 2) || "--"}
             </div>
 
 
             <div className="text-left hidden sm:block">
               <p className="text-sm font-semibold text-slate-800 leading-tight whitespace-nowrap">
-                {isLoading ? "Loading..." : hub?.hubId || "Unknown Hub"}
+                {isLoading ? "Loading..." : hub?.hubName || "Unknown Hub"}
               </p>
             </div>
 

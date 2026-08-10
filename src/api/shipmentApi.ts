@@ -9,7 +9,7 @@ export const getShipments = async (
   search = ""
 ): Promise<ShipmentResponse> => {
   const response = await axios.get(
-    `${API_BASE_URL}/hub/shipment/${hubId}`,
+    `${API_BASE_URL}/hub/shipment/${hubId}?journeyType=Pickup`,
     {
       params: {
         page,
