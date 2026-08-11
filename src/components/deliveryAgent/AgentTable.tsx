@@ -42,157 +42,220 @@ const AgentTable = ({
   onAdd,
 }: AgentTableProps) => {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
         <h2 className="text-base font-semibold text-slate-800">
           All Delivery Agents
         </h2>
 
-        <Rb_Button onClick={onAdd}>
-          <div className="flex items-center gap-2 whitespace-nowrap">
-            <FaPlus className="text-xs" />
-            Add New Agent
-          </div>
-        </Rb_Button>
+        <div className="w-full sm:w-auto">
+          <Rb_Button onClick={onAdd}>
+            <div className="flex items-center justify-center gap-2 whitespace-nowrap">
+              <FaPlus className="text-xs" />
+              Add New Agent
+            </div>
+          </Rb_Button>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
+      <div className="w-full min-w-0 overflow-x-auto">
+
+        <table className="w-full min-w-[850px] table-fixed">
+
           <thead className="bg-slate-50">
             <tr className="text-left">
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+
+              <th className="w-[24%] px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Agent
               </th>
 
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <th className="w-[22%] px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Email
               </th>
 
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <th className="w-[14%] px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Phone
               </th>
 
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <th className="w-[14%] px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Vehicle
               </th>
 
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <th className="w-[12%] px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Status
               </th>
 
-              <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <th className="w-[14%] px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Actions
               </th>
+
             </tr>
           </thead>
 
           <tbody>
+
             {agents.length > 0 ? (
               agents.map((agent) => (
                 <tr
                   key={agent.agentId}
-                  className="border-t border-slate-100 hover:bg-slate-50 transition-colors"
+                  className="border-t border-slate-100 transition-colors hover:bg-slate-50"
                 >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center">
-  {agent.photo ? (
-    <img
-      src={agent.photo}
-      alt={agent.fullName}
-      className="w-full h-full object-cover"
-      onError={(e) => {
-        e.currentTarget.style.display = "none";
-        const fallback = e.currentTarget.nextElementSibling as HTMLDivElement;
-        if (fallback) fallback.style.display = "flex";
-      }}
-    />
-  ) : null}
 
-  <div
-    className={`w-full h-full items-center justify-center text-white font-semibold text-sm uppercase ${
-      agent.photo ? "hidden" : "flex"
-    }`}
-  >
-    {agent.fullName.slice(0, 2)}
-  </div>
-</div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-800">
+                  <td className="min-w-0 px-3 py-4 sm:px-4">
+                    <div className="flex min-w-0 items-center gap-3">
+
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-600">
+
+                        {agent.photo ? (
+                          <img
+                            src={agent.photo}
+                            alt={agent.fullName}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display =
+                                "none";
+
+                              const fallback =
+                                e.currentTarget
+                                  .nextElementSibling as HTMLDivElement;
+
+                              if (fallback) {
+                                fallback.style.display =
+                                  "flex";
+                              }
+                            }}
+                          />
+                        ) : null}
+
+                        <div
+                          className={`h-full w-full items-center justify-center text-sm font-semibold uppercase text-white ${agent.photo
+                            ? "hidden"
+                            : "flex"
+                            }`}
+                        >
+                          {agent.fullName.slice(0, 2)}
+                        </div>
+
+                      </div>
+
+                      <div className="min-w-0">
+                        <p
+                          className="truncate text-sm font-semibold text-slate-800"
+                          title={agent.fullName}
+                        >
                           {agent.fullName}
                         </p>
 
-                        <p className="text-xs text-slate-400">
+                        <p
+                          className="truncate text-xs text-slate-400"
+                          title={agent.agentId}
+                        >
                           {agent.agentId}
                         </p>
                       </div>
+
                     </div>
                   </td>
 
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {agent.email}
+                  <td className="min-w-0 px-3 py-4 text-sm text-slate-600 sm:px-4">
+                    <span
+                      className="block truncate"
+                      title={agent.email}
+                    >
+                      {agent.email}
+                    </span>
                   </td>
 
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {agent.phoneNumber}
+                  <td className="px-3 py-4 text-sm text-slate-600 sm:px-4">
+                    <span className="whitespace-nowrap">
+                      {agent.phoneNumber}
+                    </span>
                   </td>
 
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <VehicleIcon type={agent.vehicle.type} />
-                      <span>{agent.vehicle.type}</span>
+                  <td className="min-w-0 px-3 py-4 sm:px-4">
+                    <div className="flex min-w-0 items-center gap-2 text-sm text-slate-600">
+
+                      <VehicleIcon
+                        type={agent.vehicle.type}
+                      />
+
+                      <span
+                        className="truncate"
+                        title={agent.vehicle.type}
+                      >
+                        {agent.vehicle.type}
+                      </span>
+
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
-                    <StatusBadge status={agent.status} />
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => onView(agent.agentId)}
-                        className="w-8 h-8 rounded-lg border border-slate-200 hover:bg-blue-50 hover:border-blue-300 flex items-center justify-center transition-colors"
-                      >
-                        <FaEye className="text-blue-600 text-xs" />
-                      </button>
-
-                      <button
-                        onClick={() => onEdit(agent.agentId)}
-                        className="w-8 h-8 rounded-lg border border-slate-200 hover:bg-green-50 hover:border-green-300 flex items-center justify-center transition-colors"
-                      >
-                        <FaEdit className="text-green-600 text-xs" />
-                      </button>
-
-                      <button
-                        onClick={() => onDelete(agent.agentId)}
-                        className="w-8 h-8 rounded-lg border border-slate-200 hover:bg-red-50 hover:border-red-300 flex items-center justify-center transition-colors"
-                      >
-                        <FaTrash className="text-red-600 text-xs" />
-                      </button>
+                  <td className="px-3 py-4 sm:px-4">
+                    <div className="whitespace-nowrap">
+                      <StatusBadge
+                        status={agent.status}
+                      />
                     </div>
                   </td>
+
+                  <td className="px-3 py-4 sm:px-4">
+                    <div className="flex items-center justify-center gap-1.5">
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onView(agent.agentId)
+                        }
+                        aria-label="View agent"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 transition-colors hover:border-blue-300 hover:bg-blue-50"
+                      >
+                        <FaEye className="text-xs text-blue-600" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onEdit(agent.agentId)
+                        }
+                        aria-label="Edit agent"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 transition-colors hover:border-green-300 hover:bg-green-50"
+                      >
+                        <FaEdit className="text-xs text-green-600" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onDelete(agent.agentId)
+                        }
+                        aria-label="Delete agent"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 transition-colors hover:border-red-300 hover:bg-red-50"
+                      >
+                        <FaTrash className="text-xs text-red-600" />
+                      </button>
+
+                    </div>
+                  </td>
+
                 </tr>
               ))
             ) : (
               <tr>
                 <td
                   colSpan={6}
-                  className="py-12 text-center text-slate-500"
+                  className="p-8 text-center text-sm text-slate-500"
                 >
                   No delivery agents found.
                 </td>
               </tr>
             )}
+
           </tbody>
         </table>
       </div>
 
-      {/* Footer */}
-      <div className="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm text-slate-500">
+      <div className="flex flex-col gap-4 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+        <p className="text-center text-sm text-slate-500 sm:text-left">
           Showing{" "}
           <span className="font-semibold">
             {agents.length}
@@ -205,12 +268,15 @@ const AgentTable = ({
         </p>
 
         {meta.totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={meta.totalPages}
-            onPageChange={onPageChange}
-          />
+          <div className="flex w-full justify-center sm:w-auto sm:justify-end">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta.totalPages}
+              onPageChange={onPageChange}
+            />
+          </div>
         )}
+
       </div>
     </div>
   );

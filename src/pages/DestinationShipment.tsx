@@ -1,26 +1,45 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+
+import {
+    assignAgentToShipments,
+} from "../api/shipmentApi";
 
 import {
     Rb_LoadingSpinner,
     Rb_Button,
     Dropdown,
+    Pagination,
 } from "@rentbook/rentbook-ui-lib";
 
 import DestinationShipmentTable from "../components/DestinationShipmentTable";
+import AgentsModal from "../components/AgentsModal";
 
 import {
     useDestinationShipments,
     useHubById,
 } from "../hooks/useDestinationShipment";
 
+import { getAgents } from "../api/agentApi";
+
 import type {
     DestinationShipment,
 } from "../types/destinationShipment";
+
+import type {
+    Agent,
+    AgentAnalytics,
+} from "../types/agent";
 
 interface PincodeOption {
     label: string;
     value: string;
 }
+
+const PAGE_LIMIT = 10;
 
 export default function DestinationShipment() {
     const hubId =
@@ -32,24 +51,67 @@ export default function DestinationShipment() {
     ] = useState("");
 
     const [
+        selectedStatus,
+        setSelectedStatus,
+    ] = useState("");
+
+    const [
+        selectedAgentFilter,
+        setSelectedAgentFilter,
+    ] = useState("");
+
+    const [
+        currentPage,
+        setCurrentPage,
+    ] = useState(1);
+
+    const [
         selectedShipments,
         setSelectedShipments,
     ] = useState<string[]>([]);
 
-    /* -----------------------------------------
-       GET HUB DETAILS
-       Used for serviceablePincodes dropdown
-    ------------------------------------------ */
+    const [
+        removedShipmentIds,
+        setRemovedShipmentIds,
+    ] = useState<string[]>([]);
+
+    const [
+        selectedAgentId,
+        setSelectedAgentId,
+    ] = useState<string | null>(null);
+
+    const [
+        isAssigningAgent,
+        setIsAssigningAgent,
+    ] = useState(false);
+
+    const [
+        isAgentsModalOpen,
+        setIsAgentsModalOpen,
+    ] = useState(false);
+
+    const [
+        agents,
+        setAgents,
+    ] = useState<Agent[]>([]);
+
+    const [
+        analytics,
+        setAnalytics,
+    ] = useState<AgentAnalytics | null>(
+        null
+    );
+
+    const [
+        isAgentsLoading,
+        setIsAgentsLoading,
+    ] = useState(false);
 
     const {
         data: hubData,
         isLoading: isHubLoading,
         isError: isHubError,
     } = useHubById(hubId);
-
-    /* -----------------------------------------
-       GET SHIPMENTS BY PINCODE
-    ------------------------------------------ */
 
     const {
         data,
@@ -58,49 +120,145 @@ export default function DestinationShipment() {
         isError: isShipmentError,
     } = useDestinationShipments(
         hubId,
-        selectedPincode || undefined
+        {
+            pincode:
+                selectedPincode ||
+                undefined,
+
+            status:
+                selectedStatus ||
+                undefined,
+
+            agentId:
+                selectedAgentFilter ||
+                undefined,
+
+            page: currentPage,
+
+            limit: PAGE_LIMIT,
+        }
     );
 
-    const shipments: DestinationShipment[] =
+    const allShipments: DestinationShipment[] =
         data?.data?.shipments ?? [];
 
+    const pagination =
+        data?.data?.meta;
+
+    const totalPages =
+        pagination?.totalPages ?? 1;
+
     const totalRecords =
-        data?.data?.meta?.totalRecords ?? 0;
+        pagination?.totalRecords ?? 0;
 
-    /* -----------------------------------------
-       PINCODE DROPDOWN
-       
-       Comes from:
-       hubData.data.serviceablePincodes
-    ------------------------------------------ */
+    const shipments =
+        allShipments.filter(
+            (shipment) =>
+                !removedShipmentIds.includes(
+                    shipment.shipmentId
+                )
+        );
 
-    const pincodeOptions: PincodeOption[] = useMemo(() => {
-        const serviceablePincodes =
-            hubData?.data?.serviceablePincodes ?? [];
+    const pincodeOptions: PincodeOption[] =
+        useMemo(() => {
+            const serviceablePincodes =
+                hubData?.data
+                    ?.serviceablePincodes ?? [];
 
-        return [
-            { label: "All Pincodes", value: "" },
-            ...serviceablePincodes.map(
-                (pincode: string) => ({
-                    label: pincode,
-                    value: pincode,
-                })
-            ),
-        ];
-    }, [hubData]);
+            return [
+                {
+                    label: "All Pincodes",
+                    value: "",
+                },
 
-    /* -----------------------------------------
-       CLEAR SELECTED SHIPMENTS
-       WHEN PINCODE CHANGES
-    ------------------------------------------ */
+                ...serviceablePincodes.map(
+                    (pincode: string) => ({
+                        label: pincode,
+                        value: pincode,
+                    })
+                ),
+            ];
+        }, [hubData]);
+
+    const statusOptions = [
+        {
+            label: "All Statuses",
+            value: "",
+        },
+        {
+            label:
+                "Arrived At Destination Hub",
+            value:
+                "Arrived At Destination Hub",
+        },
+        {
+            label:
+                "Delivery Agent Assigned",
+            value:
+                "Delivery Agent Assigned",
+        },
+        {
+            label: "Out For Delivery",
+            value: "Out For Delivery",
+        },
+        {
+            label: "Delivered",
+            value: "Delivered",
+        },
+    ];
+
+    const agentOptions = [
+        {
+            label: "All Agents",
+            value: "",
+        },
+
+        ...agents.map(
+            (agent) => ({
+                label: agent.fullName,
+                value: agent.agentId,
+            })
+        ),
+    ];
+
+    useEffect(() => {
+        const fetchAgents = async () => {
+            if (!hubId) {
+                return;
+            }
+
+            try {
+                const response =
+                    await getAgents(
+                        hubId,
+                        1,
+                        100
+                    );
+
+                setAgents(
+                    response.data.agents
+                );
+            } catch (error) {
+                console.error(
+                    "Failed to fetch agents:",
+                    error
+                );
+            }
+        };
+
+        fetchAgents();
+    }, [hubId]);
 
     useEffect(() => {
         setSelectedShipments([]);
-    }, [selectedPincode]);
-
-    /* -----------------------------------------
-       LOADING STATUS
-    ------------------------------------------ */
+        setSelectedAgentId(null);
+        setCurrentPage(1);
+        setRemovedShipmentIds([]);
+    }, [
+        selectedPincode,
+        selectedStatus,
+        selectedAgentFilter,
+    ]);
 
     useEffect(() => {
         window.dispatchEvent(
@@ -119,10 +277,6 @@ export default function DestinationShipment() {
         isShipmentLoading,
         isShipmentFetching,
     ]);
-
-    /* -----------------------------------------
-       HUB ERROR
-    ------------------------------------------ */
 
     useEffect(() => {
         if (!isHubError) {
@@ -143,10 +297,6 @@ export default function DestinationShipment() {
         );
     }, [isHubError]);
 
-    /* -----------------------------------------
-       SHIPMENT ERROR
-    ------------------------------------------ */
-
     useEffect(() => {
         if (!isShipmentError) {
             return;
@@ -166,22 +316,18 @@ export default function DestinationShipment() {
         );
     }, [isShipmentError]);
 
-    /* -----------------------------------------
-       TOGGLE SINGLE SHIPMENT
-    ------------------------------------------ */
-
     const handleToggleShipment = (
         shipmentId: string
     ) => {
         setSelectedShipments(
-            (previous) => {
+            (previous: string[]) => {
                 if (
                     previous.includes(
                         shipmentId
                     )
                 ) {
                     return previous.filter(
-                        (id) =>
+                        (id: string) =>
                             id !== shipmentId
                     );
                 }
@@ -194,34 +340,39 @@ export default function DestinationShipment() {
         );
     };
 
-    /* -----------------------------------------
-       TOGGLE ALL SHIPMENTS
-    ------------------------------------------ */
-
     const handleToggleAll = () => {
-        const currentShipmentIds =
-            shipments.map(
-                (
-                    shipment: DestinationShipment
-                ) =>
-                    shipment.shipmentId
-            );
+        const selectableShipmentIds =
+            shipments
+                .filter(
+                    (
+                        shipment: DestinationShipment
+                    ) =>
+                        !shipment.assignedAgent &&
+                        shipment.currentStatus ===
+                        "Arrived At Destination Hub"
+                )
+                .map(
+                    (
+                        shipment: DestinationShipment
+                    ) =>
+                        shipment.shipmentId
+                );
 
         const allSelected =
-            currentShipmentIds.length > 0 &&
-            currentShipmentIds.every(
-                (id) =>
-                    selectedShipments.includes(
-                        id
-                    )
+            selectableShipmentIds.length > 0 &&
+            selectableShipmentIds.every(
+                (id: string) =>
+                    selectedShipments.includes(id)
             );
 
         if (allSelected) {
             setSelectedShipments(
-                (previous) =>
+                (
+                    previous: string[]
+                ) =>
                     previous.filter(
-                        (id) =>
-                            !currentShipmentIds.includes(
+                        (id: string) =>
+                            !selectableShipmentIds.includes(
                                 id
                             )
                     )
@@ -231,13 +382,11 @@ export default function DestinationShipment() {
         }
 
         setSelectedShipments(
-            (previous) => {
-                const updated = [
-                    ...previous,
-                ];
+            (previous: string[]) => {
+                const updated = [...previous];
 
-                currentShipmentIds.forEach(
-                    (id) => {
+                selectableShipmentIds.forEach(
+                    (id: string) => {
                         if (
                             !updated.includes(id)
                         ) {
@@ -251,196 +400,492 @@ export default function DestinationShipment() {
         );
     };
 
-    /* -----------------------------------------
-       CLEAR SELECTION
-    ------------------------------------------ */
-
     const clearSelection = () => {
         setSelectedShipments([]);
     };
 
-    /* -----------------------------------------
-       SHOW AGENTS
-    ------------------------------------------ */
+    const clearFilters = () => {
+        setSelectedPincode("");
+        setSelectedStatus("");
+        setSelectedAgentFilter("");
 
-    const handleShowAgents = () => {
-        console.log(
-            "Selected shipment IDs:",
-            selectedShipments
-        );
+        setSelectedShipments([]);
+        setRemovedShipmentIds([]);
+        setSelectedAgentId(null);
+        setCurrentPage(1);
     };
 
-    /* -----------------------------------------
-       LOADING
-    ------------------------------------------ */
+    const handlePageChange = (
+        page: number
+    ) => {
+        setSelectedShipments([]);
+        setCurrentPage(page);
+    };
+
+    const handleShowAgents = async () => {
+        if (!hubId) {
+            window.dispatchEvent(
+                new CustomEvent(
+                    "app-toast-notification",
+                    {
+                        detail: {
+                            message:
+                                "Hub ID not found",
+                            type: "error",
+                        },
+                    }
+                )
+            );
+
+            return;
+        }
+
+        try {
+            setIsAgentsModalOpen(true);
+            setIsAgentsLoading(true);
+
+            setAgents([]);
+            setAnalytics(null);
+
+            const response =
+                await getAgents(
+                    hubId,
+                    1,
+                    100
+                );
+
+            setAgents(
+                response.data.agents
+            );
+
+            setAnalytics(
+                response.data.analytics
+            );
+        } catch (error) {
+            console.error(
+                "Failed to fetch agents:",
+                error
+            );
+
+            setAgents([]);
+            setAnalytics(null);
+
+            window.dispatchEvent(
+                new CustomEvent(
+                    "app-toast-notification",
+                    {
+                        detail: {
+                            message:
+                                "Failed to load delivery agents",
+                            type: "error",
+                        },
+                    }
+                )
+            );
+        } finally {
+            setIsAgentsLoading(false);
+        }
+    };
+
+    const handleAssignAgent = async () => {
+        if (!selectedAgentId) {
+            window.dispatchEvent(
+                new CustomEvent(
+                    "app-toast-notification",
+                    {
+                        detail: {
+                            message:
+                                "Please select an agent",
+                            type: "error",
+                        },
+                    }
+                )
+            );
+
+            return;
+        }
+
+        if (
+            selectedShipments.length ===
+            0
+        ) {
+            window.dispatchEvent(
+                new CustomEvent(
+                    "app-toast-notification",
+                    {
+                        detail: {
+                            message:
+                                "Please select at least one shipment",
+                            type: "error",
+                        },
+                    }
+                )
+            );
+
+            return;
+        }
+
+        const updatedBy =
+            window.HOST_USER_INFO
+                ?.userId ??
+            window.HOST_USER_INFO?._id ??
+            "";
+
+        if (!updatedBy) {
+            window.dispatchEvent(
+                new CustomEvent(
+                    "app-toast-notification",
+                    {
+                        detail: {
+                            message:
+                                "User ID not found",
+                            type: "error",
+                        },
+                    }
+                )
+            );
+
+            return;
+        }
+
+        try {
+            setIsAssigningAgent(true);
+
+            await assignAgentToShipments(
+                selectedAgentId,
+                selectedShipments,
+                updatedBy
+            );
+
+            setRemovedShipmentIds(
+                (
+                    previous: string[]
+                ) => [
+                        ...previous,
+                        ...selectedShipments.filter(
+                            (id: string) =>
+                                !previous.includes(
+                                    id
+                                )
+                        ),
+                    ]
+            );
+
+            setSelectedShipments([]);
+            setSelectedAgentId(null);
+            setIsAgentsModalOpen(false);
+
+            window.dispatchEvent(
+                new CustomEvent(
+                    "app-toast-notification",
+                    {
+                        detail: {
+                            message:
+                                "Agent assigned successfully",
+                            type: "success",
+                        },
+                    }
+                )
+            );
+        } catch (error) {
+            console.error(
+                "Failed to assign agent:",
+                error
+            );
+
+            window.dispatchEvent(
+                new CustomEvent(
+                    "app-toast-notification",
+                    {
+                        detail: {
+                            message:
+                                "Failed to assign agent",
+                            type: "error",
+                        },
+                    }
+                )
+            );
+        } finally {
+            setIsAssigningAgent(false);
+        }
+    };
+
+    const handleCloseAgentsModal = () => {
+        setIsAgentsModalOpen(false);
+    };
 
     const isLoading =
         isHubLoading ||
         isShipmentLoading;
-
-    /* -----------------------------------------
-       ERROR
-    ------------------------------------------ */
 
     const isError =
         isHubError ||
         isShipmentError;
 
     return (
-        <div className="w-full min-w-0 p-3 sm:p-5 md:p-6">
-
-            <div className="mb-4 flex items-center justify-between gap-4 sm:mb-6">
-                <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl md:text-3xl">
-                    Shipment List
-                </h1>
-            </div>
-
-            <div className="mb-4 flex flex-col gap-3 sm:gap-4 lg:mb-6 lg:flex-row lg:items-center lg:justify-between">
-
-                {/* Pincode Filter */}
-
-                <div
-                    className="
-                        w-full
-                        max-w-full
-                        sm:max-w-[355px]
-                        sm:w-64
-
-                        [&_.dropdown]:!w-full
-                        [&_.dropdown]:!max-w-full
-
-                        [&_.dropdown__select]:!mt-0
-                        [&_.dropdown__select]:!h-11
-                        [&_.dropdown__select]:!w-full
-                        [&_.dropdown__select]:!max-w-full
-                        [&_.dropdown__select]:!min-w-0
-                        [&_.dropdown__select]:!rounded-lg
-                        [&_.dropdown__select]:!border
-                        [&_.dropdown__select]:!border-gray-300
-                        [&_.dropdown__select]:!bg-white
-                        [&_.dropdown__select]:!px-3.5
-                        [&_.dropdown__select]:!text-sm
-                        [&_.dropdown__select]:!text-gray-900
-                        [&_.dropdown__select]:!outline-none
-                        [&_.dropdown__select]:!box-border
-                        [&_.dropdown__select]:!transition-colors
-
-                        [&_.dropdown__select:hover]:!border-gray-400
-
-                        [&_.dropdown__select:focus]:!border-blue-500
-
-                        [&_.dropdown__select:disabled]:!border-gray-200
-                        [&_.dropdown__select:disabled]:!bg-gray-50
-                        [&_.dropdown__select:disabled]:!text-gray-400
-                    "
-                >
-                    <Dropdown
-                        label=""
-                        value={selectedPincode}
-                        onChange={(value: string) => {
-                            setSelectedPincode(value === "ALL" ? "" : value);
-
-                        }}
-                        options={
-                            pincodeOptions
-                        }
-                        placeholder="Select Pincode"
-                        disabled={
-                            isHubLoading ||
-                            isHubError
-                        }
-                    />
+        <>
+            <div className="w-full min-w-0 overflow-x-hidden p-3 sm:p-5 md:p-6">
+                <div className="mb-4 flex min-w-0 flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+                    <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl md:text-3xl">
+                        Shipment List
+                    </h1>
                 </div>
 
-                {/* Selected Shipment Actions */}
+                <div className="mb-5 w-full min-w-0">
 
-                {selectedShipments.length > 0 && (
-                    <div className="flex w-full flex-wrap items-center gap-2 sm:gap-3 lg:w-auto">
+                    <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
 
-                        <span className="text-sm text-gray-600">
-                            {
-                                selectedShipments.length
-                            }{" "}
-                            selected
-                        </span>
+                        <div className="w-full min-w-0 sm:w-[220px] sm:max-w-full">
+                            <Dropdown
+                                label=""
+                                value={
+                                    selectedPincode
+                                }
+                                onChange={(
+                                    value: string
+                                ) => {
+                                    setSelectedPincode(
+                                        value ===
+                                            "ALL"
+                                            ? ""
+                                            : value
+                                    );
+                                }}
+                                options={
+                                    pincodeOptions
+                                }
+                                placeholder="Select Pincode"
+                                disabled={
+                                    isHubLoading ||
+                                    isHubError
+                                }
+                            />
+                        </div>
 
-                        <Rb_Button
-                            variant="outline"
-                            size="md"
-                            className="flex-1 sm:flex-none min-w-[130px] sm:min-w-0"
-                            onClick={
-                                clearSelection
-                            }
-                        >
-                            Clear Selection
-                        </Rb_Button>
+                        <div className="w-full min-w-0 sm:w-[220px] sm:max-w-full">
+                            <Dropdown
+                                label=""
+                                value={
+                                    selectedStatus
+                                }
+                                onChange={(
+                                    value: string
+                                ) => {
+                                    setSelectedStatus(
+                                        value ===
+                                            "ALL"
+                                            ? ""
+                                            : value
+                                    );
+                                }}
+                                options={
+                                    statusOptions
+                                }
+                                placeholder="Select Status"
+                            />
+                        </div>
+                        <div className="w-full min-w-0 sm:w-[220px] sm:max-w-full">
+                            <Dropdown
+                                label=""
+                                value={
+                                    selectedAgentFilter
+                                }
+                                onChange={(
+                                    value: string
+                                ) => {
+                                    setSelectedAgentFilter(
+                                        value ===
+                                            "ALL"
+                                            ? ""
+                                            : value
+                                    );
+                                }}
+                                options={
+                                    agentOptions
+                                }
+                                placeholder="Select Agent"
+                            />
+                        </div>
 
-                        <Rb_Button
-                            variant="primary"
-                            size="md"
-                            className="flex-1 sm:flex-none min-w-[110px] sm:min-w-0"
-                            onClick={
-                                handleShowAgents
-                            }
-                        >
-                            Show Agents
-                        </Rb_Button>
-
+                        {(selectedPincode ||
+                            selectedStatus ||
+                            selectedAgentFilter) && (
+                                <div className="w-full sm:w-auto">
+                                    <Rb_Button
+                                        variant="outline"
+                                        size="md"
+                                        onClick={
+                                            clearFilters
+                                        }
+                                    >
+                                        Clear Filters
+                                    </Rb_Button>
+                                </div>
+                            )}
                     </div>
-                )}
-            </div>
 
-            {/* Shipment Table */}
+                    {selectedShipments.length >
+                        0 && (
+                            <div className="mt-4 flex w-full min-w-0 flex-col gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
 
-            <div className="relative w-full min-w-0 overflow-x-auto rounded-lg">
+                                <span className="text-center text-sm font-medium text-gray-700 sm:text-left">
+                                    {
+                                        selectedShipments.length
+                                    }{" "}
+                                    {selectedShipments.length ===
+                                        1
+                                        ? "shipment"
+                                        : "shipments"}{" "}
+                                    selected
+                                </span>
 
-                {isLoading ? (
-                    <div className="flex items-center justify-center py-16 sm:py-20">
-                        <Rb_LoadingSpinner />
-                    </div>
-                ) : (
-                    <>
-                        <DestinationShipmentTable
-                            shipments={
-                                shipments
-                            }
-                            selectedShipments={
-                                selectedShipments
-                            }
-                            onToggleShipment={
-                                handleToggleShipment
-                            }
-                            onToggleAll={
-                                handleToggleAll
-                            }
-                        />
+                                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                                    <Rb_Button
+                                        variant="outline"
+                                        size="md"
+                                        onClick={
+                                            clearSelection
+                                        }
+                                    >
+                                        Clear Selection
+                                    </Rb_Button>
 
-                        {isError && (
-                            <div className="mt-4 text-sm text-red-500 sm:mt-5">
-                                Failed to load
-                                shipments.
+                                    <Rb_Button
+                                        variant="primary"
+                                        size="md"
+                                        onClick={
+                                            handleShowAgents
+                                        }
+                                    >
+                                        Show Agents
+                                    </Rb_Button>
+                                </div>
                             </div>
                         )}
+                </div>
+                <div className="relative w-full min-w-0 overflow-hidden rounded-lg">
 
-                        {!isError && (
-                            <div className="mt-4 sm:mt-5">
-                                <p className="text-sm text-gray-500">
-                                    Showing{" "}
-                                    {
-                                        shipments.length
-                                    }{" "}
-                                    of{" "}
-                                    {
-                                        totalRecords
-                                    }{" "}
-                                    shipments
-                                </p>
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-16 sm:py-20">
+                            <Rb_LoadingSpinner />
+                        </div>
+                    ) : (
+                        <>
+                            <div className="w-full min-w-0">
+                                <DestinationShipmentTable
+                                    shipments={
+                                        shipments
+                                    }
+                                    selectedShipments={
+                                        selectedShipments
+                                    }
+                                    onToggleShipment={
+                                        handleToggleShipment
+                                    }
+                                    onToggleAll={
+                                        handleToggleAll
+                                    }
+                                />
                             </div>
-                        )}
-                    </>
-                )}
+                            {isError && (
+                                <div className="mt-4 text-sm text-red-500 sm:mt-5">
+                                    Failed to load shipments.
+                                </div>
+                            )}
 
+                            {!isError && (
+                                <>
+                                    <div className="mt-4 flex w-full min-w-0 flex-col gap-4 border-t border-gray-200 pt-4 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
+
+                                        <div className="min-w-0">
+                                            {shipments.length >
+                                                0 ? (
+                                                <p className="text-center text-sm text-gray-500 sm:text-left">
+                                                    Showing{" "}
+                                                    {
+                                                        shipments.length
+                                                    }{" "}
+                                                    of{" "}
+                                                    {
+                                                        totalRecords
+                                                    }{" "}
+                                                    shipments
+                                                </p>
+                                            ) : (
+                                                <p className="text-center text-sm text-gray-500 sm:text-left">
+                                                    No shipments available
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {totalPages >
+                                            1 && (
+                                                <div className="flex w-full min-w-0 justify-center overflow-x-auto sm:w-auto sm:justify-end">
+                                                    <Pagination
+                                                        currentPage={
+                                                            currentPage
+                                                        }
+                                                        totalPages={
+                                                            totalPages
+                                                        }
+                                                        siblingCount={
+                                                            1
+                                                        }
+                                                        disabled={
+                                                            isShipmentFetching
+                                                        }
+                                                        onPageChange={
+                                                            handlePageChange
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+
+            <AgentsModal
+                isOpen={
+                    isAgentsModalOpen
+                }
+                agents={agents}
+                analytics={analytics}
+                isLoading={
+                    isAgentsLoading
+                }
+                selectedAgentId={
+                    selectedAgentId
+                }
+                selectedShipmentCount={
+                    selectedShipments.length
+                }
+                isAssigningAgent={
+                    isAssigningAgent
+                }
+                onSelectAgent={(
+                    agentId: string
+                ) => {
+                    setSelectedAgentId(
+                        (
+                            previous: string | null
+                        ) =>
+                            previous ===
+                                agentId
+                                ? null
+                                : agentId
+                    );
+                }}
+                onAssignAgent={
+                    handleAssignAgent
+                }
+                onClose={
+                    handleCloseAgentsModal
+                }
+            />
+        </>
     );
 }

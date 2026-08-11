@@ -1,5 +1,4 @@
 import axios from "axios";
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -220,21 +219,21 @@ describe("DestinationShipment API", () => {
                 "should fetch shipments by hub id and pincode",
                 async () => {
                     const mockResponse: DestinationShipmentResponse =
-                    {
-                        status: "Success",
-                        message:
-                            "Shipments fetched successfully",
-                        data: {
-                            shipments: [],
-                            meta: {
-                                totalRecords: 0,
-                                totalPages: 0,
-                                currentPage: 1,
-                                limit: 10,
-                                hasMore: false,
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 0,
+                                    totalPages: 0,
+                                    currentPage: 1,
+                                    limit: 10,
+                                    hasMore: false,
+                                },
                             },
-                        },
-                    };
+                        };
 
                     mockedAxios.get.mockResolvedValueOnce(
                         {
@@ -256,7 +255,7 @@ describe("DestinationShipment API", () => {
                         mockedAxios.get
                     ).toHaveBeenCalledWith(
                         expect.stringContaining(
-                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291"
+                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291?journeyType=Delivery"
                         ),
                         {
                             params: {
@@ -275,21 +274,21 @@ describe("DestinationShipment API", () => {
                 "should send the selected pincode correctly",
                 async () => {
                     const mockResponse: DestinationShipmentResponse =
-                    {
-                        status: "Success",
-                        message:
-                            "Shipments fetched successfully",
-                        data: {
-                            shipments: [],
-                            meta: {
-                                totalRecords: 0,
-                                totalPages: 0,
-                                currentPage: 1,
-                                limit: 10,
-                                hasMore: false,
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 0,
+                                    totalPages: 0,
+                                    currentPage: 1,
+                                    limit: 10,
+                                    hasMore: false,
+                                },
                             },
-                        },
-                    };
+                        };
 
                     mockedAxios.get.mockResolvedValueOnce(
                         {
@@ -306,7 +305,7 @@ describe("DestinationShipment API", () => {
                         mockedAxios.get
                     ).toHaveBeenCalledWith(
                         expect.stringContaining(
-                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291"
+                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291?journeyType=Delivery"
                         ),
                         expect.objectContaining({
                             params: {
@@ -322,21 +321,21 @@ describe("DestinationShipment API", () => {
                 "should not send pincode params when pincode is not provided",
                 async () => {
                     const mockResponse: DestinationShipmentResponse =
-                    {
-                        status: "Success",
-                        message:
-                            "Shipments fetched successfully",
-                        data: {
-                            shipments: [],
-                            meta: {
-                                totalRecords: 0,
-                                totalPages: 0,
-                                currentPage: 1,
-                                limit: 10,
-                                hasMore: false,
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 0,
+                                    totalPages: 0,
+                                    currentPage: 1,
+                                    limit: 10,
+                                    hasMore: false,
+                                },
                             },
-                        },
-                    };
+                        };
 
                     mockedAxios.get.mockResolvedValueOnce(
                         {
@@ -352,10 +351,220 @@ describe("DestinationShipment API", () => {
                         mockedAxios.get
                     ).toHaveBeenCalledWith(
                         expect.stringContaining(
-                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291"
+                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291?journeyType=Delivery"
                         ),
                         {
-                            params: undefined,
+                            params: {},
+                        }
+                    );
+                }
+            );
+
+            it(
+                "should support filters object",
+                async () => {
+                    const mockResponse: DestinationShipmentResponse =
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 0,
+                                    totalPages: 1,
+                                    currentPage: 1,
+                                    limit: 10,
+                                    hasMore: false,
+                                },
+                            },
+                        };
+
+                    mockedAxios.get.mockResolvedValueOnce(
+                        {
+                            data: mockResponse,
+                        }
+                    );
+
+                    await getHubShipmentsByPincode(
+                        "6a6b1209fe8ab709826c1291",
+                        {
+                            pincode: "560093",
+                            status:
+                                "Arrived At Destination Hub",
+                            agentId:
+                                "agent-123",
+                            page: 2,
+                            limit: 10,
+                        }
+                    );
+
+                    expect(
+                        mockedAxios.get
+                    ).toHaveBeenCalledWith(
+                        expect.stringContaining(
+                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291?journeyType=Delivery"
+                        ),
+                        {
+                            params: {
+                                pincode: "560093",
+                                status:
+                                    "Arrived At Destination Hub",
+                                agentId:
+                                    "agent-123",
+                                page: 2,
+                                limit: 10,
+                            },
+                        }
+                    );
+                }
+            );
+
+            it(
+                "should send status filter correctly",
+                async () => {
+                    const mockResponse: DestinationShipmentResponse =
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 0,
+                                    totalPages: 1,
+                                    currentPage: 1,
+                                    limit: 10,
+                                    hasMore: false,
+                                },
+                            },
+                        };
+
+                    mockedAxios.get.mockResolvedValueOnce(
+                        {
+                            data: mockResponse,
+                        }
+                    );
+
+                    await getHubShipmentsByPincode(
+                        "6a6b1209fe8ab709826c1291",
+                        {
+                            status:
+                                "Delivery Agent Assigned",
+                        }
+                    );
+
+                    expect(
+                        mockedAxios.get
+                    ).toHaveBeenCalledWith(
+                        expect.stringContaining(
+                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291?journeyType=Delivery"
+                        ),
+                        {
+                            params: {
+                                status:
+                                    "Delivery Agent Assigned",
+                            },
+                        }
+                    );
+                }
+            );
+
+            it(
+                "should send agentId filter correctly",
+                async () => {
+                    const mockResponse: DestinationShipmentResponse =
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 0,
+                                    totalPages: 1,
+                                    currentPage: 1,
+                                    limit: 10,
+                                    hasMore: false,
+                                },
+                            },
+                        };
+
+                    mockedAxios.get.mockResolvedValueOnce(
+                        {
+                            data: mockResponse,
+                        }
+                    );
+
+                    await getHubShipmentsByPincode(
+                        "6a6b1209fe8ab709826c1291",
+                        {
+                            agentId:
+                                "agent-123",
+                        }
+                    );
+
+                    expect(
+                        mockedAxios.get
+                    ).toHaveBeenCalledWith(
+                        expect.stringContaining(
+                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291?journeyType=Delivery"
+                        ),
+                        {
+                            params: {
+                                agentId:
+                                    "agent-123",
+                            },
+                        }
+                    );
+                }
+            );
+
+            it(
+                "should send pagination parameters correctly",
+                async () => {
+                    const mockResponse: DestinationShipmentResponse =
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 25,
+                                    totalPages: 3,
+                                    currentPage: 2,
+                                    limit: 10,
+                                    hasMore: true,
+                                },
+                            },
+                        };
+
+                    mockedAxios.get.mockResolvedValueOnce(
+                        {
+                            data: mockResponse,
+                        }
+                    );
+
+                    await getHubShipmentsByPincode(
+                        "6a6b1209fe8ab709826c1291",
+                        {
+                            page: 2,
+                            limit: 10,
+                        }
+                    );
+
+                    expect(
+                        mockedAxios.get
+                    ).toHaveBeenCalledWith(
+                        expect.stringContaining(
+                            "/hub/shipment/bypincode/6a6b1209fe8ab709826c1291?journeyType=Delivery"
+                        ),
+                        {
+                            params: {
+                                page: 2,
+                                limit: 10,
+                            },
                         }
                     );
                 }
@@ -365,21 +574,21 @@ describe("DestinationShipment API", () => {
                 "should return shipment response data",
                 async () => {
                     const mockResponse: DestinationShipmentResponse =
-                    {
-                        status: "Success",
-                        message:
-                            "Shipments fetched successfully",
-                        data: {
-                            shipments: [],
-                            meta: {
-                                totalRecords: 5,
-                                totalPages: 1,
-                                currentPage: 1,
-                                limit: 10,
-                                hasMore: false,
+                        {
+                            status: "Success",
+                            message:
+                                "Shipments fetched successfully",
+                            data: {
+                                shipments: [],
+                                meta: {
+                                    totalRecords: 5,
+                                    totalPages: 1,
+                                    currentPage: 1,
+                                    limit: 10,
+                                    hasMore: false,
+                                },
                             },
-                        },
-                    };
+                        };
 
                     mockedAxios.get.mockResolvedValueOnce(
                         {

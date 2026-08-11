@@ -53,3 +53,22 @@ export const updateShipmentStatus = async (
   );
 };
 
+export const assignAgentToShipments = async (
+    agentId: string,
+    shipmentIds: string[],
+    updatedBy: string
+) => {
+    const response = await axios.post(
+        `${API_BASE_URL}/shipment/bulk-update`,
+        {
+            agentId,
+            shipmentIds,
+            updatedBy,
+            status:"Delivery Agent Assigned",
+            remarks:"Delivery agent is assigned "
+
+        }
+    );
+
+    return response.data;
+};
