@@ -1,11 +1,12 @@
 import axios from "axios";
-
-import {
+import type {
     DestinationShipmentResponse,
     GetHubByIdResponse,
 } from "../types/destinationShipment";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL;
+
 export const getHubById = async (
     hubId: string
 ): Promise<GetHubByIdResponse> => {
@@ -16,16 +17,67 @@ export const getHubById = async (
     return response.data;
 };
 
+
+export interface DestinationShipmentFilters {
+    pincode?: string;
+    status?: string;
+    agentId?: string;
+    page?: number;
+    limit?: number;
+}
+
+
 export const getHubShipmentsByPincode = async (
     hubId: string,
-    pincode?: string
+    filters?: string | DestinationShipmentFilters
 ): Promise<DestinationShipmentResponse> => {
-    const response = await axios.get<DestinationShipmentResponse>(
-        `${BACKEND_URL}/hub/shipment/bypincode/${hubId}`,
+
+
+    const normalizedFilters: DestinationShipmentFilters =
+        typeof filters === "string"
+            ? {
+                pincode: filters,
+            }
+            : filters ?? {};
+
+    const response = await axios.get(
+        `${BACKEND_URL}/hub/shipment/bypincode/${hubId}?journeyType=Delivery`,
         {
-            params: pincode
-                ? { pincode }
-                : undefined,
+            params: {
+                ...(normalizedFilters.pincode
+                    ? {
+                        pincode:
+                            normalizedFilters.pincode,
+                    }
+                    : {}),
+
+                ...(normalizedFilters.status
+                    ? {
+                        status:
+                            normalizedFilters.status,
+                    }
+                    : {}),
+
+                ...(normalizedFilters.agentId
+                    ? {
+                        agentId:
+                            normalizedFilters.agentId,
+                    }
+                    : {}),
+                ...(normalizedFilters.page
+                    ? {
+                        page:
+                            normalizedFilters.page,
+                    }
+                    : {}),
+
+                ...(normalizedFilters.limit
+                    ? {
+                        limit:
+                            normalizedFilters.limit,
+                    }
+                    : {}),
+            },
         }
     );
 

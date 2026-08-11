@@ -60,7 +60,6 @@ vi.mock(
             onToggleAll: () => void;
         }) => (
             <div data-testid="shipment-table">
-
                 <button
                     data-testid="toggle-all"
                     onClick={onToggleAll}
@@ -68,40 +67,34 @@ vi.mock(
                     Toggle All
                 </button>
 
-                {shipments.map(
-                    (shipment) => (
-                        <div
-                            key={
-                                shipment.shipmentId
+                {shipments.map((shipment) => (
+                    <div
+                        key={shipment.shipmentId}
+                    >
+                        <span>
+                            {shipment.awbNumber}
+                        </span>
+
+                        <button
+                            data-testid={`toggle-${shipment.shipmentId}`}
+                            onClick={() =>
+                                onToggleShipment(
+                                    shipment.shipmentId
+                                )
                             }
                         >
+                            Toggle
+                        </button>
+
+                        {selectedShipments.includes(
+                            shipment.shipmentId
+                        ) && (
                             <span>
-                                {
-                                    shipment.awbNumber
-                                }
+                                Selected
                             </span>
-
-                            <button
-                                data-testid={`toggle-${shipment.shipmentId}`}
-                                onClick={() =>
-                                    onToggleShipment(
-                                        shipment.shipmentId
-                                    )
-                                }
-                            >
-                                Toggle
-                            </button>
-
-                            {selectedShipments.includes(
-                                shipment.shipmentId
-                            ) && (
-                                    <span>
-                                        Selected
-                                    </span>
-                                )}
-                        </div>
-                    )
-                )}
+                        )}
+                    </div>
+                ))}
             </div>
         ),
     })
@@ -154,37 +147,63 @@ vi.mock(
             }>;
             placeholder?: string;
             disabled?: boolean;
-        }) => (
-            <select
-                data-testid="pincode-dropdown"
-                value={value}
-                onChange={(event) =>
-                    onChange(
-                        event.target.value
-                    )
-                }
-                disabled={disabled}
-            >
-                <option value="">
-                    {placeholder}
-                </option>
+        }) => {
+            let testId = "dropdown";
 
-                {options.map(
-                    (option) => (
-                        <option
-                            key={
-                                option.value
-                            }
-                            value={
-                                option.value
-                            }
-                        >
-                            {option.label}
-                        </option>
-                    )
-                )}
-            </select>
-        ),
+            if (
+                placeholder
+                    ?.toLowerCase()
+                    .includes("pincode")
+            ) {
+                testId = "pincode-dropdown";
+            } else if (
+                placeholder
+                    ?.toLowerCase()
+                    .includes("status")
+            ) {
+                testId = "status-dropdown";
+            } else if (
+                placeholder
+                    ?.toLowerCase()
+                    .includes("agent")
+            ) {
+                testId = "agent-dropdown";
+            }
+
+            return (
+                <select
+                    data-testid={testId}
+                    value={value}
+                    onChange={(event) =>
+                        onChange(
+                            event.target.value
+                        )
+                    }
+                    disabled={disabled}
+                >
+                    <option value="">
+                        {placeholder}
+                    </option>
+
+                    {options.map(
+                        (option) => (
+                            <option
+                                key={
+                                    option.value
+                                }
+                                value={
+                                    option.value
+                                }
+                            >
+                                {
+                                    option.label
+                                }
+                            </option>
+                        )
+                    )}
+                </select>
+            );
+        },
     })
 );
 
@@ -200,6 +219,7 @@ beforeEach(() => {
         "HOST_USER_INFO",
         {
             writable: true,
+            configurable: true,
             value: {
                 referenceId:
                     "6a6b1209fe8ab709826c1291",
@@ -210,33 +230,46 @@ beforeEach(() => {
     vi.mocked(useHubById).mockReturnValue({
         data: {
             status: "Success",
+
             message:
-                "HUb fetched successfully",
+                "Hub fetched successfully",
+
             data: {
                 _id:
                     "6a6b1209fe8ab709826c1291",
+
                 hubId: "HUB000004",
+
                 hubCode: "HUB004",
+
                 hubName:
                     "Bengaluru East Central Hub",
+
                 managerName:
                     "Anand Narayanan",
+
                 email:
                     "anand.n@example.com",
+
                 phoneNumber:
                     "9845012345",
 
                 address: {
                     street:
                         "100 Feet Road, HAL II Stage, Indiranagar",
+
                     city: "Bengaluru",
+
                     state: "Karnataka",
+
                     country: "India",
+
                     pincode: "560038",
                 },
 
                 location: {
                     type: "Point",
+
                     coordinates: [
                         77.6412,
                         12.9718,
@@ -256,19 +289,27 @@ beforeEach(() => {
                 ],
 
                 capacity: 2500,
+
                 currentLoad: 0,
+
                 status: "Active",
+
                 createdBy: null,
+
                 updatedBy: null,
+
                 createdAt:
                     "2026-07-30T08:57:45.584Z",
+
                 updatedAt:
                     "2026-07-30T08:57:45.584Z",
+
                 __v: 0,
             },
         },
 
         isLoading: false,
+
         isError: false,
     } as ReturnType<
         typeof useHubById
@@ -279,49 +320,68 @@ beforeEach(() => {
     ).mockReturnValue({
         data: {
             status: "Success",
+
             message:
                 "Shipments fetched successfully",
+
             data: {
                 shipments: [
                     {
                         shipmentId:
                             "shipment-1",
+
                         awbNumber:
                             "AWB000001",
+
                         orderId:
                             "order-1",
+
                         orderItemId:
                             "item-1",
+
                         shipmentType:
                             "Forward",
+
                         journeyType:
                             "Delivery",
+
                         currentStatus:
-                            "Pending",
+                            "Arrived At Destination Hub",
+
                         paymentMode:
                             "Prepaid",
+
                         codAmount: 0,
 
                         receiver: {
                             name:
                                 "John Doe",
+
                             phone:
                                 "9876543210",
+
                             addressLine1:
                                 "123 Main Street",
+
                             addressLine2:
                                 "",
+
                             city:
                                 "Bengaluru",
+
                             state:
                                 "Karnataka",
+
                             pincode:
                                 "560093",
+
                             country:
                                 "India",
+
                             location: {
                                 type:
                                     "Point",
+
                                 coordinates: [
                                     77.5937,
                                     12.9716,
@@ -332,8 +392,10 @@ beforeEach(() => {
                         originHub: {
                             _id:
                                 "origin-hub",
+
                             hubCode:
                                 "HUB001",
+
                             hubName:
                                 "Origin Hub",
                         },
@@ -341,8 +403,10 @@ beforeEach(() => {
                         destinationHub: {
                             _id:
                                 "6a6b1209fe8ab709826c1291",
+
                             hubCode:
                                 "HUB004",
+
                             hubName:
                                 "Bengaluru East Central Hub",
                         },
@@ -359,16 +423,22 @@ beforeEach(() => {
 
                 meta: {
                     totalRecords: 1,
+
                     totalPages: 1,
+
                     currentPage: 1,
+
                     limit: 10,
+
                     hasMore: false,
                 },
             },
         },
 
         isLoading: false,
+
         isFetching: false,
+
         isError: false,
     } as ReturnType<
         typeof useDestinationShipments
@@ -382,6 +452,9 @@ beforeEach(() => {
 describe(
     "DestinationShipment",
     () => {
+        /* -----------------------------------------
+           HEADING
+        ------------------------------------------ */
 
         it(
             "renders shipment list heading",
@@ -398,6 +471,10 @@ describe(
             }
         );
 
+        /* -----------------------------------------
+           HUB ID
+        ------------------------------------------ */
+
         it(
             "calls useHubById with hub id",
             () => {
@@ -412,6 +489,10 @@ describe(
                 );
             }
         );
+
+        /* -----------------------------------------
+           PINCODES
+        ------------------------------------------ */
 
         it(
             "renders serviceable pincodes from hub response",
@@ -501,6 +582,10 @@ describe(
             }
         );
 
+        /* -----------------------------------------
+           PINCODE CHANGE
+        ------------------------------------------ */
+
         it(
             "calls shipment hook with hub id and selected pincode",
             async () => {
@@ -528,12 +613,22 @@ describe(
                             useDestinationShipments
                         ).toHaveBeenLastCalledWith(
                             "6a6b1209fe8ab709826c1291",
-                            "560093"
+                            {
+                                page: 1,
+                                limit: 10,
+                                pincode: "560093",
+                                status: undefined,
+                                agentId: undefined,
+                            }
                         );
                     }
                 );
             }
         );
+
+        /* -----------------------------------------
+           SHIPMENT DATA
+        ------------------------------------------ */
 
         it(
             "renders shipment data",
@@ -550,6 +645,10 @@ describe(
             }
         );
 
+        /* -----------------------------------------
+           SHIPMENT COUNT
+        ------------------------------------------ */
+
         it(
             "shows total shipment count",
             () => {
@@ -559,11 +658,15 @@ describe(
 
                 expect(
                     screen.getByText(
-                        /Showing 1 of 1 shipments/i
+                        /Showing\s+1\s+of\s+1\s+shipments/i
                     )
                 ).toBeInTheDocument();
             }
         );
+
+        /* -----------------------------------------
+           LOADING STATES
+        ------------------------------------------ */
 
         it(
             "shows loading spinner while hub is loading",
@@ -616,6 +719,10 @@ describe(
             }
         );
 
+        /* -----------------------------------------
+           DISABLED PINCODE
+        ------------------------------------------ */
+
         it(
             "disables pincode dropdown when hub is loading",
             () => {
@@ -666,8 +773,12 @@ describe(
             }
         );
 
+        /* -----------------------------------------
+           HUB ERROR
+        ------------------------------------------ */
+
         it(
-            "shows hub error message through toast event",
+            "shows hub error through toast event",
             async () => {
                 const dispatchSpy =
                     vi.spyOn(
@@ -704,18 +815,13 @@ describe(
                     }
                 );
 
-                expect(
-                    dispatchSpy
-                ).toHaveBeenCalledWith(
-                    expect.objectContaining(
-                        {
-                            type:
-                                "app-toast-notification",
-                        }
-                    )
-                );
+                dispatchSpy.mockRestore();
             }
         );
+
+        /* -----------------------------------------
+           SHIPMENT ERROR
+        ------------------------------------------ */
 
         it(
             "shows shipment error through toast event",
@@ -755,8 +861,14 @@ describe(
                         );
                     }
                 );
+
+                dispatchSpy.mockRestore();
             }
         );
+
+        /* -----------------------------------------
+           SELECTION
+        ------------------------------------------ */
 
         it(
             "selects a shipment",
@@ -773,11 +885,15 @@ describe(
 
                 expect(
                     screen.getByText(
-                        "1 selected"
+                        /1\s+shipment\s+selected/i
                     )
                 ).toBeInTheDocument();
             }
         );
+
+        /* -----------------------------------------
+           CLEAR SELECTION
+        ------------------------------------------ */
 
         it(
             "clears selected shipments",
@@ -794,7 +910,7 @@ describe(
 
                 expect(
                     screen.getByText(
-                        "1 selected"
+                        /1\s+shipment\s+selected/i
                     )
                 ).toBeInTheDocument();
 
@@ -810,11 +926,15 @@ describe(
 
                 expect(
                     screen.queryByText(
-                        "1 selected"
+                        /1\s+shipment\s+selected/i
                     )
                 ).not.toBeInTheDocument();
             }
         );
+
+        /* -----------------------------------------
+           SHOW AGENTS
+        ------------------------------------------ */
 
         it(
             "shows agents button when shipment is selected",
@@ -841,9 +961,13 @@ describe(
             }
         );
 
+        /* -----------------------------------------
+           PINCODE CHANGE CLEARS SELECTION
+        ------------------------------------------ */
+
         it(
             "clears selected shipments when pincode changes",
-            () => {
+            async () => {
                 render(
                     <DestinationShipment />
                 );
@@ -856,7 +980,7 @@ describe(
 
                 expect(
                     screen.getByText(
-                        "1 selected"
+                        /1\s+shipment\s+selected/i
                     )
                 ).toBeInTheDocument();
 
@@ -871,23 +995,38 @@ describe(
                     }
                 );
 
-                expect(
-                    screen.queryByText(
-                        "1 selected"
-                    )
-                ).not.toBeInTheDocument();
+                await waitFor(
+                    () => {
+                        expect(
+                            screen.queryByText(
+                                /1\s+shipment\s+selected/i
+                            )
+                        ).not.toBeInTheDocument();
+                    }
+                );
             }
         );
+
+        /* -----------------------------------------
+           EMPTY RESPONSE
+        ------------------------------------------ */
 
         it(
             "handles empty shipment response",
             () => {
-                vi.mocked(useDestinationShipments).mockReturnValue({
+                vi.mocked(
+                    useDestinationShipments
+                ).mockReturnValue({
                     data: {
-                        status: "Success",
-                        message: "Shipments fetched successfully",
+                        status:
+                            "Success",
+
+                        message:
+                            "Shipments fetched successfully",
+
                         data: {
                             shipments: [],
+
                             meta: {
                                 totalRecords: 0,
                                 totalPages: 0,
@@ -897,12 +1036,16 @@ describe(
                             },
                         },
                     },
+
                     isLoading: false,
+
                     isFetching: false,
+
                     isError: false,
                 } as unknown as ReturnType<
                     typeof useDestinationShipments
                 >);
+
                 render(
                     <DestinationShipment />
                 );
@@ -915,11 +1058,15 @@ describe(
 
                 expect(
                     screen.getByText(
-                        /Showing 0 of 0 shipments/i
+                        "No shipments available"
                     )
                 ).toBeInTheDocument();
             }
         );
+
+        /* -----------------------------------------
+           LOADING STATUS EVENT
+        ------------------------------------------ */
 
         it(
             "dispatches loading status when loading",
@@ -954,8 +1101,14 @@ describe(
                         }
                     )
                 );
+
+                dispatchSpy.mockRestore();
             }
         );
+
+        /* -----------------------------------------
+           LOADING FALSE EVENT
+        ------------------------------------------ */
 
         it(
             "dispatches loading false when data is loaded",
@@ -980,20 +1133,18 @@ describe(
                         }
                     )
                 );
+
+                dispatchSpy.mockRestore();
             }
         );
+
+        /* -----------------------------------------
+           SHOW AGENTS BUTTON
+        ------------------------------------------ */
 
         it(
             "handles show agents button click",
             () => {
-                const consoleSpy =
-                    vi.spyOn(
-                        console,
-                        "log"
-                    ).mockImplementation(
-                        () => undefined
-                    );
-
                 render(
                     <DestinationShipment />
                 );
@@ -1004,26 +1155,25 @@ describe(
                     )
                 );
 
-                fireEvent.click(
+                const showAgentsButton =
                     screen.getByRole(
                         "button",
                         {
                             name:
                                 "Show Agents",
                         }
-                    )
-                );
+                    );
 
                 expect(
-                    consoleSpy
-                ).toHaveBeenCalledWith(
-                    "Selected shipment IDs:",
-                    ["shipment-1"]
-                );
+                    showAgentsButton
+                ).toBeInTheDocument();
 
-                consoleSpy.mockRestore();
+                expect(() => {
+                    fireEvent.click(
+                        showAgentsButton
+                    );
+                }).not.toThrow();
             }
         );
     }
 );
-

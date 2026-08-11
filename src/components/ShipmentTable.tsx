@@ -20,6 +20,7 @@ const shipmentBadge = (status: string) => {
 
     case "Pickup Completed":
       return "bg-emerald-50 text-emerald-700";
+
     case "Arrived At Origin Hub":
       return "bg-cyan-50 text-cyan-700";
 
@@ -57,147 +58,287 @@ const paymentBadge = (mode: string) => {
 };
 
 const formatAwb = (awb: string) => {
-  if (awb.length <= 12) return awb;
+  if (awb.length <= 12) {
+    return awb;
+  }
 
   return `${awb.slice(0, 12)}...`;
 };
 
 export default function ShipmentTable({ shipments }: Props) {
   return (
-    <div className="bg-white rounded-xl border overflow-hidden">
-      <table className="w-full min-w-[1050px] text-sm">
-        <thead className="bg-gray-50">
-          <tr className="border-b text-gray-600">
-            <th className="p-4 text-left">AWB</th>
-            <th className="p-4 text-left">Receiver</th>
-            <th className="p-4 text-left">Created</th>
-            {/* <th className="p-4 text-left">Route</th> */}
-            <th className="p-4 text-left">Payment</th>
-            <th className="p-4 text-left">Agent</th>
-            <th className="p-4 text-left">Status</th>
-          </tr>
-        </thead>
+    <div className="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div className="w-full min-w-0 overflow-x-auto">
 
-        <tbody>
-          {shipments.map((shipment) => (
-            <tr
-              key={shipment.shipmentId}
-              onClick={() => {
-                window.history.pushState(
-                  {},
-                  "",
-                  `/orders/${shipment.shipmentId}`
-                );
+        <table
+          className="
+            w-full
+            min-w-[900px]
+            text-sm
+            lg:min-w-0
+            lg:table-fixed
+          "
+        >
+          <thead className="bg-gray-50">
+            <tr className="border-b border-gray-200 text-gray-600">
+              <th
+                className="
+                  w-[15%]
+                  whitespace-nowrap
+                  p-3
+                  text-left
+                  font-semibold
+                  sm:p-4
+                "
+              >
+                AWB
+              </th>
 
-                window.dispatchEvent(new PopStateEvent("popstate"));
-              }}
-              className="border-b hover:bg-gray-50 transition cursor-pointer"
-            >
-              {/* AWB */}
-              <td className="p-4 font-medium text-gray-700">
-                <div className="relative inline-block group">
-                  <span className="cursor-pointer">
-                    {formatAwb(shipment.awbNumber)}
-                  </span>
+              <th
+                className="
+                  w-[21%]
+                  whitespace-nowrap
+                  p-3
+                  text-left
+                  font-semibold
+                  sm:p-4
+                "
+              >
+                Receiver
+              </th>
 
-                  <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block z-50">
-                    <div className="bg-gray-800 text-white text-xs rounded-md px-3 py-2 whitespace-nowrap shadow-lg">
-                      {shipment.awbNumber}
+              <th
+                className="
+                  w-[15%]
+                  whitespace-nowrap
+                  p-3
+                  text-left
+                  font-semibold
+                  sm:p-4
+                "
+              >
+                Created
+              </th>
+
+              <th
+                className="
+                  w-[13%]
+                  whitespace-nowrap
+                  p-3
+                  text-left
+                  font-semibold
+                  sm:p-4
+                "
+              >
+                Payment
+              </th>
+
+              <th
+                className="
+                  w-[19%]
+                  whitespace-nowrap
+                  p-3
+                  text-left
+                  font-semibold
+                  sm:p-4
+                "
+              >
+                Agent
+              </th>
+
+              <th
+                className="
+                  w-[17%]
+                  whitespace-nowrap
+                  p-3
+                  text-left
+                  font-semibold
+                  sm:p-4
+                "
+              >
+                Status
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {shipments.map((shipment) => (
+              <tr
+                key={shipment.shipmentId}
+                onClick={() => {
+                  window.history.pushState(
+                    {},
+                    "",
+                    `/orders/${shipment.shipmentId}`
+                  );
+
+                  window.dispatchEvent(
+                    new PopStateEvent("popstate")
+                  );
+                }}
+                className="
+                  cursor-pointer
+                  border-b
+                  border-gray-200
+                  transition
+                  hover:bg-gray-50
+                "
+              >
+                <td className="p-3 font-medium text-gray-700 sm:p-4">
+                  <div className="group relative min-w-0">
+                    <span
+                      className="block truncate"
+                      title={shipment.awbNumber}
+                    >
+                      {formatAwb(shipment.awbNumber)}
+                    </span>
+
+                    <div className="absolute bottom-full left-0 z-50 mb-2 hidden group-hover:block">
+                      <div className="whitespace-nowrap rounded-md bg-gray-800 px-3 py-2 text-xs text-white shadow-lg">
+                        {shipment.awbNumber}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
+                </td>
 
-              {/* Receiver */}
-              <td className="p-4">
-                <div>
-                  <p className="font-medium text-gray-800">
-                    {shipment.receiverName}
-                  </p>
-
-                  <p className="text-xs text-gray-500">
-                    {shipment.receiverCity}
-                  </p>
-                </div>
-              </td>
-
-              {/* Created Date */}
-              <td className="p-4 text-gray-600">
-                {new Date(shipment.createdAt).toLocaleDateString("en-IN", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </td>
-
-              {/* Route */}
-              {/* <td className="p-4">
-                <div className="font-medium text-gray-700">
-                  {shipment.originHub.hubCode}
-                </div>
-
-                <div className="text-xs text-gray-400">↓</div>
-
-                <div className="font-medium text-gray-700">
-                  {shipment.destinationHub.hubCode}
-                </div>
-              </td> */}
-
-              {/* Payment */}
-              <td className="p-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${paymentBadge(
-                    shipment.paymentMode
-                  )}`}
-                >
-                  {shipment.paymentMode}
-                </span>
-              </td>
-
-              {/* Assigned Agent */}
-              <td className="p-4">
-                {shipment.assignedAgent ? (
-                  <div>
-                    <p className="font-medium text-gray-800">
-                      {shipment.assignedAgent.fullName}
+                <td className="p-3 sm:p-4">
+                  <div className="min-w-0">
+                    <p
+                      className="
+                        truncate
+                        font-medium
+                        text-gray-800
+                      "
+                      title={shipment.receiverName}
+                    >
+                      {shipment.receiverName}
                     </p>
 
-                    <p className="text-xs text-gray-500">
-                      {shipment.assignedAgent.phoneNumber}
+                    <p
+                      className="
+                        truncate
+                        text-xs
+                        text-gray-500
+                      "
+                      title={shipment.receiverCity}
+                    >
+                      {shipment.receiverCity}
                     </p>
                   </div>
-                ) : (
-                  <span className="text-gray-400 italic">
-                    Unassigned
+                </td>
+
+                <td className="whitespace-nowrap p-3 text-gray-600 sm:p-4">
+                  {new Date(
+                    shipment.createdAt
+                  ).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </td>
+
+                <td className="p-3 sm:p-4">
+                  <span
+                    className={`
+                      inline-block
+                      whitespace-nowrap
+                      rounded-full
+                      px-2.5
+                      py-1
+                      text-xs
+                      font-medium
+                      sm:px-3
+                      ${paymentBadge(
+                      shipment.paymentMode
+                    )}
+                    `}
+                  >
+                    {shipment.paymentMode}
                   </span>
-                )}
-              </td>
+                </td>
 
-              {/* Shipment Status */}
-              <td className="p-4">
-                <span
-                  className={`px-3 py-1 rounded-md text-xs font-medium ${shipmentBadge(
-                    shipment.currentStatus
-                  )}`}
+                <td className="p-3 sm:p-4">
+                  {shipment.assignedAgent ? (
+                    <div className="min-w-0">
+                      <p
+                        className="
+                          truncate
+                          font-medium
+                          text-gray-800
+                        "
+                        title={
+                          shipment.assignedAgent
+                            .fullName
+                        }
+                      >
+                        {
+                          shipment.assignedAgent
+                            .fullName
+                        }
+                      </p>
+
+                      <p
+                        className="
+                          truncate
+                          text-xs
+                          text-gray-500
+                        "
+                        title={
+                          shipment.assignedAgent
+                            .phoneNumber
+                        }
+                      >
+                        {
+                          shipment.assignedAgent
+                            .phoneNumber
+                        }
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="whitespace-nowrap text-sm italic text-gray-400">
+                      Unassigned
+                    </span>
+                  )}
+                </td>
+
+                <td className="p-3 sm:p-4">
+                  <span
+                    className={`
+                      inline-block
+                      max-w-full
+                      truncate
+                      whitespace-nowrap
+                      rounded-md
+                      px-2.5
+                      py-1
+                      text-xs
+                      font-medium
+                      sm:px-3
+                      ${shipmentBadge(
+                      shipment.currentStatus
+                    )}
+                    `}
+                    title={shipment.currentStatus}
+                  >
+                    {shipment.currentStatus}
+                  </span>
+                </td>
+              </tr>
+            ))}
+
+            {shipments.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="p-8 text-center text-sm text-gray-400"
                 >
-                  {shipment.currentStatus}
-                </span>
-              </td>
-            </tr>
-          ))}
-
-          {shipments.length === 0 && (
-            <tr>
-              <td
-                colSpan={7}
-                className="p-8 text-center text-gray-400"
-              >
-                No shipments found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+                  No shipments found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
