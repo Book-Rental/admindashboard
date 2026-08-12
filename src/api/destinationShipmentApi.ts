@@ -1,21 +1,10 @@
 import axios from "axios";
 import type {
     DestinationShipmentResponse,
-    GetHubByIdResponse,
 } from "../types/destinationShipment";
 
-const BACKEND_URL =
-    import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const getHubById = async (
-    hubId: string
-): Promise<GetHubByIdResponse> => {
-    const response = await axios.get(
-        `${BACKEND_URL}/hub/${hubId}`
-    );
-
-    return response.data;
-};
 
 
 export interface DestinationShipmentFilters {

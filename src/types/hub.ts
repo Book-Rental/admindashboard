@@ -3,6 +3,19 @@ export interface HubResponse {
   data: Hub[];
 }
 
+export interface HubAddress {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  pincode: string;
+}
+
+export interface HubLocation {
+  type: string;
+  coordinates: number[];
+}
+
 export interface Hub {
   _id: string;
   hubId: string;
@@ -11,15 +24,25 @@ export interface Hub {
   managerName: string;
   email: string;
   phoneNumber: string;
+
+  address: HubAddress;
+  location: HubLocation;
+
+  serviceablePincodes: string[];
+
   capacity: number;
   currentLoad: number;
   status: string;
 
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    pincode: string;
-  };
+  createdBy: string | null;
+  updatedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface GetHubByIdResponse {
+  status: string;
+  message: string;
+  data: Hub;
 }

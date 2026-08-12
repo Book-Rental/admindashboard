@@ -6,9 +6,9 @@ import type {
 } from "../types/destinationShipment";
 
 import {
-    getHubById,
     getHubShipmentsByPincode,
 } from "../api/destinationShipmentApi";
+import { getHubById } from "../api/hubService";
 
 import type {
     DestinationShipmentFilters,
