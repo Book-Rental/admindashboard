@@ -46,3 +46,31 @@ export interface GetHubByIdResponse {
   message: string;
   data: Hub;
 }
+
+
+export type EmployeeRole =
+  | "MANAGER"
+  | "CASHIER"
+  | "TEAM_LEAD"
+  | "AGENT";
+
+export interface HubEmployeeDetails {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  role: EmployeeRole;
+}
+
+export interface HubEmployeesData {
+  hub: Hub;
+  employees: HubEmployeeDetails[];
+  summary: {
+    totalEmployees: number;
+  };
+}
+
+export interface HubEmployeesResponse {
+  status: string;
+  message: string;
+  data: HubEmployeesData;
+}

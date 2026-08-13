@@ -134,3 +134,52 @@ export interface AgentAnalytics {
   inactiveAgents: number;
   offDutyAgents: number;
 }
+
+
+export interface HubAgent {
+  agentId: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  status: string;
+  isAvailable: boolean;
+
+  vehicle: {
+    type: string;
+    number: string;
+  };
+
+  currentLocation: {
+    type: string;
+    coordinates: number[];
+    updatedAt: string | null;
+  };
+
+  currentShipmentId: string | null;
+  photo: string;
+  joinedOn: string;
+}
+
+export interface HubAgentsResponse {
+  status: string;
+  message: string;
+
+  data: {
+    agents: HubAgent[];
+
+    analytics: {
+      totalAgents: number;
+      activeAgents: number;
+      inactiveAgents: number;
+      offDutyAgents: number;
+    };
+
+    meta: {
+      totalRecords: number;
+      totalPages: number;
+      currentPage: number;
+      limit: number;
+      hasMore: boolean;
+    };
+  };
+}
