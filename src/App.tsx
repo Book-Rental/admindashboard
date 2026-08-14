@@ -15,6 +15,8 @@ import AgentDetails from "./pages/AgentDetails";
 import ShipmentList from "./pages/ShipmentList";
 import ShipmentDetails from "./pages/ShipmentDetails";
 import DestinationShipment from "./pages/DestinationShipment";
+import HubList from "./pages/HubList";
+import HubDetails from "./pages/HubDetails";
 
 const client = new QueryClient();
 
@@ -27,7 +29,9 @@ interface AppProps {
   | "edit-agent"
   | "orders"
   | "order-details"
-  | "destination-shipments";
+  | "destination-shipments"
+  | "hubs"
+  | "hub-details";
 }
 
 function App({ view }: AppProps) {
@@ -50,6 +54,10 @@ function App({ view }: AppProps) {
         return <ShipmentDetails />;
       case "destination-shipments":
         return <DestinationShipment />;
+      case "hubs":
+        return <HubList />;
+      case "hub-details":
+        return <HubDetails />;
       case "admin":
       default:
         return <DeliveryAgentList />;

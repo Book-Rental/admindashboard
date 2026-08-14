@@ -2,14 +2,14 @@ import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-    getHubById,
     getHubShipmentsByPincode,
 } from "../api/destinationShipmentApi";
 
 import type {
-    GetHubByIdResponse,
     DestinationShipmentResponse,
 } from "../types/destinationShipment";
+import { GetHubByIdResponse } from "../types/hub";
+import { getHubById } from "../api/hubService";
 
 vi.mock("axios");
 

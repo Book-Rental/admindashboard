@@ -2,17 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 
 import type {
     DestinationShipmentResponse,
-    GetHubByIdResponse,
 } from "../types/destinationShipment";
 
 import {
-    getHubById,
     getHubShipmentsByPincode,
 } from "../api/destinationShipmentApi";
+import { getHubById } from "../api/hubService";
 
 import type {
     DestinationShipmentFilters,
 } from "../api/destinationShipmentApi";
+import { GetHubByIdResponse } from "../types/hub";
 
 export const useHubById = (
     hubId: string
