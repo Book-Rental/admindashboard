@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   FaTruck,
   FaBookOpen,
-  FaBars,
   FaTimes,
   FaClipboardList,
   FaBuilding,
@@ -50,6 +49,12 @@ export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    const handleToggle = () => setIsOpen((prev) => !prev);
+    window.addEventListener("toggle-mobile-sidebar", handleToggle);
+    return () => window.removeEventListener("toggle-mobile-sidebar", handleToggle);
+  }, []);
+
+  useEffect(() => {
     const onPopState = () => {
       setCurrentPath(window.location.pathname);
     };
@@ -84,14 +89,6 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Toggle */}
-
-      <button
-        aria-label="Open sidebar"
-        onClick={() => setIsOpen(true)}
-        className="fixed top-20 left-4 z-50 md:hidden h-11 w-11 rounded-xl bg-blue-600 text-white shadow-lg flex items-center justify-center"
-      >
-        <FaBars />
-      </button>
 
       {isOpen && (
         <div
