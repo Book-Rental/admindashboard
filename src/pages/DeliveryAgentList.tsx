@@ -104,7 +104,7 @@ const DeliveryAgentList = () => {
       );
     }) ?? [];
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto">
+    <div className="p-3 space-y-4 sm:p-5 sm:space-y-5 lg:p-8 lg:space-y-6 max-w-[1600px] mx-auto">
       <DeliveryAgentHeader
         hubId={hubId}
         search={search}
