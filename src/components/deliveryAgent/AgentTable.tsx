@@ -1,8 +1,11 @@
+import { useEffect, useRef, useState } from "react";
+
 import {
   FaEye,
   FaEdit,
   FaTrash,
   FaPlus,
+  FaEllipsisV,
 } from "react-icons/fa";
 
 import {
@@ -41,8 +44,39 @@ const AgentTable = ({
   onDelete,
   onAdd,
 }: AgentTableProps) => {
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    if (!openMenuId) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const activeRef = menuRefs.current[openMenuId];
+
+      if (activeRef && !activeRef.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [openMenuId]);
+
+  const toggleMenu = (id: string) => {
+    setOpenMenuId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+      {/* =====================================================
+          HEADER
+          ===================================================== */}
       <div className="flex flex-col gap-4 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
         <h2 className="text-base font-semibold text-slate-800">
           All Delivery Agents
@@ -58,8 +92,7 @@ const AgentTable = ({
         </div>
       </div>
 
-      <div className="w-full min-w-0 overflow-x-auto">
-
+      <div className="hidden w-full min-w-0 overflow-x-auto sm:block">
         <table className="w-full min-w-[850px] table-fixed">
 
           <thead className="bg-slate-50">
@@ -93,14 +126,13 @@ const AgentTable = ({
           </thead>
 
           <tbody>
-
             {agents.length > 0 ? (
               agents.map((agent) => (
                 <tr
                   key={agent.agentId}
-                  className="border-t border-slate-100 transition-colors hover:bg-slate-50"
+                  onClick={() => onView(agent.agentId)}
+                  className="cursor-pointer border-t border-slate-100 transition-colors hover:bg-slate-50"
                 >
-
                   <td className="min-w-0 px-3 py-4 sm:px-4">
                     <div className="flex min-w-0 items-center gap-3">
 
@@ -112,16 +144,14 @@ const AgentTable = ({
                             alt={agent.fullName}
                             className="h-full w-full object-cover"
                             onError={(e) => {
-                              e.currentTarget.style.display =
-                                "none";
+                              e.currentTarget.style.display = "none";
 
                               const fallback =
                                 e.currentTarget
                                   .nextElementSibling as HTMLDivElement;
 
                               if (fallback) {
-                                fallback.style.display =
-                                  "flex";
+                                fallback.style.display = "flex";
                               }
                             }}
                           />
@@ -129,8 +159,8 @@ const AgentTable = ({
 
                         <div
                           className={`h-full w-full items-center justify-center text-sm font-semibold uppercase text-white ${agent.photo
-                            ? "hidden"
-                            : "flex"
+                              ? "hidden"
+                              : "flex"
                             }`}
                         >
                           {agent.fullName.slice(0, 2)}
@@ -196,39 +226,44 @@ const AgentTable = ({
                       />
                     </div>
                   </td>
-
                   <td className="px-3 py-4 sm:px-4">
                     <div className="flex items-center justify-center gap-1.5">
 
+                      {/* View */}
                       <button
                         type="button"
-                        onClick={() =>
-                          onView(agent.agentId)
-                        }
                         aria-label="View agent"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 transition-colors hover:border-blue-300 hover:bg-blue-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onView(agent.agentId);
+                        }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-blue-300 hover:bg-blue-50"
                       >
                         <FaEye className="text-xs text-blue-600" />
                       </button>
 
+                      {/* Edit */}
                       <button
                         type="button"
-                        onClick={() =>
-                          onEdit(agent.agentId)
-                        }
                         aria-label="Edit agent"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 transition-colors hover:border-green-300 hover:bg-green-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(agent.agentId);
+                        }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-green-300 hover:bg-green-50"
                       >
                         <FaEdit className="text-xs text-green-600" />
                       </button>
 
+                      {/* Delete */}
                       <button
                         type="button"
-                        onClick={() =>
-                          onDelete(agent.agentId)
-                        }
                         aria-label="Delete agent"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 transition-colors hover:border-red-300 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(agent.agentId);
+                        }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-red-300 hover:bg-red-50"
                       >
                         <FaTrash className="text-xs text-red-600" />
                       </button>
@@ -248,8 +283,174 @@ const AgentTable = ({
                 </td>
               </tr>
             )}
-
           </tbody>
+
+        </table>
+      </div>
+      <div className="block w-full sm:hidden">
+        <table className="w-full table-fixed">
+
+          <thead className="bg-slate-50">
+            <tr className="text-left">
+
+              <th className="w-[58%] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Agent
+              </th>
+
+              <th className="w-[42%] px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Actions
+              </th>
+
+            </tr>
+          </thead>
+
+          <tbody>
+            {agents.length > 0 ? (
+              agents.map((agent) => (
+                <tr
+                  key={agent.agentId}
+                  onClick={() => onView(agent.agentId)}
+                  className="cursor-pointer border-t border-slate-100 transition-colors hover:bg-slate-50"
+                >
+
+                  <td className="min-w-0 px-4 py-4">
+                    <div className="flex min-w-0 items-center gap-3">
+
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-600">
+
+                        {agent.photo ? (
+                          <img
+                            src={agent.photo}
+                            alt={agent.fullName}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+
+                              const fallback =
+                                e.currentTarget
+                                  .nextElementSibling as HTMLDivElement;
+
+                              if (fallback) {
+                                fallback.style.display = "flex";
+                              }
+                            }}
+                          />
+                        ) : null}
+
+                        <div
+                          className={`h-full w-full items-center justify-center text-sm font-semibold uppercase text-white ${agent.photo
+                              ? "hidden"
+                              : "flex"
+                            }`}
+                        >
+                          {agent.fullName.slice(0, 2)}
+                        </div>
+
+                      </div>
+
+                      <div className="min-w-0">
+                        <p
+                          className="truncate text-sm font-semibold text-slate-800"
+                          title={agent.fullName}
+                        >
+                          {agent.fullName}
+                        </p>
+
+                        <p
+                          className="truncate text-xs text-slate-400"
+                          title={agent.agentId}
+                        >
+                          {agent.agentId}
+                        </p>
+                      </div>
+
+                    </div>
+                  </td>
+                  <td
+                    className="relative px-2 py-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div
+                      ref={(el) => {
+                        menuRefs.current[agent.agentId] = el;
+                      }}
+                      className="group relative flex items-center justify-center"
+                    >
+
+                      <button
+                        type="button"
+                        aria-label="Open actions"
+                        aria-expanded={openMenuId === agent.agentId}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMenu(agent.agentId);
+                        }}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-transparent text-slate-500 transition-colors hover:bg-slate-100"                      >
+                        <FaEllipsisV className="text-xs" />
+                      </button>
+
+                      <div
+                        className={`absolute right-0 top-full z-10 mt-1 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 ${openMenuId === agent.agentId
+                            ? "pointer-events-auto opacity-100"
+                            : "pointer-events-none opacity-0"
+                          }`}
+                      >
+                        <button
+                          type="button"
+                          aria-label="View agent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                            onView(agent.agentId);
+                          }}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-blue-300 hover:bg-blue-50"
+                        >
+                          <FaEye className="text-xs text-blue-600" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Edit agent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                            onEdit(agent.agentId);
+                          }}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-green-300 hover:bg-green-50"
+                        >
+                          <FaEdit className="text-xs text-green-600" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Delete agent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                            onDelete(agent.agentId);
+                          }}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-red-300 hover:bg-red-50"
+                        >
+                          <FaTrash className="text-xs text-red-600" />
+                        </button>
+
+                      </div>
+
+                    </div>
+                  </td>
+
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={2}
+                  className="p-8 text-center text-sm text-slate-500"
+                >
+                  No delivery agents found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+
         </table>
       </div>
 
@@ -278,6 +479,7 @@ const AgentTable = ({
         )}
 
       </div>
+
     </div>
   );
 };
