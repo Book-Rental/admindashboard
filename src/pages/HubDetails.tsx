@@ -3,6 +3,7 @@ import {
     Rb_LoadingSpinner,
 } from "@rentbook/rentbook-ui-lib";
 
+import { useHubById } from "../hooks/useHubById";
 import { useHubEmployees } from "../hooks/useHubEmployees";
 
 function HubDetails() {
@@ -10,20 +11,37 @@ function HubDetails() {
     const hubId = path.split("/").filter(Boolean).pop();
 
     const {
-        data,
-        isLoading,
-        isError,
-        error,
+        data: hubResponse,
+        isLoading: isHubLoading,
+        isError: isHubError,
+        error: hubError,
+    } = useHubById(hubId);
+
+    const {
+        data: employeeResponse,
+        isLoading: isEmployeesLoading,
+        isError: isEmployeesError,
+        error: employeesError,
     } = useHubEmployees(hubId);
 
-    if (isLoading) {
+
+    if (isHubLoading || isEmployeesLoading) {
         return (
             <div className="flex min-h-[70vh] items-center justify-center">
                 <Rb_LoadingSpinner text="Loading hub details..." />
             </div>
         );
     }
-    if (isError) {
+
+
+    if (isHubError || isEmployeesError) {
+        const errorMessage =
+            hubError instanceof Error
+                ? hubError.message
+                : employeesError instanceof Error
+                    ? employeesError.message
+                    : "Unable to load hub details.";
+
         return (
             <div className="min-h-screen bg-[#F5F7FB] p-4 sm:p-6 lg:p-8">
                 <div className="mx-auto flex min-h-[60vh] max-w-2xl items-center justify-center">
@@ -40,20 +58,27 @@ function HubDetails() {
                             We couldn't retrieve the information for this hub.
                         </p>
 
-                        {error instanceof Error && (
-                            <p className="mt-4 rounded-lg bg-red-50 px-4 py-2 text-xs text-red-600">
-                                {error.message}
-                            </p>
-                        )}
+                        <p className="mt-4 rounded-lg bg-red-50 px-4 py-2 text-xs text-red-600">
+                            {errorMessage}
+                        </p>
                     </div>
                 </div>
             </div>
         );
     }
 
-    const hubData = data?.data;
+    const hub = hubResponse?.data;
 
-    if (!hubData) {
+    const employees =
+        employeeResponse?.data?.employees ?? [];
+
+    const employeeMeta =
+        employeeResponse?.data?.meta;
+
+    const totalEmployees =
+        employeeMeta?.totalRecords ?? employees.length;
+
+    if (!hub) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center bg-[#F5F7FB] px-4">
                 <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
@@ -69,11 +94,6 @@ function HubDetails() {
         );
     }
 
-    const {
-        hub,
-        employees,
-        summary,
-    } = hubData;
 
     const handleBreadcrumbNavigate = (path: string) => {
         window.history.pushState({}, "", path);
@@ -85,13 +105,16 @@ function HubDetails() {
 
     const getRoleLabel = (role: string) => {
         return role
-            .toLowerCase()
             .replace(/_/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase());
+            .toLowerCase()
+            .replace(/\b\w/g, (char) =>
+                char.toUpperCase()
+            );
     };
 
     const getRoleClass = (role: string) => {
-        switch (role) {
+        switch (role.toUpperCase()) {
+            case "HUB_MANAGER":
             case "MANAGER":
                 return "bg-purple-50 text-purple-700 ring-purple-100";
 
@@ -109,45 +132,26 @@ function HubDetails() {
         }
     };
 
+    const getStatusClass = (status: string) => {
+        return status.toLowerCase() === "active"
+            ? "bg-emerald-50 text-emerald-700 ring-emerald-100"
+            : "bg-red-50 text-red-700 ring-red-100";
+    };
+
     const capacityPercentage =
         hub.capacity > 0
             ? Math.min(
-                (hub.currentLoad / hub.capacity) * 100,
+                Math.round(
+                    (hub.currentLoad / hub.capacity) * 100
+                ),
                 100
             )
             : 0;
-
-    const getCapacityColor = () => {
-        if (capacityPercentage >= 90) {
-            return {
-                text: "text-red-600",
-                bg: "bg-red-500",
-                light: "bg-red-50",
-            };
-        }
-
-        if (capacityPercentage >= 70) {
-            return {
-                text: "text-orange-600",
-                bg: "bg-orange-500",
-                light: "bg-orange-50",
-            };
-        }
-
-        return {
-            text: "text-emerald-600",
-            bg: "bg-emerald-500",
-            light: "bg-emerald-50",
-        };
-    };
-
-    const capacityColor = getCapacityColor();
 
     return (
         <div className="min-h-screen bg-[#F5F7FB] px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
             <div className="mx-auto max-w-[1600px]">
 
-                {/* Breadcrumb */}
                 <div className="mb-5">
                     <Rb_BreadCrumb
                         items={[
@@ -156,16 +160,17 @@ function HubDetails() {
                                 path: "/hubs",
                             },
                             {
-                                label: hub.hubName || "Hub Details",
+                                label:
+                                    hub.hubName ||
+                                    "Hub Details",
                             },
                         ]}
                         onNavigate={handleBreadcrumbNavigate}
                     />
                 </div>
 
-                {/* Hero Header */}
                 <div className="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                    <div className="relative p-5 sm:p-6 lg:p-8">
+                    <div className="p-5 sm:p-6 lg:p-8">
                         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 
                             {/* Hub Identity */}
@@ -183,13 +188,13 @@ function HubDetails() {
                                         </h1>
 
                                         <span
-                                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${hub.status === "Active"
-                                                ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100"
-                                                : "bg-red-50 text-red-700 ring-1 ring-inset ring-red-100"
-                                                }`}
+                                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset ${getStatusClass(
+                                                hub.status
+                                            )}`}
                                         >
                                             <span
-                                                className={`h-1.5 w-1.5 rounded-full ${hub.status === "Active"
+                                                className={`h-1.5 w-1.5 rounded-full ${hub.status.toLowerCase() ===
+                                                    "active"
                                                     ? "bg-emerald-500"
                                                     : "bg-red-500"
                                                     }`}
@@ -218,11 +223,12 @@ function HubDetails() {
                             </div>
 
                             {/* Manager */}
-                            <div className="flex w-full items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3.5 sm:p-4 lg:w-auto lg:min-w-[260px]">
+                            <div className="flex w-full items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3.5 sm:p-4 lg:w-auto lg:min-w-[280px]">
                                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
                                     {hub.managerName
                                         ?.charAt(0)
-                                        .toUpperCase() || "M"}
+                                        .toUpperCase() ||
+                                        "M"}
                                 </div>
 
                                 <div className="min-w-0">
@@ -231,150 +237,103 @@ function HubDetails() {
                                     </p>
 
                                     <p className="mt-0.5 truncate font-semibold text-gray-800">
-                                        {hub.managerName || "Not assigned"}
+                                        {hub.managerName ||
+                                            "Not assigned"}
                                     </p>
 
-                                    {hub.phoneNumber && (
-                                        <p className="mt-0.5 truncate text-xs text-gray-500">
-                                            {hub.phoneNumber}
-                                        </p>
-                                    )}
+                                    <p className="mt-0.5 truncate text-xs text-gray-500">
+                                        {hub.phoneNumber}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Statistics */}
-                <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+
+                <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
                     {/* Employees */}
-                    <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:p-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                    Employees
-                                </p>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                            Employees
+                        </p>
 
-                                <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
-                                    {summary.totalEmployees}
-                                </p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                            {totalEmployees}
+                        </p>
 
-                                <p className="mt-1 text-sm text-gray-500">
-                                    Assigned to this hub
-                                </p>
-                            </div>
-
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                                <span className="text-lg font-bold">
-                                    E
-                                </span>
-                            </div>
-                        </div>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Assigned to this hub
+                        </p>
                     </div>
 
                     {/* Capacity */}
-                    <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:p-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                    Hub Capacity
-                                </p>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                            Capacity
+                        </p>
 
-                                <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
-                                    {hub.capacity.toLocaleString()}
-                                </p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                            {hub.capacity.toLocaleString()}
+                        </p>
 
-                                <p className="mt-1 text-sm text-gray-500">
-                                    Maximum capacity
-                                </p>
-                            </div>
-
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
-                                <span className="text-lg font-bold">
-                                    C
-                                </span>
-                            </div>
-                        </div>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Maximum capacity
+                        </p>
                     </div>
 
                     {/* Current Load */}
-                    <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:col-span-2 xl:col-span-1 sm:p-6">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                    Current Load
-                                </p>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                            Current Load
+                        </p>
 
-                                <div className="mt-2 flex items-baseline gap-2">
-                                    <p className="text-3xl font-bold tracking-tight text-gray-900">
-                                        {hub.currentLoad.toLocaleString()}
-                                    </p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                            {hub.currentLoad.toLocaleString()}
+                        </p>
 
-                                    <span
-                                        className={`text-xs font-semibold ${capacityColor.text}`}
-                                    >
-                                        {Math.round(capacityPercentage)}%
-                                    </span>
-                                </div>
+                        <p className="mt-1 text-sm text-gray-500">
+                            {capacityPercentage}% utilized
+                        </p>
+                    </div>
 
-                                <p className="mt-1 text-sm text-gray-500">
-                                    Current hub utilization
-                                </p>
-                            </div>
+                    {/* Availability */}
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                            Employee Status
+                        </p>
 
-                            <div
-                                className={`flex h-11 w-11 items-center justify-center rounded-xl ${capacityColor.light}`}
-                            >
-                                <span
-                                    className={`text-lg font-bold ${capacityColor.text}`}
-                                >
-                                    L
-                                </span>
-                            </div>
-                        </div>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                            {
+                                employees.filter(
+                                    (employee) =>
+                                        employee.isActive
+                                ).length
+                            }
+                        </p>
 
-                        <div className="mt-4">
-                            <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                                <div
-                                    className={`h-full rounded-full transition-all ${capacityColor.bg}`}
-                                    style={{
-                                        width: `${capacityPercentage}%`,
-                                    }}
-                                />
-                            </div>
-
-                            <div className="mt-2 flex justify-between text-xs text-gray-400">
-                                <span>0</span>
-                                <span>
-                                    {hub.capacity.toLocaleString()} capacity
-                                </span>
-                            </div>
-                        </div>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Currently active
+                        </p>
                     </div>
                 </div>
 
-                {/* Information */}
+                {/* =========================
+                    Hub Information
+                ========================== */}
                 <div className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-5">
 
                     {/* Hub Information */}
                     <div className="rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-3">
                         <div className="border-b border-gray-100 p-5 sm:p-6">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-sm font-bold text-blue-600">
-                                    H
-                                </div>
+                            <h2 className="font-semibold text-gray-900">
+                                Hub Information
+                            </h2>
 
-                                <div>
-                                    <h2 className="font-semibold text-gray-900">
-                                        Hub Information
-                                    </h2>
-
-                                    <p className="mt-0.5 text-sm text-gray-500">
-                                        Contact and location details
-                                    </p>
-                                </div>
-                            </div>
+                            <p className="mt-1 text-sm text-gray-500">
+                                Contact and location details
+                            </p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 sm:p-6">
@@ -385,7 +344,8 @@ function HubDetails() {
                                 </p>
 
                                 <p className="mt-1.5 break-all text-sm font-medium text-gray-800">
-                                    {hub.email || "Not available"}
+                                    {hub.email ||
+                                        "Not available"}
                                 </p>
                             </div>
 
@@ -395,7 +355,8 @@ function HubDetails() {
                                 </p>
 
                                 <p className="mt-1.5 text-sm font-medium text-gray-800">
-                                    {hub.phoneNumber || "Not available"}
+                                    {hub.phoneNumber ||
+                                        "Not available"}
                                 </p>
                             </div>
 
@@ -411,7 +372,11 @@ function HubDetails() {
                                         {hub.address.state},{" "}
                                         {hub.address.country}{" "}
                                         <span className="font-semibold">
-                                            - {hub.address.pincode}
+                                            -{" "}
+                                            {
+                                                hub.address
+                                                    .pincode
+                                            }
                                         </span>
                                     </p>
                                 </div>
@@ -419,34 +384,36 @@ function HubDetails() {
                         </div>
                     </div>
 
-                    {/* Serviceable Pincodes */}
+                    {/* Pincodes */}
                     <div className="rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-2">
-                        <div className="border-b border-gray-100 p-5 sm:p-6">
-                            <div className="flex items-center justify-between gap-3">
-                                <div>
-                                    <h2 className="font-semibold text-gray-900">
-                                        Serviceable Pincodes
-                                    </h2>
+                        <div className="flex items-center justify-between border-b border-gray-100 p-5 sm:p-6">
+                            <div>
+                                <h2 className="font-semibold text-gray-900">
+                                    Serviceable Pincodes
+                                </h2>
 
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Areas serviced by this hub
-                                    </p>
-                                </div>
-
-                                <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
-                                    {hub.serviceablePincodes.length}
-                                </span>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    Areas serviced by this hub
+                                </p>
                             </div>
+
+                            <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                                {
+                                    hub.serviceablePincodes
+                                        .length
+                                }
+                            </span>
                         </div>
 
                         <div className="p-5 sm:p-6">
-                            {hub.serviceablePincodes.length > 0 ? (
-                                <div className="flex max-h-[180px] flex-wrap gap-2 overflow-y-auto pr-1">
+                            {hub.serviceablePincodes.length >
+                                0 ? (
+                                <div className="flex max-h-[180px] flex-wrap gap-2 overflow-y-auto">
                                     {hub.serviceablePincodes.map(
                                         (pincode) => (
                                             <span
                                                 key={pincode}
-                                                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                                                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700"
                                             >
                                                 {pincode}
                                             </span>
@@ -454,21 +421,17 @@ function HubDetails() {
                                     )}
                                 </div>
                             ) : (
-                                <div className="rounded-xl bg-gray-50 p-6 text-center">
-                                    <p className="text-sm font-medium text-gray-600">
-                                        No serviceable pincodes
-                                    </p>
-
-                                    <p className="mt-1 text-xs text-gray-400">
-                                        No service areas have been configured.
-                                    </p>
-                                </div>
+                                <p className="text-sm text-gray-500">
+                                    No serviceable pincodes.
+                                </p>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Employees */}
+                {/* =========================
+                    Employees
+                ========================== */}
                 <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 
                     {/* Header */}
@@ -485,8 +448,8 @@ function HubDetails() {
                             </div>
 
                             <span className="w-fit rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
-                                {summary.totalEmployees}{" "}
-                                {summary.totalEmployees === 1
+                                {totalEmployees}{" "}
+                                {totalEmployees === 1
                                     ? "Employee"
                                     : "Employees"}
                             </span>
@@ -496,141 +459,241 @@ function HubDetails() {
                     {/* Empty */}
                     {employees.length === 0 ? (
                         <div className="p-10 text-center sm:p-14">
-                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
-                                <span className="text-lg font-bold text-gray-400">
-                                    E
-                                </span>
-                            </div>
-
-                            <p className="mt-4 font-semibold text-gray-700">
+                            <p className="font-semibold text-gray-700">
                                 No employees found
                             </p>
 
                             <p className="mt-1 text-sm text-gray-500">
-                                There are currently no employees assigned to
-                                this hub.
+                                There are currently no employees assigned to this hub.
                             </p>
                         </div>
                     ) : (
                         <>
-                            {/* Desktop Table */}
+                            {/* Desktop */}
                             <div className="hidden overflow-x-auto md:block">
                                 <table className="min-w-full">
                                     <thead>
                                         <tr className="border-b border-gray-100 bg-gray-50/70 text-left">
-                                            <th className="whitespace-nowrap px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                                                 Employee
                                             </th>
 
-                                            <th className="whitespace-nowrap px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                                                Employee ID
+                                            </th>
+
+                                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                                                 Email
                                             </th>
 
-                                            <th className="whitespace-nowrap px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                                                 Phone
                                             </th>
 
-                                            <th className="whitespace-nowrap px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                                                 Role
+                                            </th>
+
+                                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                                                Status
                                             </th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
-                                        {employees.map((employee) => (
-                                            <tr
-                                                key={`${employee.email}-${employee.role}`}
-                                                className="border-b border-gray-100 transition-colors last:border-0 hover:bg-blue-50/30"
-                                            >
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-600">
-                                                            {employee.fullName
-                                                                .charAt(0)
-                                                                .toUpperCase()}
-                                                        </div>
+                                        {employees.map(
+                                            (employee) => (
+                                                <tr
+                                                    key={employee._id}
+                                                    className="cursor-pointer border-b border-gray-100 transition-colors last:border-0 hover:bg-blue-50/30"
+                                                    onClick={() => {
+                                                        window.history.pushState(
+                                                            {},
+                                                            "",
+                                                            `/employee/${employee._id}`
+                                                        );
 
-                                                        <div className="min-w-0">
-                                                            <p className="truncate font-semibold text-gray-900">
-                                                                {employee.fullName}
+                                                        window.dispatchEvent(
+                                                            new PopStateEvent("popstate")
+                                                        );
+                                                    }}
+                                                >
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            {employee.photo ? (
+                                                                <img
+                                                                    src={
+                                                                        employee.photo
+                                                                    }
+                                                                    alt={
+                                                                        employee.fullName
+                                                                    }
+                                                                    className="h-10 w-10 rounded-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+                                                                    {employee.fullName
+                                                                        .charAt(
+                                                                            0
+                                                                        )
+                                                                        .toUpperCase()}
+                                                                </div>
+                                                            )}
+
+                                                            <p className="font-semibold text-gray-900">
+                                                                {
+                                                                    employee.fullName
+                                                                }
                                                             </p>
                                                         </div>
-                                                    </div>
-                                                </td>
+                                                    </td>
 
-                                                <td className="px-6 py-4">
-                                                    <p className="max-w-[300px] truncate text-sm text-gray-600">
-                                                        {employee.email}
-                                                    </p>
-                                                </td>
+                                                    <td className="px-6 py-4 text-sm font-medium text-gray-600">
+                                                        {
+                                                            employee.employeeId
+                                                        }
+                                                    </td>
 
-                                                <td className="whitespace-nowrap px-6 py-4">
-                                                    <p className="text-sm text-gray-600">
-                                                        {employee.phoneNumber}
-                                                    </p>
-                                                </td>
+                                                    <td className="px-6 py-4">
+                                                        <p className="max-w-[260px] truncate text-sm text-gray-600">
+                                                            {
+                                                                employee.email
+                                                            }
+                                                        </p>
+                                                    </td>
 
-                                                <td className="px-6 py-4">
-                                                    <span
-                                                        className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset ${getRoleClass(
-                                                            employee.role
-                                                        )}`}
-                                                    >
-                                                        {getRoleLabel(
-                                                            employee.role
-                                                        )}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                                        {
+                                                            employee.phoneNumber
+                                                        }
+                                                    </td>
+
+                                                    <td className="px-6 py-4">
+                                                        <span
+                                                            className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset ${getRoleClass(
+                                                                employee.role
+                                                            )}`}
+                                                        >
+                                                            {getRoleLabel(
+                                                                employee.role
+                                                            )}
+                                                        </span>
+                                                    </td>
+
+                                                    <td className="px-6 py-4">
+                                                        <span
+                                                            className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset ${getStatusClass(
+                                                                employee.status
+                                                            )}`}
+                                                        >
+                                                            {
+                                                                employee.status
+                                                            }
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
 
-                            {/* Mobile Employee Cards */}
+                            {/* Mobile */}
                             <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
-                                {employees.map((employee) => (
-                                    <div
-                                        key={`${employee.email}-${employee.role}`}
-                                        className="rounded-xl border border-gray-200 p-4 transition-colors hover:border-blue-200 hover:bg-blue-50/20"
-                                    >
-                                        <div className="flex items-start gap-3">
-                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
-                                                {employee.fullName
-                                                    .charAt(0)
-                                                    .toUpperCase()}
-                                            </div>
+                                {employees.map(
+                                    (employee) => (
+                                        <div
+                                            key={employee._id}
+                                            className="cursor-pointer rounded-xl border border-gray-200 p-4 transition-colors hover:bg-blue-50"
+                                            onClick={() => {
+                                                window.history.pushState(
+                                                    {},
+                                                    "",
+                                                    `/employees/${employee._id}`
+                                                );
 
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex flex-wrap items-start justify-between gap-2">
-                                                    <p className="truncate font-semibold text-gray-900">
-                                                        {employee.fullName}
-                                                    </p>
+                                                window.dispatchEvent(
+                                                    new PopStateEvent("popstate")
+                                                );
+                                            }}
+                                        >
+                                            <div className="flex items-start gap-3">
 
-                                                    <span
-                                                        className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getRoleClass(
-                                                            employee.role
-                                                        )}`}
-                                                    >
-                                                        {getRoleLabel(
-                                                            employee.role
-                                                        )}
-                                                    </span>
-                                                </div>
+                                                {employee.photo ? (
+                                                    <img
+                                                        src={
+                                                            employee.photo
+                                                        }
+                                                        alt={
+                                                            employee.fullName
+                                                        }
+                                                        className="h-11 w-11 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+                                                        {employee.fullName
+                                                            .charAt(
+                                                                0
+                                                            )
+                                                            .toUpperCase()}
+                                                    </div>
+                                                )}
 
-                                                <div className="mt-2 space-y-1">
-                                                    <p className="break-all text-sm text-gray-500">
-                                                        {employee.email}
-                                                    </p>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                                        <div>
+                                                            <p className="font-semibold text-gray-900">
+                                                                {
+                                                                    employee.fullName
+                                                                }
+                                                            </p>
 
-                                                    <p className="text-sm text-gray-500">
-                                                        {employee.phoneNumber}
-                                                    </p>
+                                                            <p className="mt-0.5 text-xs text-gray-400">
+                                                                {
+                                                                    employee.employeeId
+                                                                }
+                                                            </p>
+                                                        </div>
+
+                                                        <span
+                                                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getStatusClass(
+                                                                employee.status
+                                                            )}`}
+                                                        >
+                                                            {
+                                                                employee.status
+                                                            }
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="mt-3 space-y-1.5">
+                                                        <p className="break-all text-sm text-gray-500">
+                                                            {
+                                                                employee.email
+                                                            }
+                                                        </p>
+
+                                                        <p className="text-sm text-gray-500">
+                                                            {
+                                                                employee.phoneNumber
+                                                            }
+                                                        </p>
+
+                                                        <span
+                                                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getRoleClass(
+                                                                employee.role
+                                                            )}`}
+                                                        >
+                                                            {getRoleLabel(
+                                                                employee.role
+                                                            )}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )
+                                )}
                             </div>
                         </>
                     )}

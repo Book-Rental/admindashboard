@@ -17,65 +17,47 @@ import App from "../App";
 ========================================= */
 
 vi.mock("../components/sidebar", () => ({
-  default: () => (
-    <div>Sidebar</div>
-  ),
+  default: () => <div>Sidebar</div>,
 }));
 
 vi.mock("../pages/DeliveryAgentList", () => ({
-  default: () => (
-    <div>Delivery Agent List Page</div>
-  ),
+  default: () => <div>Delivery Agent List Page</div>,
 }));
 
 vi.mock("../pages/AddAgent", () => ({
-  default: () => (
-    <div>Add Agent Page</div>
-  ),
+  default: () => <div>Add Agent Page</div>,
 }));
 
 vi.mock("../pages/EditAgent", () => ({
-  default: () => (
-    <div>Edit Agent Page</div>
-  ),
+  default: () => <div>Edit Agent Page</div>,
 }));
 
 vi.mock("../pages/AgentDetails", () => ({
-  default: () => (
-    <div>Agent Details Page</div>
-  ),
+  default: () => <div>Agent Details Page</div>,
 }));
 
 vi.mock("../pages/ShipmentList", () => ({
-  default: () => (
-    <div>Shipment List Page</div>
-  ),
+  default: () => <div>Shipment List Page</div>,
 }));
 
 vi.mock("../pages/ShipmentDetails", () => ({
-  default: () => (
-    <div>Shipment Details Page</div>
-  ),
+  default: () => <div>Shipment Details Page</div>,
 }));
 
 vi.mock("../pages/DestinationShipment", () => ({
-  default: () => (
-    <div>
-      Destination Shipment Page
-    </div>
-  ),
+  default: () => <div>Destination Shipment Page</div>,
 }));
 
 vi.mock("../pages/HubList", () => ({
-  default: () => (
-    <div>Hub List Page</div>
-  ),
+  default: () => <div>Hub List Page</div>,
 }));
 
 vi.mock("../pages/HubDetails", () => ({
-  default: () => (
-    <div>Hub Details Page</div>
-  ),
+  default: () => <div>Hub Details Page</div>,
+}));
+
+vi.mock("../pages/EmployeeDetails", () => ({
+  default: () => <div>Employee Details Page</div>,
 }));
 
 /* =========================================
@@ -83,7 +65,6 @@ vi.mock("../pages/HubDetails", () => ({
 ========================================= */
 
 describe("App Component", () => {
-
   it("renders Sidebar", () => {
     render(<App />);
 
@@ -96,130 +77,95 @@ describe("App Component", () => {
     render(<App />);
 
     expect(
-      screen.getByText(
-        "Delivery Agent List Page"
-      )
+      screen.getByText("Delivery Agent List Page")
     ).toBeInTheDocument();
   });
 
   it("renders DeliveryAgentList for admin view", () => {
-    render(
-      <App view="admin" />
-    );
+    render(<App view="admin" />);
 
     expect(
-      screen.getByText(
-        "Delivery Agent List Page"
-      )
+      screen.getByText("Delivery Agent List Page")
     ).toBeInTheDocument();
   });
 
   it("renders DeliveryAgentList for agents view", () => {
-    render(
-      <App view="agents" />
-    );
+    render(<App view="agents" />);
 
     expect(
-      screen.getByText(
-        "Delivery Agent List Page"
-      )
+      screen.getByText("Delivery Agent List Page")
     ).toBeInTheDocument();
   });
 
   it("renders AddAgent for create-agent view", () => {
-    render(
-      <App view="create-agent" />
-    );
+    render(<App view="create-agent" />);
 
     expect(
-      screen.getByText(
-        "Add Agent Page"
-      )
+      screen.getByText("Add Agent Page")
     ).toBeInTheDocument();
   });
 
   it("renders EditAgent for edit-agent view", () => {
-    render(
-      <App view="edit-agent" />
-    );
+    render(<App view="edit-agent" />);
 
     expect(
-      screen.getByText(
-        "Edit Agent Page"
-      )
+      screen.getByText("Edit Agent Page")
     ).toBeInTheDocument();
   });
 
   it("renders AgentDetails for agent-details view", () => {
-    render(
-      <App view="agent-details" />
-    );
+    render(<App view="agent-details" />);
 
     expect(
-      screen.getByText(
-        "Agent Details Page"
-      )
+      screen.getByText("Agent Details Page")
     ).toBeInTheDocument();
   });
 
   it("renders ShipmentList for orders view", () => {
-    render(
-      <App view="orders" />
-    );
+    render(<App view="orders" />);
 
     expect(
-      screen.getByText(
-        "Shipment List Page"
-      )
+      screen.getByText("Shipment List Page")
     ).toBeInTheDocument();
   });
 
   it("renders ShipmentDetails for order-details view", () => {
-    render(
-      <App view="order-details" />
-    );
+    render(<App view="order-details" />);
 
     expect(
-      screen.getByText(
-        "Shipment Details Page"
-      )
+      screen.getByText("Shipment Details Page")
     ).toBeInTheDocument();
   });
 
   it("renders DestinationShipment for destination-shipments view", () => {
-    render(
-      <App view="destination-shipments" />
-    );
+    render(<App view="destination-shipments" />);
 
     expect(
-      screen.getByText(
-        "Destination Shipment Page"
-      )
+      screen.getByText("Destination Shipment Page")
     ).toBeInTheDocument();
   });
 
   it("renders HubList for hubs view", () => {
-    render(
-      <App view="hubs" />
-    );
+    render(<App view="hubs" />);
 
     expect(
-      screen.getByText(
-        "Hub List Page"
-      )
+      screen.getByText("Hub List Page")
     ).toBeInTheDocument();
   });
 
   it("renders HubDetails for hub-details view", () => {
-    render(
-      <App view="hub-details"
-      />
-    );
+    render(<App view="hub-details" />);
 
     expect(
-      screen.getByText(
-        "Hub Details Page"
-      )
+      screen.getByText("Hub Details Page")
+    ).toBeInTheDocument();
+  });
+
+  it("renders EmployeeDetails for employee-details view", () => {
+    render(<App view="employee-details" />);
+
+    expect(
+      screen.getByText("Employee Details Page")
     ).toBeInTheDocument();
   });
 });

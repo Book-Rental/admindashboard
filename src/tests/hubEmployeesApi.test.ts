@@ -15,77 +15,103 @@ describe("getHubEmployees", () => {
 
     const mockResponse: HubEmployeesResponse = {
         status: "Success",
-        message: "Hub employees fetched successfully.",
+        message: "Employee fetched successfully.",
         data: {
-            hub: {
-                address: {
-                    street: "OMR Road, Near Tidel Park",
-                    city: "Chennai",
-                    state: "Tamil Nadu",
-                    country: "India",
-                    pincode: "600113",
-                },
-
-                location: {
-                    type: "Point",
-                    coordinates: [80.241, 12.9854],
-                },
-
-                _id: "6a6b1b99f447531ecb350f64",
-                hubId: "HUB000007",
-                hubCode: "HUB007",
-                hubName: "Chennai South Logistics Hub",
-                managerName: "Arun Kumar",
-                email: "arun.k@example.com",
-                phoneNumber: "9840012345",
-
-                serviceablePincodes: [
-                    "600113",
-                    "600096",
-                    "600097",
-                    "600041",
-                    "600100",
-                    "600119",
-                    "600042",
-                    "600032",
-                    "600020",
-                    "600036",
-                ],
-
-                capacity: 1900,
-                currentLoad: 0,
-                status: "Active",
-
-                createdBy: null,
-                updatedBy: null,
-                createdAt: "2026-07-30T09:38:33.567Z",
-                updatedAt: "2026-07-30T09:38:33.567Z",
-                __v: 0,
-            },
-
             employees: [
                 {
-                    fullName: "Arun Kumar",
-                    email: "arun.k@example.com",
-                    phoneNumber: "9840012345",
-                    role: "MANAGER",
+                    _id: "6a8431ddb3d10cde02cb648e",
+                    employeeId: "EMP260818446441",
+                    fullName: "Divya Srinivasan",
+                    email: "divya.srinivasan@gmail.com",
+                    phoneNumber: "9876543272",
+                    role: "cashier",
+                    status: "Active",
+                    isAvailable: true,
+                    isActive: true,
+                    hub: {
+                        _id: "6a6b1b99f447531ecb350f64",
+                        hubCode: "HUB007",
+                    },
+                    vehicle: {
+                        type: null,
+                        number: "",
+                    },
+                    currentLocation: {
+                        type: "Point",
+                        coordinates: [0, 0],
+                        updatedAt: null,
+                    },
+                    currentShipmentId: null,
+                    photo: null,
+                    joinedOn: "2026-08-18T10:20:13.944Z",
+                    createdAt: "2026-08-18T10:20:13.945Z",
+                    updatedAt: "2026-08-18T10:20:14.087Z",
                 },
                 {
-                    fullName: "Arun Kumar",
-                    email: "arun.kumar@gmail.com",
-                    phoneNumber: "9840010001",
-                    role: "AGENT",
+                    _id: "6a8431cbb3d10cde02cb6485",
+                    employeeId: "EMP260818230198",
+                    fullName: "Suresh Krishnan",
+                    email: "suresh.krishnan@gmail.com",
+                    phoneNumber: "9876543271",
+                    role: "HUB_MANAGER",
+                    status: "Active",
+                    isAvailable: true,
+                    isActive: true,
+                    hub: {
+                        _id: "6a6b1b99f447531ecb350f64",
+                        hubCode: "HUB007",
+                    },
+                    vehicle: {
+                        type: null,
+                        number: "",
+                    },
+                    currentLocation: {
+                        type: "Point",
+                        coordinates: [0, 0],
+                        updatedAt: null,
+                    },
+                    currentShipmentId: null,
+                    photo: null,
+                    joinedOn: "2026-08-18T10:19:55.074Z",
+                    createdAt: "2026-08-18T10:19:55.075Z",
+                    updatedAt: "2026-08-18T10:19:55.225Z",
                 },
                 {
-                    fullName: "xyz",
-                    email: "sdhfk@gmail.com",
-                    phoneNumber: "7989456131",
-                    role: "AGENT",
+                    _id: "6a843208b3d10cde02cb6497",
+                    employeeId: "EMP260818420944",
+                    fullName: "Manoj Kumar",
+                    email: "manoj.kumar@gmail.com",
+                    phoneNumber: "9876543281",
+                    role: "HUB_MANAGER",
+                    status: "Active",
+                    isAvailable: true,
+                    isActive: true,
+                    hub: {
+                        _id: "6a6b1b99f447531ecb350f64",
+                        hubCode: "HUB007",
+                    },
+                    vehicle: {
+                        type: null,
+                        number: "",
+                    },
+                    currentLocation: {
+                        type: "Point",
+                        coordinates: [0, 0],
+                        updatedAt: null,
+                    },
+                    currentShipmentId: null,
+                    photo: null,
+                    joinedOn: "2026-08-18T10:20:56.065Z",
+                    createdAt: "2026-08-18T10:20:56.066Z",
+                    updatedAt: "2026-08-18T10:20:56.206Z",
                 },
             ],
-
-            summary: {
-                totalEmployees: 3,
+            meta: {
+                totalRecords: 3,
+                totalPages: 1,
+                currentPage: 1,
+                limit: 10,
+                hasMore: false,
             },
         },
     };
@@ -112,30 +138,8 @@ describe("getHubEmployees", () => {
         await getHubEmployees(hubId);
 
         expect(axios.get).toHaveBeenCalledWith(
-            expect.stringContaining(
-                `/hub/employees/${hubId}`
-            )
+            expect.stringContaining(`/api/employee/hub/${hubId}`)
         );
-    });
-
-    it("should return hub details", async () => {
-        vi.mocked(axios.get).mockResolvedValue({
-            data: mockResponse,
-        });
-
-        const result = await getHubEmployees(hubId);
-
-        expect(result.data.hub.hubName).toBe(
-            "Chennai South Logistics Hub"
-        );
-
-        expect(result.data.hub.hubCode).toBe("HUB007");
-
-        expect(result.data.hub.status).toBe("Active");
-
-        expect(result.data.hub.capacity).toBe(1900);
-
-        expect(result.data.hub.currentLoad).toBe(0);
     });
 
     it("should return all employees", async () => {
@@ -147,25 +151,32 @@ describe("getHubEmployees", () => {
 
         expect(result.data.employees).toHaveLength(3);
 
-        expect(result.data.employees[0]).toEqual({
-            fullName: "Arun Kumar",
-            email: "arun.k@example.com",
-            phoneNumber: "9840012345",
-            role: "MANAGER",
-        });
+        expect(result.data.employees[0]).toEqual(
+            mockResponse.data.employees[0]
+        );
     });
 
-    it("should return the correct employee count", async () => {
+    it("should return employee details", async () => {
         vi.mocked(axios.get).mockResolvedValue({
             data: mockResponse,
         });
 
         const result = await getHubEmployees(hubId);
 
-        expect(result.data.summary.totalEmployees).toBe(3);
+        const employee = result.data.employees[0];
+
+        expect(employee.fullName).toBe("Divya Srinivasan");
+        expect(employee.email).toBe(
+            "divya.srinivasan@gmail.com"
+        );
+        expect(employee.phoneNumber).toBe("9876543272");
+        expect(employee.role).toBe("cashier");
+        expect(employee.status).toBe("Active");
+        expect(employee.isAvailable).toBe(true);
+        expect(employee.isActive).toBe(true);
     });
 
-    it("should return serviceable pincodes", async () => {
+    it("should return employee hub information", async () => {
         vi.mocked(axios.get).mockResolvedValue({
             data: mockResponse,
         });
@@ -173,21 +184,60 @@ describe("getHubEmployees", () => {
         const result = await getHubEmployees(hubId);
 
         expect(
-            result.data.hub.serviceablePincodes
-        ).toHaveLength(10);
+            result.data.employees[0].hub._id
+        ).toBe(hubId);
 
         expect(
-            result.data.hub.serviceablePincodes
-        ).toContain("600113");
+            result.data.employees[0].hub.hubCode
+        ).toBe("HUB007");
+    });
+
+    it("should return employee vehicle information", async () => {
+        vi.mocked(axios.get).mockResolvedValue({
+            data: mockResponse,
+        });
+
+        const result = await getHubEmployees(hubId);
 
         expect(
-            result.data.hub.serviceablePincodes
-        ).toContain("600096");
+            result.data.employees[0].vehicle
+        ).toEqual({
+            type: null,
+            number: "",
+        });
+    });
+
+    it("should return correct employee count", async () => {
+        vi.mocked(axios.get).mockResolvedValue({
+            data: mockResponse,
+        });
+
+        const result = await getHubEmployees(hubId);
+
+        expect(
+            result.data.meta.totalRecords
+        ).toBe(3);
+    });
+
+    it("should return pagination metadata", async () => {
+        vi.mocked(axios.get).mockResolvedValue({
+            data: mockResponse,
+        });
+
+        const result = await getHubEmployees(hubId);
+
+        expect(result.data.meta).toEqual({
+            totalRecords: 3,
+            totalPages: 1,
+            currentPage: 1,
+            limit: 10,
+            hasMore: false,
+        });
     });
 
     it("should use the provided hub ID", async () => {
         const anotherHubId =
-            "6a6b1b99f447531ecb350f90";
+            "6a6aeb9b18b80d35a476f97d";
 
         vi.mocked(axios.get).mockResolvedValue({
             data: mockResponse,
@@ -197,7 +247,7 @@ describe("getHubEmployees", () => {
 
         expect(axios.get).toHaveBeenCalledWith(
             expect.stringContaining(
-                `/hub/employees/${anotherHubId}`
+                `/api/employee/hub/${anotherHubId}`
             )
         );
     });
