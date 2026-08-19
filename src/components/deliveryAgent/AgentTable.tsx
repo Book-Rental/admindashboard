@@ -45,6 +45,7 @@ const AgentTable = ({
   onAdd,
 }: AgentTableProps) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
   const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -53,7 +54,10 @@ const AgentTable = ({
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const activeRef = menuRefs.current[openMenuId];
 
-      if (activeRef && !activeRef.contains(event.target as Node)) {
+      if (
+        activeRef &&
+        !activeRef.contains(event.target as Node)
+      ) {
         setOpenMenuId(null);
       }
     };
@@ -74,9 +78,7 @@ const AgentTable = ({
   return (
     <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-      {/* =====================================================
-          HEADER
-          ===================================================== */}
+      {/* HEADER */}
       <div className="flex flex-col gap-4 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
         <h2 className="text-base font-semibold text-slate-800">
           All Delivery Agents
@@ -92,12 +94,11 @@ const AgentTable = ({
         </div>
       </div>
 
+      {/* DESKTOP TABLE */}
       <div className="hidden w-full min-w-0 overflow-x-auto sm:block">
         <table className="w-full min-w-[850px] table-fixed">
-
           <thead className="bg-slate-50">
             <tr className="text-left">
-
               <th className="w-[24%] px-3 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Agent
               </th>
@@ -121,7 +122,6 @@ const AgentTable = ({
               <th className="w-[14%] px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-4">
                 Actions
               </th>
-
             </tr>
           </thead>
 
@@ -133,11 +133,10 @@ const AgentTable = ({
                   onClick={() => onView(agent.agentId)}
                   className="cursor-pointer border-t border-slate-100 transition-colors hover:bg-slate-50"
                 >
+                  {/* AGENT */}
                   <td className="min-w-0 px-3 py-4 sm:px-4">
                     <div className="flex min-w-0 items-center gap-3">
-
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-600">
-
                         {agent.photo ? (
                           <img
                             src={agent.photo}
@@ -158,14 +157,12 @@ const AgentTable = ({
                         ) : null}
 
                         <div
-                          className={`h-full w-full items-center justify-center text-sm font-semibold uppercase text-white ${agent.photo
-                              ? "hidden"
-                              : "flex"
-                            }`}
+                          className={`h-full w-full items-center justify-center text-sm font-semibold uppercase text-white ${
+                            agent.photo ? "hidden" : "flex"
+                          }`}
                         >
                           {agent.fullName.slice(0, 2)}
                         </div>
-
                       </div>
 
                       <div className="min-w-0">
@@ -183,10 +180,10 @@ const AgentTable = ({
                           {agent.agentId}
                         </p>
                       </div>
-
                     </div>
                   </td>
 
+                  {/* EMAIL */}
                   <td className="min-w-0 px-3 py-4 text-sm text-slate-600 sm:px-4">
                     <span
                       className="block truncate"
@@ -196,18 +193,17 @@ const AgentTable = ({
                     </span>
                   </td>
 
+                  {/* PHONE */}
                   <td className="px-3 py-4 text-sm text-slate-600 sm:px-4">
                     <span className="whitespace-nowrap">
                       {agent.phoneNumber}
                     </span>
                   </td>
 
+                  {/* VEHICLE */}
                   <td className="min-w-0 px-3 py-4 sm:px-4">
                     <div className="flex min-w-0 items-center gap-2 text-sm text-slate-600">
-
-                      <VehicleIcon
-                        type={agent.vehicle.type}
-                      />
+                      <VehicleIcon type={agent.vehicle.type} />
 
                       <span
                         className="truncate"
@@ -215,21 +211,19 @@ const AgentTable = ({
                       >
                         {agent.vehicle.type}
                       </span>
-
                     </div>
                   </td>
 
+                  {/* STATUS */}
                   <td className="px-3 py-4 sm:px-4">
                     <div className="whitespace-nowrap">
-                      <StatusBadge
-                        status={agent.status}
-                      />
+                      <StatusBadge status={agent.status} />
                     </div>
                   </td>
+
+                  {/* DESKTOP ACTIONS */}
                   <td className="px-3 py-4 sm:px-4">
                     <div className="flex items-center justify-center gap-1.5">
-
-                      {/* View */}
                       <button
                         type="button"
                         aria-label="View agent"
@@ -242,7 +236,6 @@ const AgentTable = ({
                         <FaEye className="text-xs text-blue-600" />
                       </button>
 
-                      {/* Edit */}
                       <button
                         type="button"
                         aria-label="Edit agent"
@@ -255,7 +248,6 @@ const AgentTable = ({
                         <FaEdit className="text-xs text-green-600" />
                       </button>
 
-                      {/* Delete */}
                       <button
                         type="button"
                         aria-label="Delete agent"
@@ -267,10 +259,8 @@ const AgentTable = ({
                       >
                         <FaTrash className="text-xs text-red-600" />
                       </button>
-
                     </div>
                   </td>
-
                 </tr>
               ))
             ) : (
@@ -284,22 +274,24 @@ const AgentTable = ({
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
+
+      {/* MOBILE TABLE */}
       <div className="block w-full sm:hidden">
         <table className="w-full table-fixed">
 
           <thead className="bg-slate-50">
             <tr className="text-left">
 
-              <th className="w-[58%] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Agent
-              </th>
+              {/* More width for agent */}
+              <th className="w-[74%] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+  Agent
+</th>
 
-              <th className="w-[42%] px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Actions
-              </th>
+<th className="w-[26%] px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+  Actions
+</th>
 
             </tr>
           </thead>
@@ -312,12 +304,11 @@ const AgentTable = ({
                   onClick={() => onView(agent.agentId)}
                   className="cursor-pointer border-t border-slate-100 transition-colors hover:bg-slate-50"
                 >
-
+                  {/* MOBILE AGENT */}
                   <td className="min-w-0 px-4 py-4">
                     <div className="flex min-w-0 items-center gap-3">
 
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-600">
-
                         {agent.photo ? (
                           <img
                             src={agent.photo}
@@ -338,17 +329,16 @@ const AgentTable = ({
                         ) : null}
 
                         <div
-                          className={`h-full w-full items-center justify-center text-sm font-semibold uppercase text-white ${agent.photo
-                              ? "hidden"
-                              : "flex"
-                            }`}
+                          className={`h-full w-full items-center justify-center text-sm font-semibold uppercase text-white ${
+                            agent.photo ? "hidden" : "flex"
+                          }`}
                         >
                           {agent.fullName.slice(0, 2)}
                         </div>
-
                       </div>
 
-                      <div className="min-w-0">
+                      {/* More available width for name and ID */}
+                      <div className="min-w-0 flex-1">
                         <p
                           className="truncate text-sm font-semibold text-slate-800"
                           title={agent.fullName}
@@ -366,17 +356,19 @@ const AgentTable = ({
 
                     </div>
                   </td>
-                  <td
-                    className="relative px-2 py-4"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+
+                  {/* MOBILE ACTIONS - RIGHT SIDE */}
+                 <td
+  className="relative px-3 py-4 pr-5"
+  onClick={(e) => e.stopPropagation()}
+>
                     <div
                       ref={(el) => {
                         menuRefs.current[agent.agentId] = el;
                       }}
-                      className="group relative flex items-center justify-center"
+                      className="group relative flex w-full items-center justify-end"
                     >
-
+                      {/* Kebab trigger */}
                       <button
                         type="button"
                         aria-label="Open actions"
@@ -385,16 +377,20 @@ const AgentTable = ({
                           e.stopPropagation();
                           toggleMenu(agent.agentId);
                         }}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-transparent text-slate-500 transition-colors hover:bg-slate-100"                      >
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-transparent text-slate-500 transition-colors hover:bg-slate-100"
+                      >
                         <FaEllipsisV className="text-xs" />
                       </button>
 
+                      {/* Actions flyout */}
                       <div
-                        className={`absolute right-0 top-full z-10 mt-1 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 ${openMenuId === agent.agentId
+                        className={`absolute right-0 top-full z-20 mt-1 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg transition-opacity duration-150 ${
+                          openMenuId === agent.agentId
                             ? "pointer-events-auto opacity-100"
                             : "pointer-events-none opacity-0"
-                          }`}
+                        }`}
                       >
+                        {/* View */}
                         <button
                           type="button"
                           aria-label="View agent"
@@ -407,6 +403,8 @@ const AgentTable = ({
                         >
                           <FaEye className="text-xs text-blue-600" />
                         </button>
+
+                        {/* Edit */}
                         <button
                           type="button"
                           aria-label="Edit agent"
@@ -419,6 +417,8 @@ const AgentTable = ({
                         >
                           <FaEdit className="text-xs text-green-600" />
                         </button>
+
+                        {/* Delete */}
                         <button
                           type="button"
                           aria-label="Delete agent"
@@ -431,12 +431,9 @@ const AgentTable = ({
                         >
                           <FaTrash className="text-xs text-red-600" />
                         </button>
-
                       </div>
-
                     </div>
                   </td>
-
                 </tr>
               ))
             ) : (
@@ -450,12 +447,11 @@ const AgentTable = ({
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
 
+      {/* PAGINATION */}
       <div className="flex flex-col gap-4 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-
         <p className="text-center text-sm text-slate-500 sm:text-left">
           Showing{" "}
           <span className="font-semibold">
@@ -477,7 +473,6 @@ const AgentTable = ({
             />
           </div>
         )}
-
       </div>
 
     </div>
