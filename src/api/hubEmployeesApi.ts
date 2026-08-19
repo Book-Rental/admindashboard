@@ -7,7 +7,7 @@ export const getHubEmployees = async (
     hubId: string
 ): Promise<HubEmployeesResponse> => {
     const response = await axios.get<HubEmployeesResponse>(
-        `${BACKEND_URL}/hub/employees/${hubId}`
+        `${BACKEND_URL}/employee/hub/${hubId}`
     );
 
     return response.data;
