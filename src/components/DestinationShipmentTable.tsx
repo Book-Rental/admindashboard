@@ -85,57 +85,65 @@ export default function DestinationShipmentTable({
         (shipment) =>
             !shipment.assignedAgent &&
             shipment.currentStatus ===
-            "Arrived At Destination Hub"
+                "Arrived At Destination Hub"
     );
 
     const allSelected =
         selectableShipments.length > 0 &&
-        selectableShipments.every(
-            (shipment) =>
-                selectedShipments.includes(
-                    shipment.shipmentId
-                )
+        selectableShipments.every((shipment) =>
+            selectedShipments.includes(
+                shipment.shipmentId
+            )
         );
 
     return (
         <div className="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
-
             <div className="w-full min-w-0 overflow-x-auto">
-
                 <table className="w-full min-w-[900px] text-left text-sm">
-
                     <thead>
                         <tr className="border-b border-gray-200 bg-gray-50">
-                            <th className="w-[5%] whitespace-nowrap px-2 py-3 sm:px-3 sm:py-4">
-                                {selectableShipments.length > 0 && (
+                            {/* Checkbox */}
+                            <th className="w-[5%] px-2 py-3 sm:px-3 sm:py-4">
+                                <div className="flex h-full items-center justify-center">
                                     <Checkbox
                                         label=""
                                         checked={allSelected}
                                         onChange={onToggleAll}
+                                        disabled={
+                                            selectableShipments.length === 0
+                                        }
                                     />
-                                )}
+                                </div>
                             </th>
 
+                            {/* AWB */}
                             <th className="w-[15%] whitespace-nowrap px-2 py-3 font-semibold text-gray-700 sm:px-3 sm:py-4">
                                 AWB
                             </th>
 
+                            {/* Receiver */}
                             <th className="w-[18%] whitespace-nowrap px-2 py-3 font-semibold text-gray-700 sm:px-3 sm:py-4">
                                 Receiver
                             </th>
 
+                            {/* Created */}
                             <th className="w-[13%] whitespace-nowrap px-2 py-3 font-semibold text-gray-700 sm:px-3 sm:py-4">
                                 Created
                             </th>
 
+                            {/* Payment */}
                             <th className="w-[12%] whitespace-nowrap px-2 py-3 font-semibold text-gray-700 sm:px-3 sm:py-4">
-                                Payment
+                                <div className="flex items-center justify-center">
+                                    Payment
+                                </div>
                             </th>
 
+                            {/* Agent */}
                             <th className="w-[18%] whitespace-nowrap px-2 py-3 font-semibold text-gray-700 sm:px-3 sm:py-4">
                                 Agent
                             </th>
 
+                            {/* Status */}
                             <th className="w-[19%] whitespace-nowrap px-2 py-3 font-semibold text-gray-700 sm:px-3 sm:py-4">
                                 Status
                             </th>
@@ -149,11 +157,10 @@ export default function DestinationShipmentTable({
                                     shipment.shipmentId
                                 );
 
-
                             const canSelect =
                                 !shipment.assignedAgent &&
                                 shipment.currentStatus ===
-                                "Arrived At Destination Hub";
+                                    "Arrived At Destination Hub";
 
                             return (
                                 <tr
@@ -162,32 +169,42 @@ export default function DestinationShipmentTable({
                                         border-b
                                         border-gray-200
                                         transition
-                                        ${isSelected
-                                            ? "bg-blue-50"
-                                            : "hover:bg-gray-50"
+                                        ${
+                                            isSelected
+                                                ? "bg-blue-50"
+                                                : "hover:bg-gray-50"
                                         }
                                     `}
                                 >
-
+                                    {/* Checkbox */}
                                     <td className="px-2 py-3 sm:px-3 sm:py-4">
-                                        {canSelect ? (
-                                            <Checkbox
-                                                label=""
-                                                checked={isSelected}
-                                                onChange={() =>
-                                                    onToggleShipment(
-                                                        shipment.shipmentId
-                                                    )
+                                        <div className="flex min-h-[42px] items-center justify-center">
+                                            <div
+                                                className={
+                                                    canSelect
+                                                        ? "flex items-center"
+                                                        : "flex items-center opacity-50"
                                                 }
-                                            />
-                                        ) : (
-                                            <div className="h-5 w-5" />
-                                        )}
+                                            >
+                                                <Checkbox
+                                                    label=""
+                                                    checked={isSelected}
+                                                    onChange={() => {
+                                                        if (canSelect) {
+                                                            onToggleShipment(
+                                                                shipment.shipmentId
+                                                            );
+                                                        }
+                                                    }}
+                                                    disabled={!canSelect}
+                                                />
+                                            </div>
+                                        </div>
                                     </td>
 
+                                    {/* AWB */}
                                     <td className="relative overflow-visible px-2 py-3 font-medium text-gray-700 sm:px-3 sm:py-4">
                                         <div className="group relative min-w-0">
-
                                             <span className="block truncate whitespace-nowrap">
                                                 {formatAwb(
                                                     shipment.awbNumber
@@ -196,51 +213,32 @@ export default function DestinationShipmentTable({
 
                                             <div className="pointer-events-none absolute bottom-full left-0 z-[9999] mb-2 hidden group-hover:block">
                                                 <div className="whitespace-nowrap rounded-md bg-gray-800 px-3 py-2 text-xs text-white shadow-lg">
-                                                    {
-                                                        shipment.awbNumber
-                                                    }
+                                                    {shipment.awbNumber}
                                                 </div>
                                             </div>
-
                                         </div>
                                     </td>
 
+                                    {/* Receiver */}
                                     <td className="min-w-0 overflow-hidden px-2 py-3 sm:px-3 sm:py-4">
                                         <div className="min-w-0">
-
                                             <p
                                                 className="truncate font-medium text-gray-800"
-                                                title={
-                                                    shipment
-                                                        .receiver
-                                                        .name
-                                                }
+                                                title={shipment.receiver.name}
                                             >
-                                                {
-                                                    shipment
-                                                        .receiver
-                                                        .name
-                                                }
+                                                {shipment.receiver.name}
                                             </p>
 
                                             <p
                                                 className="truncate text-xs text-gray-500"
-                                                title={
-                                                    shipment
-                                                        .receiver
-                                                        .city
-                                                }
+                                                title={shipment.receiver.city}
                                             >
-                                                {
-                                                    shipment
-                                                        .receiver
-                                                        .city
-                                                }
+                                                {shipment.receiver.city}
                                             </p>
-
                                         </div>
                                     </td>
 
+                                    {/* Created Date */}
                                     <td className="whitespace-nowrap px-2 py-3 text-gray-600 sm:px-3 sm:py-4">
                                         {new Date(
                                             shipment.createdAt
@@ -254,64 +252,55 @@ export default function DestinationShipmentTable({
                                         )}
                                     </td>
 
+                                    {/* Payment */}
                                     <td className="min-w-0 overflow-hidden px-2 py-3 sm:px-3 sm:py-4">
-                                        <div className="min-w-0">
-
+                                        <div className="flex min-h-[42px] flex-col items-center justify-center gap-1">
                                             <span
                                                 className={`
-                                                    inline-block
-                                                    max-w-full
-                                                    truncate
+                                                    inline-flex
+                                                    min-w-[66px]
+                                                    items-center
+                                                    justify-center
                                                     whitespace-nowrap
                                                     rounded-full
-                                                    px-2
+                                                    px-3
                                                     py-1
                                                     text-xs
                                                     font-medium
-                                                    sm:px-3
                                                     ${paymentBadge(
-                                                    shipment.paymentMode
-                                                )}
+                                                        shipment.paymentMode
+                                                    )}
                                                 `}
                                                 title={
                                                     shipment.paymentMode
                                                 }
                                             >
-                                                {
-                                                    shipment.paymentMode
-                                                }
+                                                {shipment.paymentMode}
                                             </span>
 
-                                            {shipment.paymentMode ===
-                                                "COD" &&
-                                                shipment.codAmount >
-                                                0 && (
-                                                    <p className="mt-1 truncate text-xs text-gray-500">
-                                                        ₹
-                                                        {
-                                                            shipment.codAmount
-                                                        }
+                                            {shipment.paymentMode
+                                                .toLowerCase() === "cod" &&
+                                                shipment.codAmount > 0 && (
+                                                    <p className="min-w-[66px] text-center whitespace-nowrap text-xs text-gray-500">
+                                                        ₹{shipment.codAmount}
                                                     </p>
                                                 )}
-
                                         </div>
                                     </td>
 
+                                    {/* Agent */}
                                     <td className="min-w-0 overflow-hidden px-2 py-3 sm:px-3 sm:py-4">
                                         {shipment.assignedAgent ? (
                                             <div className="min-w-0">
-
                                                 <p
                                                     className="truncate font-medium text-gray-800"
                                                     title={
-                                                        shipment
-                                                            .assignedAgent
+                                                        shipment.assignedAgent
                                                             .fullName
                                                     }
                                                 >
                                                     {
-                                                        shipment
-                                                            .assignedAgent
+                                                        shipment.assignedAgent
                                                             .fullName
                                                     }
                                                 </p>
@@ -319,18 +308,15 @@ export default function DestinationShipmentTable({
                                                 <p
                                                     className="truncate text-xs text-gray-500"
                                                     title={
-                                                        shipment
-                                                            .assignedAgent
+                                                        shipment.assignedAgent
                                                             .phoneNumber
                                                     }
                                                 >
                                                     {
-                                                        shipment
-                                                            .assignedAgent
+                                                        shipment.assignedAgent
                                                             .phoneNumber
                                                     }
                                                 </p>
-
                                             </div>
                                         ) : (
                                             <span className="block truncate text-sm italic text-gray-400">
@@ -339,6 +325,7 @@ export default function DestinationShipmentTable({
                                         )}
                                     </td>
 
+                                    {/* Status */}
                                     <td className="min-w-0 overflow-hidden px-2 py-3 sm:px-3 sm:py-4">
                                         <span
                                             className={`
@@ -353,19 +340,16 @@ export default function DestinationShipmentTable({
                                                 font-medium
                                                 sm:px-3
                                                 ${shipmentBadge(
-                                                shipment.currentStatus
-                                            )}
+                                                    shipment.currentStatus
+                                                )}
                                             `}
                                             title={
                                                 shipment.currentStatus
                                             }
                                         >
-                                            {
-                                                shipment.currentStatus
-                                            }
+                                            {shipment.currentStatus}
                                         </span>
                                     </td>
-
                                 </tr>
                             );
                         })}
@@ -381,7 +365,6 @@ export default function DestinationShipmentTable({
                             </tr>
                         )}
                     </tbody>
-
                 </table>
             </div>
         </div>
