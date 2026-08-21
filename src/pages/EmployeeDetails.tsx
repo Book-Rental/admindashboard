@@ -19,7 +19,8 @@ function EmployeeDetails() {
         isError,
         error,
     } = useEmployeeById(employeeId);
-
+    const hubId =
+        window.HOST_USER_INFO?.referenceId ?? "";
     if (isLoading) {
         return (
             <div className="flex min-h-[70vh] items-center justify-center">
@@ -131,7 +132,7 @@ function EmployeeDetails() {
                         items={[
                             {
                                 label: "Employees",
-                                path: "/employees",
+                                path: `/hubs/${hubId}`,
                             },
                             {
                                 label:
@@ -166,7 +167,7 @@ function EmployeeDetails() {
 
                             <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                                    <h1 className="text-lg  font-semibold text-gray-900 sm:text-lg">
                                         {employee.fullName}
                                     </h1>
 

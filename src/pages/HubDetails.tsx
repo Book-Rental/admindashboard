@@ -183,7 +183,7 @@ function HubDetails() {
 
                                 <div className="min-w-0">
                                     <div className="flex flex-wrap items-center gap-3">
-                                        <h1 className="truncate text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                                        <h1 className="truncate text-lg font-semibold tracking-tight text-gray-700 sm:text-lg">
                                             {hub.hubName}
                                         </h1>
 
@@ -255,11 +255,11 @@ function HubDetails() {
 
                     {/* Employees */}
                     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
                             Employees
                         </p>
 
-                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                        <p className="mt-2 text-xl font-semibold text-gray-900">
                             {totalEmployees}
                         </p>
 
@@ -270,11 +270,11 @@ function HubDetails() {
 
                     {/* Capacity */}
                     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
                             Capacity
                         </p>
 
-                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                        <p className="mt-2 text-xl font-semibold text-gray-900">
                             {hub.capacity.toLocaleString()}
                         </p>
 
@@ -283,13 +283,12 @@ function HubDetails() {
                         </p>
                     </div>
 
-                    {/* Current Load */}
                     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
                             Current Load
                         </p>
 
-                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                        <p className="mt-2 text-xl font-semibold text-gray-900">
                             {hub.currentLoad.toLocaleString()}
                         </p>
 
@@ -298,13 +297,12 @@ function HubDetails() {
                         </p>
                     </div>
 
-                    {/* Availability */}
                     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
                             Employee Status
                         </p>
 
-                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                        <p className="mt-2 text-xl font-semibold text-gray-900">
                             {
                                 employees.filter(
                                     (employee) =>
@@ -319,9 +317,6 @@ function HubDetails() {
                     </div>
                 </div>
 
-                {/* =========================
-                    Hub Information
-                ========================== */}
                 <div className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-5">
 
                     {/* Hub Information */}
@@ -366,7 +361,7 @@ function HubDetails() {
                                 </p>
 
                                 <div className="mt-2 rounded-xl bg-gray-50 p-3.5">
-                                    <p className="text-sm leading-6 text-gray-700">
+                                    <p className="text-sm leading-5 text-gray-700">
                                         {hub.address.street},{" "}
                                         {hub.address.city},{" "}
                                         {hub.address.state},{" "}
@@ -600,100 +595,79 @@ function HubDetails() {
 
                             {/* Mobile */}
                             <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
-                                {employees.map(
-                                    (employee) => (
-                                        <div
-                                            key={employee._id}
-                                            className="cursor-pointer rounded-xl border border-gray-200 p-4 transition-colors hover:bg-blue-50"
-                                            onClick={() => {
-                                                window.history.pushState(
-                                                    {},
-                                                    "",
-                                                    `/employees/${employee._id}`
-                                                );
+                                {employees.map((employee) => (
+                                    <div
+                                        key={employee._id}
+                                        className="cursor-pointer rounded-xl border border-gray-200 p-4 transition-colors hover:bg-blue-50"
+                                        onClick={() => {
+                                            window.history.pushState(
+                                                {},
+                                                "",
+                                                `/employee/${employee._id}`
+                                            );
 
-                                                window.dispatchEvent(
-                                                    new PopStateEvent("popstate")
-                                                );
-                                            }}
-                                        >
-                                            <div className="flex items-start gap-3">
+                                            window.dispatchEvent(
+                                                new PopStateEvent("popstate")
+                                            );
+                                        }}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            {employee.photo ? (
+                                                <img
+                                                    src={employee.photo}
+                                                    alt={employee.fullName}
+                                                    className="h-11 w-11 shrink-0 rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+                                                    {employee.fullName
+                                                        ?.charAt(0)
+                                                        .toUpperCase()}
+                                                </div>
+                                            )}
 
-                                                {employee.photo ? (
-                                                    <img
-                                                        src={
-                                                            employee.photo
-                                                        }
-                                                        alt={
-                                                            employee.fullName
-                                                        }
-                                                        className="h-11 w-11 rounded-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
-                                                        {employee.fullName
-                                                            .charAt(
-                                                                0
-                                                            )
-                                                            .toUpperCase()}
-                                                    </div>
-                                                )}
-
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="flex flex-wrap items-start justify-between gap-2">
-                                                        <div>
-                                                            <p className="font-semibold text-gray-900">
-                                                                {
-                                                                    employee.fullName
-                                                                }
-                                                            </p>
-
-                                                            <p className="mt-0.5 text-xs text-gray-400">
-                                                                {
-                                                                    employee.employeeId
-                                                                }
-                                                            </p>
-                                                        </div>
-
-                                                        <span
-                                                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getStatusClass(
-                                                                employee.status
-                                                            )}`}
-                                                        >
-                                                            {
-                                                                employee.status
-                                                            }
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="mt-3 space-y-1.5">
-                                                        <p className="break-all text-sm text-gray-500">
-                                                            {
-                                                                employee.email
-                                                            }
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex flex-wrap items-start justify-between gap-2">
+                                                    <div className="min-w-0">
+                                                        <p className="truncate font-semibold text-gray-900">
+                                                            {employee.fullName}
                                                         </p>
 
-                                                        <p className="text-sm text-gray-500">
-                                                            {
-                                                                employee.phoneNumber
-                                                            }
+                                                        <p className="mt-0.5 text-xs text-gray-500">
+                                                            {employee.employeeId}
                                                         </p>
-
-                                                        <span
-                                                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getRoleClass(
-                                                                employee.role
-                                                            )}`}
-                                                        >
-                                                            {getRoleLabel(
-                                                                employee.role
-                                                            )}
-                                                        </span>
                                                     </div>
+
+                                                    <span
+                                                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getStatusClass(
+                                                            employee.status
+                                                        )}`}
+                                                    >
+                                                        {employee.status}
+                                                    </span>
+                                                </div>
+
+                                                <div className="mt-3 space-y-1.5">
+                                                    <p className="break-all text-sm text-gray-500">
+                                                        {employee.email}
+                                                    </p>
+
+                                                    <p className="text-sm text-gray-500">
+                                                        {employee.phoneNumber}
+                                                    </p>
+
+                                                    <span
+                                                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${getRoleClass(
+                                                            employee.role
+                                                        )}`}
+                                                    >
+                                                        {getRoleLabel(employee.role)}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
-                                    )
-                                )}
+                                    </div>
+                                ))}
                             </div>
                         </>
                     )}
