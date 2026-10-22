@@ -13,7 +13,9 @@ export interface WidgetOptions {
     | "edit-agent"
     | "orders"
     | "order-details"
-    | "destination-shipments";
+    | "destination-shipments"
+    | "bags"
+    | "bag-details";
 
 }
 

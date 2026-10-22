@@ -18,22 +18,26 @@ import DestinationShipment from "./pages/DestinationShipment";
 import HubList from "./pages/HubList";
 import HubDetails from "./pages/HubDetails";
 import EmployeeDetails from "./pages/EmployeeDetails";
+import BagList from "./pages/BagList";
+import BagDetails from "./pages/BagDetails";
 
 const client = new QueryClient();
 
 interface AppProps {
   view?:
-  | "admin"
-  | "agents"
-  | "create-agent"
-  | "agent-details"
-  | "edit-agent"
-  | "orders"
-  | "order-details"
-  | "destination-shipments"
-  | "hubs"
-  | "hub-details"
-  | "employee-details"
+    | "admin"
+    | "agents"
+    | "create-agent"
+    | "agent-details"
+    | "edit-agent"
+    | "orders"
+    | "order-details"
+    | "destination-shipments"
+    | "hubs"
+    | "hub-details"
+    | "employee-details"
+    | "bags"
+    | "bag-details";
 }
 
 function App({ view }: AppProps) {
@@ -50,18 +54,31 @@ function App({ view }: AppProps) {
 
       case "agent-details":
         return <AgentDetails />;
+
       case "orders":
         return <ShipmentList />;
+
       case "order-details":
         return <ShipmentDetails />;
+
       case "destination-shipments":
         return <DestinationShipment />;
+
       case "hubs":
         return <HubList />;
+
       case "hub-details":
         return <HubDetails />;
+
       case "employee-details":
         return <EmployeeDetails />;
+
+      case "bags":
+        return <BagList />;
+
+      case "bag-details":
+        return <BagDetails />;
+
       case "admin":
       default:
         return <DeliveryAgentList />;

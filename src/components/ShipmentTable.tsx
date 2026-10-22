@@ -1,7 +1,13 @@
 import { Shipment } from "../types/shipment";
+import { getShipmentLabelPdfUrl } from "../api/bagApi";
 
 interface Props {
   shipments: Shipment[];
+  // Optional: enables the bag-selection checkboxes
+  selectedIds?: string[];
+  isSelectable?: (shipment: Shipment) => boolean;
+  onToggle?: (shipmentId: string) => void;
+  onToggleAll?: (checked: boolean) => void;
 }
 
 const shipmentBadge = (status: string) => {
@@ -65,7 +71,23 @@ const formatAwb = (awb: string) => {
   return `${awb.slice(0, 12)}...`;
 };
 
-export default function ShipmentTable({ shipments }: Props) {
+export default function ShipmentTable({
+  shipments,
+  selectedIds,
+  isSelectable,
+  onToggle,
+  onToggleAll,
+}: Props) {
+  const selectionEnabled = Boolean(selectedIds && onToggle);
+  const selectableShipments = selectionEnabled
+    ? shipments.filter((s) => (isSelectable ? isSelectable(s) : true))
+    : [];
+  const allSelected =
+    selectableShipments.length > 0 &&
+    selectableShipments.every((s) =>
+      selectedIds!.includes(s.shipmentId)
+    );
+
   return (
     <div className="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
       <div className="w-full min-w-0 overflow-x-auto">
@@ -81,6 +103,17 @@ export default function ShipmentTable({ shipments }: Props) {
         >
           <thead className="bg-gray-50">
             <tr className="border-b border-gray-200 text-gray-600">
+              {selectionEnabled && (
+                <th className="w-10 p-3 sm:p-4">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    disabled={selectableShipments.length === 0}
+                    onChange={(e) => onToggleAll?.(e.target.checked)}
+                    aria-label="Select all"
+                  />
+                </th>
+              )}
               <th
                 className="
                   w-[15%]
@@ -158,6 +191,19 @@ export default function ShipmentTable({ shipments }: Props) {
               >
                 Status
               </th>
+
+              <th
+                className="
+                  w-[10%]
+                  whitespace-nowrap
+                  p-3
+                  text-left
+                  font-semibold
+                  sm:p-4
+                "
+              >
+                Label
+              </th>
             </tr>
           </thead>
 
@@ -184,6 +230,22 @@ export default function ShipmentTable({ shipments }: Props) {
                   hover:bg-gray-50
                 "
               >
+                {selectionEnabled && (
+                  <td
+                    className="w-10 p-3 sm:p-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIds!.includes(shipment.shipmentId)}
+                      disabled={
+                        isSelectable ? !isSelectable(shipment) : false
+                      }
+                      onChange={() => onToggle?.(shipment.shipmentId)}
+                      aria-label={`Select ${shipment.awbNumber}`}
+                    />
+                  </td>
+                )}
                 <td className="p-3 font-medium text-gray-700 sm:p-4">
                   <div className="group relative min-w-0">
                     <span
@@ -323,13 +385,31 @@ export default function ShipmentTable({ shipments }: Props) {
                     {shipment.currentStatus}
                   </span>
                 </td>
+
+                <td
+                  className="p-3 sm:p-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.open(
+                        getShipmentLabelPdfUrl(shipment.awbNumber),
+                        "_blank"
+                      )
+                    }
+                    className="whitespace-nowrap text-sm font-medium text-blue-600 hover:underline"
+                  >
+                    Print
+                  </button>
+                </td>
               </tr>
             ))}
 
             {shipments.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={selectionEnabled ? 8 : 7}
                   className="p-8 text-center text-sm text-gray-400"
                 >
                   No shipments found.
