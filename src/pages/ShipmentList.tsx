@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useBags } from "../hooks/useBags";
 import {
   Rb_LoadingSpinner,
   Pagination,
@@ -58,8 +59,7 @@ const PAYMENT_OPTIONS = [
 
 // Only parcels sitting at the origin hub can be put in a bag.
 const BAGGABLE_STATUS = "Arrived At Origin Hub";
-const isBaggable = (shipment: Shipment) =>
-  shipment.currentStatus === BAGGABLE_STATUS;
+
 
 export default function ShipmentList() {
   const hubId = window.HOST_USER_INFO?.referenceId ?? "";
@@ -78,6 +78,23 @@ export default function ShipmentList() {
     isFetching,
     isError,
   } = useShipments(hubId, page, status, paymentMode, debouncedSearch);
+
+  const { data: bagsData } = useBags();
+
+  // Parcels already sitting in a bag that hasn't been released yet
+  const baggedIds = useMemo(
+    () =>
+      new Set(
+        (bagsData?.data ?? [])
+          .filter((bag) => bag.status !== "RELEASED")
+          .flatMap((bag) => bag.shipmentIds)
+      ),
+    [bagsData]
+  );
+
+  const isBaggable = (shipment: Shipment) =>
+    shipment.currentStatus === BAGGABLE_STATUS &&
+    !baggedIds.has(shipment.shipmentId);
 
   const shipments = data?.data.shipments ?? [];
   const totalPages = data?.data.meta.totalPages ?? 1;
