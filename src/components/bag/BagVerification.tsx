@@ -8,6 +8,7 @@ import {
 } from "../../hooks/useBagActions";
 import { showToast } from "../../utils/showToaster";
 import { getErrorMessage } from "../../utils/getErrorMessage";
+import ScanAwbModal from "./ScanAwbModal";
 
 interface Props {
   bag: Bag;
@@ -18,6 +19,7 @@ interface Props {
 // AWB into this field and presses Enter, so typing + Enter works too.
 export default function BagVerification({ bag, canAct }: Props) {
   const [awb, setAwb] = useState("");
+  const [isScanOpen, setIsScanOpen] = useState(false);
   const verifyScan = useVerifyScannedShipment();
   const complete = useCompleteBagVerification();
 
@@ -25,18 +27,33 @@ export default function BagVerification({ bag, canAct }: Props) {
   const verified = bag.verifiedShipmentIds.length;
   const allVerified = total > 0 && verified === total;
 
-  const handleScan = async () => {
-    const value = awb.trim();
-    if (!value) return;
+  // Shared by the typed field and the camera scanner.
+  const verifyAwb = async (
+    value: string
+  ): Promise<{ ok: boolean; message: string }> => {
     try {
       await verifyScan.mutateAsync({
         bagId: bag.bagId,
         awbNumber: value,
       });
+      return { ok: true, message: "Verified" };
+    } catch (error) {
+      return {
+        ok: false,
+        message: getErrorMessage(error, "Failed to verify parcel"),
+      };
+    }
+  };
+
+  const handleScan = async () => {
+    const value = awb.trim();
+    if (!value) return;
+    const result = await verifyAwb(value);
+    if (result.ok) {
       showToast(`${value} verified`, "success");
       setAwb("");
-    } catch (error) {
-      showToast(getErrorMessage(error, "Failed to verify parcel"), "error");
+    } else {
+      showToast(result.message, "error");
     }
   };
 
@@ -87,6 +104,13 @@ export default function BagVerification({ bag, canAct }: Props) {
           <Rb_Button
             type="button"
             variant="outline"
+            onClick={() => setIsScanOpen(true)}
+          >
+            Scan with Camera
+          </Rb_Button>
+          <Rb_Button
+            type="button"
+            variant="outline"
             onClick={handleScan}
             isLoading={verifyScan.isPending}
             disabled={!awb.trim() || verifyScan.isPending}
@@ -103,6 +127,14 @@ export default function BagVerification({ bag, canAct }: Props) {
           </Rb_Button>
         </div>
       )}
+
+      <ScanAwbModal
+        isOpen={isScanOpen}
+        onClose={() => setIsScanOpen(false)}
+        onScan={verifyAwb}
+        verified={verified}
+        total={total}
+      />
     </div>
   );
 }
