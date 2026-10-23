@@ -9,12 +9,13 @@ import { useAgents } from "../hooks/useAgents";
 import { useUpdateBagStatus } from "../hooks/useBagActions";
 import BagStatusBadge from "../components/bag/BagStatusBadge";
 import BagStatusStepper from "../components/bag/BagStatusStepper";
-import BagVerification from "../components/bag/BagVerification";
+
 import AssignBagAgentModal from "../components/bag/AssignBagAgentModal";
 import { getNextAction, goTo } from "../components/bag/bagFlow";
 import { getShipmentLabelPdfUrl } from "../api/bagApi";
 import { showToast } from "../utils/showToaster";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import BagVerification from "../components/bag/BagVerification";
 
 const formatDateTime = (value?: string) =>
   value

@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import BagVerification from "../components/bag/BagVerification";
+
 import type { Bag } from "../types/bag";
+import BagVerification from "../components/bag/BagVerification";
 
 const mocks = vi.hoisted(() => ({
     useVerifyScannedShipment: vi.fn(),
@@ -32,19 +33,43 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         disabled,
         isLoading,
         type,
-        ...props
-    }:
-        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-        any) => (
+    }: any) => (
         <button
             type={type ?? "button"}
             onClick={onClick}
             disabled={disabled}
             data-loading={String(Boolean(isLoading))}
-            {...props}
         >
             {children}
         </button>
+    ),
+
+    Modal: ({ isOpen, onClose, children }: any) =>
+        isOpen ? (
+            <div data-testid="mock-modal">
+                <button type="button" onClick={onClose}>
+                    Close modal
+                </button>
+                {children}
+            </div>
+        ) : null,
+
+    ModalHeader: ({ children, onClose }: any) => (
+        <div>
+            <span>{children}</span>
+            <button type="button" onClick={onClose}>
+                Close header
+            </button>
+        </div>
+    ),
+
+    ModalBody: ({ children }: any) => (
+        <div data-testid="mock-modal-body">{children}</div>
+    ),
+
+    // Missing export causing your tests to fail
+    ModalFooter: ({ children }: any) => (
+        <div data-testid="mock-modal-footer">{children}</div>
     ),
 }));
 
@@ -129,9 +154,9 @@ describe("BagVerification", () => {
     it("keeps Verify Parcel disabled when the input is empty", () => {
         renderComponent();
 
-        expect(screen.getByText("Verify Parcel").hasAttribute("disabled")).toBe(
-            true,
-        );
+        expect(
+            screen.getByText("Verify Parcel").hasAttribute("disabled"),
+        ).toBe(true);
     });
 
     it("verifies a trimmed AWB and clears the input on success", async () => {
@@ -188,7 +213,9 @@ describe("BagVerification", () => {
     });
 
     it("shows an error toast when parcel verification fails", async () => {
-        mocks.verifyMutateAsync.mockRejectedValueOnce(new Error("API failed"));
+        mocks.verifyMutateAsync.mockRejectedValueOnce(
+            new Error("API failed"),
+        );
         mocks.getErrorMessage.mockReturnValueOnce("Failed to verify parcel");
 
         renderComponent();
@@ -201,7 +228,6 @@ describe("BagVerification", () => {
 
         await waitFor(() => {
             expect(mocks.getErrorMessage).toHaveBeenCalledWith(
-                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
                 expect.any(Error),
                 "Failed to verify parcel",
             );
@@ -271,7 +297,6 @@ describe("BagVerification", () => {
 
         await waitFor(() => {
             expect(mocks.getErrorMessage).toHaveBeenCalledWith(
-                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
                 expect.any(Error),
                 "Failed to complete verification",
             );
