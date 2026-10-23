@@ -33,7 +33,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         disabled,
         isLoading,
         type,
-    }: any) => (
+    }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <button
             type={type ?? "button"}
             onClick={onClick}
@@ -44,7 +46,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         </button>
     ),
 
-    Modal: ({ isOpen, onClose, children }: any) =>
+    Modal: ({ isOpen, onClose, children }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) =>
         isOpen ? (
             <div data-testid="mock-modal">
                 <button type="button" onClick={onClose}>
@@ -54,7 +58,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
             </div>
         ) : null,
 
-    ModalHeader: ({ children, onClose }: any) => (
+    ModalHeader: ({ children, onClose }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <div>
             <span>{children}</span>
             <button type="button" onClick={onClose}>
@@ -63,12 +69,16 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         </div>
     ),
 
-    ModalBody: ({ children }: any) => (
+    ModalBody: ({ children }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <div data-testid="mock-modal-body">{children}</div>
     ),
 
     // Missing export causing your tests to fail
-    ModalFooter: ({ children }: any) => (
+    ModalFooter: ({ children }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <div data-testid="mock-modal-footer">{children}</div>
     ),
 }));
