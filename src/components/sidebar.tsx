@@ -5,6 +5,7 @@ import {
   FaTimes,
   FaClipboardList,
   FaBuilding,
+  FaBoxOpen,
 } from "react-icons/fa";
 
 interface NavItem {
@@ -27,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
     path: "/hubs",
     icon: FaBuilding,
   },
-
+  { label: "Bags", path: "/bags", icon: FaBoxOpen },
 ];
 function navigate(path: string) {
   if (window.location.pathname === path) {

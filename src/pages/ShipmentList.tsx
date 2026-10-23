@@ -8,6 +8,8 @@ import {
 } from "@rentbook/rentbook-ui-lib";
 
 import ShipmentTable from "../components/ShipmentTable";
+import AddToBagModal from "../components/bag/AddToBagModal";
+import { Shipment } from "../types/shipment";
 import { useShipments } from "../hooks/useShipments";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 
@@ -54,12 +56,19 @@ const PAYMENT_OPTIONS = [
   },
 ];
 
+// Only parcels sitting at the origin hub can be put in a bag.
+const BAGGABLE_STATUS = "Arrived At Origin Hub";
+const isBaggable = (shipment: Shipment) =>
+  shipment.currentStatus === BAGGABLE_STATUS;
+
 export default function ShipmentList() {
   const hubId = window.HOST_USER_INFO?.referenceId ?? "";
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [paymentMode, setPaymentMode] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBagModalOpen, setIsBagModalOpen] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search);
 
@@ -90,6 +99,23 @@ export default function ShipmentList() {
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
+
+  const toggleShipment = (shipmentId: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(shipmentId)
+        ? prev.filter((id) => id !== shipmentId)
+        : [...prev, shipmentId]
+    );
+  };
+
+  const toggleAllOnPage = (checked: boolean) => {
+    const pageIds = shipments.filter(isBaggable).map((s) => s.shipmentId);
+    setSelectedIds((prev) =>
+      checked
+        ? Array.from(new Set([...prev, ...pageIds]))
+        : prev.filter((id) => !pageIds.includes(id))
+    );
+  };
 
   useEffect(() => {
     window.dispatchEvent(
@@ -125,6 +151,28 @@ export default function ShipmentList() {
         <h1 className="text-2xl sm:text-3xl font-semibold">
           Shipment List
         </h1>
+
+        {selectedIds.length > 0 && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-600">
+              {selectedIds.length} selected
+            </span>
+            <Rb_Button
+              variant="outline"
+              size="md"
+              onClick={() => setSelectedIds([])}
+            >
+              Clear
+            </Rb_Button>
+            <Rb_Button
+              variant="primary"
+              size="md"
+              onClick={() => setIsBagModalOpen(true)}
+            >
+              Add to Bag
+            </Rb_Button>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
@@ -184,7 +232,13 @@ export default function ShipmentList() {
           <>
             {/* Table */}
             <div className="overflow-x-auto rounded-xl">
-              <ShipmentTable shipments={shipments} />
+              <ShipmentTable
+                shipments={shipments}
+                selectedIds={selectedIds}
+                isSelectable={isBaggable}
+                onToggle={toggleShipment}
+                onToggleAll={toggleAllOnPage}
+              />
             </div>
 
             {/* Error */}
@@ -216,6 +270,12 @@ export default function ShipmentList() {
         )}
       </div>
 
+      <AddToBagModal
+        isOpen={isBagModalOpen}
+        onClose={() => setIsBagModalOpen(false)}
+        shipmentIds={selectedIds}
+        onDone={() => setSelectedIds([])}
+      />
     </div>
   );
 }
