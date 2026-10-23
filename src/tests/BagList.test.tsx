@@ -31,17 +31,21 @@ vi.mock("../components/bag/bagFlow", () => ({
 }));
 
 vi.mock("@rentbook/rentbook-ui-lib", () => ({
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     Rb_Button: ({ children, onClick }: any) => (
         <button onClick={onClick}>{children}</button>
     ),
     Rb_LoadingSpinner: () => <div data-testid="loading-spinner" />,
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     Dropdown: ({ value, onChange, options, placeholder }: any) => (
         <select
             aria-label={placeholder}
             value={value}
             onChange={(event) => onChange(event.target.value)}
         >
-            {options.map((option: any) => (
+            {options.map((option:
+                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+                any) => (
                 <option key={option.value || "all"} value={option.value}>
                     {option.label}
                 </option>
@@ -51,6 +55,7 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
 }));
 
 vi.mock("../components/bag/AddToBagModal", () => ({
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     default: ({ isOpen, onClose, onDone }: any) =>
         isOpen ? (
             <div data-testid="create-bag-modal">
@@ -61,7 +66,10 @@ vi.mock("../components/bag/AddToBagModal", () => ({
 }));
 
 vi.mock("../components/bag/BagStatusBadge", () => ({
-    default: ({ status }: any) => <span>{status}</span>,
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    default: ({ status }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => <span>{status}</span>,
 }));
 
 const bags = [

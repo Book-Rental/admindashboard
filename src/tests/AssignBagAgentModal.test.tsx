@@ -14,9 +14,10 @@ vi.mock("../hooks/useAgents", () => ({
 }));
 
 vi.mock("@rentbook/rentbook-ui-lib", () => ({
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     Modal: ({ isOpen, children }: any) =>
         isOpen ? <div data-testid="modal">{children}</div> : null,
-
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     ModalHeader: ({ children, onClose }: any) => (
         <div>
             <h2>{children}</h2>
@@ -25,8 +26,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
             </button>
         </div>
     ),
-
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     ModalBody: ({ children }: any) => <div>{children}</div>,
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     ModalFooter: ({ children }: any) => <div>{children}</div>,
 
     Rb_Button: ({
@@ -34,7 +36,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         onClick,
         disabled,
         type = "button",
-    }: any) => (
+    }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <button type={type} onClick={onClick} disabled={disabled}>
             {children}
         </button>

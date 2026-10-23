@@ -33,7 +33,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         isLoading,
         type,
         ...props
-    }: any) => (
+    }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <button
             type={type ?? "button"}
             onClick={onClick}
@@ -199,6 +201,7 @@ describe("BagVerification", () => {
 
         await waitFor(() => {
             expect(mocks.getErrorMessage).toHaveBeenCalledWith(
+                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
                 expect.any(Error),
                 "Failed to verify parcel",
             );
@@ -268,6 +271,7 @@ describe("BagVerification", () => {
 
         await waitFor(() => {
             expect(mocks.getErrorMessage).toHaveBeenCalledWith(
+                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
                 expect.any(Error),
                 "Failed to complete verification",
             );

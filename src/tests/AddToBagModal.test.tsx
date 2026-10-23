@@ -41,13 +41,14 @@ vi.mock("../utils/getErrorMessage", () => ({
 }));
 
 vi.mock("@rentbook/rentbook-ui-lib", () => ({
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     Modal: ({ isOpen, children }: any) =>
         isOpen ? <div data-testid="modal">{children}</div> : null,
-
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     ModalHeader: ({ children }: any) => <h2>{children}</h2>,
-
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     ModalBody: ({ children }: any) => <div>{children}</div>,
-
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     ModalFooter: ({ children }: any) => <div>{children}</div>,
 
     Rb_Button: ({
@@ -56,7 +57,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         disabled,
         isLoading,
         type,
-    }: any) => (
+    }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <button
             type={type ?? "button"}
             disabled={disabled}
@@ -65,7 +68,7 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
             {isLoading ? "Loading..." : children}
         </button>
     ),
-
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     Dropdown: ({ value, onChange, options, placeholder }: any) => (
         <select
             aria-label={placeholder}
@@ -73,7 +76,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
             onChange={(event) => onChange(event.target.value)}
         >
             <option value="">{placeholder}</option>
-            {options.map((option: any) => (
+            {options.map((option:
+                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+                any) => (
                 <option key={option.value} value={option.value}>
                     {option.label}
                 </option>
@@ -199,6 +204,7 @@ describe("AddToBagModal", () => {
     });
 
     it("shows only created bags from the selected source hub", async () => {
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
         window.HOST_USER_INFO = { referenceId: "mongo-hub-1" } as any;
 
         mocks.useHubById.mockReturnValue({
@@ -399,6 +405,7 @@ describe("AddToBagModal", () => {
 
 
     it("excludes the source hub from destination options", async () => {
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
         window.HOST_USER_INFO = { referenceId: "mongo-hub-1" } as any;
 
         mocks.useHubById.mockReturnValue({

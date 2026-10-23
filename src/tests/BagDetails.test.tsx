@@ -64,7 +64,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         disabled,
         isLoading,
         type,
-    }: any) => (
+    }: 
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    any) => (
         <button
             type={type ?? "button"}
             onClick={onClick}
@@ -172,6 +174,7 @@ function setup({
     isLoading?: boolean;
     isError?: boolean;
     hubId?: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     parcelQueries?: any[];
     nextAction?: {
         label: string;
@@ -179,13 +182,17 @@ function setup({
         side: "source" | "destination";
         needsAgent: boolean;
     } | null;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     hubsData?: any;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     agentsData?: any;
 } = {}) {
     window.history.pushState({}, "", "/bags/BAG-001");
     window.HOST_USER_INFO = {
         referenceId: "HUB-MONGO-001",
-    } as any;
+    } as
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    any;
 
     mocks.useBag.mockReturnValue({
         data: bag ? { data: bag } : undefined,
@@ -285,6 +292,7 @@ describe("BagDetails", () => {
 
         await waitFor(() => {
             expect(mocks.getErrorMessage).toHaveBeenCalledWith(
+                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
                 expect.any(Error),
                 "Failed to update bag"
             );
