@@ -30,7 +30,11 @@ export default function BagVerification({ bag, canAct }: Props) {
   // Shared by the typed field and the camera scanner.
   const verifyAwb = async (
     value: string
-  ): Promise<{ ok: boolean; message: string }> => {
+  ): Promise<{
+    ok: boolean;
+    message: string;
+    alreadyDone?: boolean;
+  }> => {
     try {
       await verifyScan.mutateAsync({
         bagId: bag.bagId,
@@ -38,9 +42,12 @@ export default function BagVerification({ bag, canAct }: Props) {
       });
       return { ok: true, message: "Verified" };
     } catch (error) {
+      const message = getErrorMessage(error, "Failed to verify parcel");
+      const alreadyDone = /already verified/i.test(message);
       return {
         ok: false,
-        message: getErrorMessage(error, "Failed to verify parcel"),
+        message: alreadyDone ? "Already verified" : message,
+        alreadyDone,
       };
     }
   };
@@ -132,8 +139,10 @@ export default function BagVerification({ bag, canAct }: Props) {
         isOpen={isScanOpen}
         onClose={() => setIsScanOpen(false)}
         onScan={verifyAwb}
-        verified={verified}
-        total={total}
+        title="Scan Parcels"
+        progressText={`${verified} of ${total} verified`}
+        isComplete={allVerified}
+        completeMessage="All parcels verified. Press Done, then Complete Verification."
       />
     </div>
   );

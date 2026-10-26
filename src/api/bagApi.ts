@@ -94,3 +94,21 @@ export const completeBagVerification = async (bagId: string) => {
 
 export const getShipmentLabelPdfUrl = (awbNumber: string) =>
   `${API_BASE_URL}/shipment/${awbNumber}/label/pdf`;
+
+export interface ScannedShipment {
+  shipmentId: string;
+  awbNumber: string;
+  currentStatus: string;
+  originHub?: { hubId?: string } | null;
+}
+
+// Turns a scanned / typed AWB into the shipment record.
+export const getShipmentByAwb = async (
+  awbNumber: string
+): Promise<ScannedShipment> => {
+  const response = await axios.get(
+    `${API_BASE_URL}/shipment/scan/${encodeURIComponent(awbNumber)}`,
+    { withCredentials: true }
+  );
+  return response.data.data;
+};

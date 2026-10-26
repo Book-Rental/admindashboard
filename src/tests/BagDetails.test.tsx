@@ -1,25 +1,28 @@
-
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import BagDetails from "../pages/BagDetails";
 import type { Bag } from "../types/bag";
 
 const mocks = vi.hoisted(() => ({
+    useBags: vi.fn(),
     useBag: vi.fn(),
     useBagParcels: vi.fn(),
     useHubs: vi.fn(),
     useHubById: vi.fn(),
     useAgents: vi.fn(),
     useUpdateBagStatus: vi.fn(),
+    useAddShipmentsToBag: vi.fn(),
     getNextAction: vi.fn(),
     goTo: vi.fn(),
     getShipmentLabelPdfUrl: vi.fn(),
+    getShipmentByAwb: vi.fn(),
     showToast: vi.fn(),
     getErrorMessage: vi.fn(),
     mutateAsync: vi.fn(),
 }));
 
 vi.mock("../hooks/useBags", () => ({
+    useBags: mocks.useBags,
     useBag: mocks.useBag,
     useBagParcels: mocks.useBagParcels,
 }));
@@ -38,6 +41,7 @@ vi.mock("../hooks/useAgents", () => ({
 
 vi.mock("../hooks/useBagActions", () => ({
     useUpdateBagStatus: mocks.useUpdateBagStatus,
+    useAddShipmentsToBag: mocks.useAddShipmentsToBag,
 }));
 
 vi.mock("../components/bag/bagFlow", () => ({
@@ -47,6 +51,7 @@ vi.mock("../components/bag/bagFlow", () => ({
 
 vi.mock("../api/bagApi", () => ({
     getShipmentLabelPdfUrl: mocks.getShipmentLabelPdfUrl,
+    getShipmentByAwb: mocks.getShipmentByAwb,
 }));
 
 vi.mock("../utils/showToaster", () => ({
@@ -58,15 +63,9 @@ vi.mock("../utils/getErrorMessage", () => ({
 }));
 
 vi.mock("@rentbook/rentbook-ui-lib", () => ({
-    Rb_Button: ({
-        children,
-        onClick,
-        disabled,
-        isLoading,
-        type,
-    }: 
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    any) => (
+    Rb_Button: ({ children, onClick, disabled, isLoading, type }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <button
             type={type ?? "button"}
             onClick={onClick}
@@ -76,9 +75,26 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
             {children}
         </button>
     ),
+
     Rb_LoadingSpinner: () => (
         <div data-testid="loading-spinner">Loading</div>
     ),
+
+    Modal: ({ isOpen, onClose, children }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) =>
+        isOpen ? (
+            <div role="dialog">
+                {children}
+                <button type="button" onClick={onClose}>
+                    Close
+                </button>
+            </div>
+        ) : null,
+
+    ModalHeader: ({ children }:
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => <div>{children}</div>,
 }));
 
 vi.mock("react-icons/fa", () => ({
@@ -99,10 +115,13 @@ vi.mock("../components/bag/BagStatusStepper", () => ({
 
 vi.mock("../components/bag/BagVerification", () => ({
     default: ({ canAct }: { canAct: boolean }) => (
-        <div data-testid="bag-verification">
-            Can act: {String(canAct)}
-        </div>
+        <div data-testid="bag-verification">Can act: {String(canAct)}</div>
     ),
+}));
+
+// BagAddParcels has its own tests; stub it so its modals don't mount here.
+vi.mock("../components/bag/BagAddParcels", () => ({
+    default: () => <div data-testid="bag-add-parcels" />,
 }));
 
 vi.mock("../components/bag/AssignBagAgentModal", () => ({
@@ -135,17 +154,7 @@ const baseBag = {
     assignedAgentId: "AGENT-001",
 } as unknown as Bag;
 
-const hubs = [
-    { hubId: "HUB-001", hubName: "Source Hub" },
-    { hubId: "HUB-002", hubName: "Destination Hub" },
-];
-
-const agents = [
-    {
-        agentId: "AGENT-001",
-        fullName: "Test Agent",
-    },
-];
+const agents = [{ agentId: "AGENT-001", fullName: "Test Agent" }];
 
 const parcel = {
     awbNumber: "AWB-001",
@@ -160,6 +169,9 @@ const defaultNextAction = {
     needsAgent: false,
 };
 
+// NOTE: hubsData / agentsData are the *response body* (what the component
+// reads as `hubsData` / `agentsData`). setup() wraps them as `{ data: body }`
+// to mimic a react-query result.
 function setup({
     bag = baseBag,
     isLoading = false,
@@ -167,32 +179,52 @@ function setup({
     hubId = "",
     parcelQueries = [{ data: { data: parcel }, isLoading: false }],
     nextAction = defaultNextAction,
-    hubsData = { data: { data: hubs } },
-    agentsData = { data: { data: { agents } } },
+    hubsData = {
+        data: [
+            { hubId: "HUB-001", hubName: "Source Hub" },
+            { hubId: "HUB-002", hubName: "Destination Hub" },
+        ],
+    },
+    agentsData = { data: { agents } },
 }: {
     bag?: Bag | undefined;
     isLoading?: boolean;
     isError?: boolean;
     hubId?: string;
+    parcelQueries?:
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    parcelQueries?: any[];
+    any[];
     nextAction?: {
         label: string;
         next: string;
         side: "source" | "destination";
         needsAgent: boolean;
     } | null;
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    hubsData?: any;
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    agentsData?: any;
-} = {}) {
-    window.history.pushState({}, "", "/bags/BAG-001");
-    window.HOST_USER_INFO = {
-        referenceId: "HUB-MONGO-001",
-    } as
+    hubsData?:
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     any;
+    agentsData?:
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    any;
+} = {}) {
+    window.history.pushState({}, "", "/bags/BAG-001");
+
+    window.HOST_USER_INFO = {
+        referenceId: "HUB-MONGO-001",
+    } as 
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    any;
+
+    mocks.useBags.mockReturnValue({
+        data: { data: [] },
+        isLoading: false,
+        isError: false,
+    });
+
+    mocks.useAddShipmentsToBag.mockReturnValue({
+        mutateAsync: vi.fn().mockResolvedValue({}),
+        isPending: false,
+    });
 
     mocks.useBag.mockReturnValue({
         data: bag ? { data: bag } : undefined,
@@ -201,8 +233,8 @@ function setup({
     });
 
     mocks.useBagParcels.mockReturnValue(parcelQueries);
-    mocks.useHubs.mockReturnValue(hubsData);
-    mocks.useAgents.mockReturnValue(agentsData);
+    mocks.useHubs.mockReturnValue({ data: hubsData });
+    mocks.useAgents.mockReturnValue({ data: agentsData });
 
     mocks.useHubById.mockReturnValue({
         data: { data: { hubId } },
@@ -214,9 +246,11 @@ function setup({
     });
 
     mocks.getNextAction.mockReturnValue(nextAction);
+
     mocks.getShipmentLabelPdfUrl.mockReturnValue(
         "https://example.com/label.pdf"
     );
+
     mocks.getErrorMessage.mockReturnValue("Failed to update bag");
 
     return render(<BagDetails />);
@@ -237,9 +271,7 @@ describe("BagDetails", () => {
     it("shows an error when bag details fail to load", () => {
         setup({ bag: undefined, isError: true });
 
-        expect(
-            screen.getByText("Failed to load bag details.")
-        ).toBeTruthy();
+        expect(screen.getByText("Failed to load bag details.")).toBeTruthy();
     });
 
     it("renders bag details, hub names, agent and parcel information", () => {
@@ -292,7 +324,6 @@ describe("BagDetails", () => {
 
         await waitFor(() => {
             expect(mocks.getErrorMessage).toHaveBeenCalledWith(
-                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
                 expect.any(Error),
                 "Failed to update bag"
             );
@@ -316,9 +347,7 @@ describe("BagDetails", () => {
 
         expect(mocks.getNextAction).toHaveBeenCalledWith("CREATED");
 
-        fireEvent.click(
-            screen.getByRole("button", { name: "Assign Agent" })
-        );
+        fireEvent.click(screen.getByRole("button", { name: "Assign Agent" }));
 
         expect(screen.getByTestId("agent-modal")).toBeTruthy();
         expect(mocks.mutateAsync).not.toHaveBeenCalled();
@@ -334,10 +363,7 @@ describe("BagDetails", () => {
             },
         });
 
-        fireEvent.click(
-            screen.getByRole("button", { name: "Assign Agent" })
-        );
-
+        fireEvent.click(screen.getByRole("button", { name: "Assign Agent" }));
         fireEvent.click(screen.getByText("Confirm agent"));
 
         await waitFor(() => {
@@ -354,7 +380,6 @@ describe("BagDetails", () => {
         });
     });
 
-
     it("closes the agent modal when the close button is clicked", () => {
         setup({
             nextAction: {
@@ -365,9 +390,7 @@ describe("BagDetails", () => {
             },
         });
 
-        fireEvent.click(
-            screen.getByRole("button", { name: "Assign Agent" })
-        );
+        fireEvent.click(screen.getByRole("button", { name: "Assign Agent" }));
 
         expect(screen.getByTestId("agent-modal")).toBeTruthy();
 
@@ -378,25 +401,19 @@ describe("BagDetails", () => {
         expect(screen.queryByTestId("agent-modal")).toBeNull();
     });
 
-
     it("disables the seal action when a created bag has no parcels", () => {
         setup({
-            bag: {
-                ...baseBag,
-                shipmentIds: [],
-            } as unknown as Bag,
+            bag: { ...baseBag, shipmentIds: [] } as unknown as Bag,
             parcelQueries: [],
         });
 
         expect(
-            screen.getByText(
-                "Add parcels from the Orders page before sealing."
-            )
+            screen.getByText("Add parcels below before sealing.")
         ).toBeTruthy();
 
-        expect(
-            screen.getByText("Seal Bag").hasAttribute("disabled")
-        ).toBe(true);
+        expect(screen.getByText("Seal Bag").hasAttribute("disabled")).toBe(
+            true
+        );
 
         expect(screen.getByText("No parcels in this bag yet")).toBeTruthy();
     });
@@ -408,18 +425,14 @@ describe("BagDetails", () => {
     });
 
     it("shows parcel loading and fallback values", () => {
-        setup({
-            parcelQueries: [{ isLoading: true }],
-        });
+        setup({ parcelQueries: [{ isLoading: true }] });
 
         expect(screen.getByText("Loading...")).toBeTruthy();
         expect(screen.getAllByText("-").length).toBeGreaterThan(0);
     });
 
     it("prints a parcel label", () => {
-        const openSpy = vi
-            .spyOn(window, "open")
-            .mockImplementation(() => null);
+        const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
 
         setup();
 
@@ -437,10 +450,7 @@ describe("BagDetails", () => {
 
     it("renders verification when the bag is opened", () => {
         setup({
-            bag: {
-                ...baseBag,
-                status: "OPENED",
-            } as unknown as Bag,
+            bag: { ...baseBag, status: "OPENED" } as unknown as Bag,
         });
 
         expect(screen.getByTestId("bag-verification")).toBeTruthy();
@@ -452,8 +462,8 @@ describe("BagDetails", () => {
                 ...baseBag,
                 assignedAgentId: "UNKNOWN-AGENT",
             } as unknown as Bag,
-            hubsData: { data: { data: [] } },
-            agentsData: { data: { data: { agents: [] } } },
+            hubsData: { data: [] },
+            agentsData: { data: { agents: [] } },
         });
 
         expect(screen.getByText("HUB-001")).toBeTruthy();

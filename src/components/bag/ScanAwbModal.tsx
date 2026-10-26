@@ -17,7 +17,7 @@ const SCANNER_ELEMENT_ID = "bag-awb-scanner";
 //  - Code128 barcode holding the plain AWB
 //  - QR code holding a URL ending in /scan/<AWB>
 // Both are turned into the plain AWB here.
-export const parseAwb = (decodedText: string): string => {
+const parseAwb = (decodedText: string): string => {
   const text = decodedText.trim();
   if (!text.includes("/")) return text;
   const withoutQuery = text.split(/[?#]/)[0].replace(/\/+$/, "");
@@ -27,32 +27,74 @@ export const parseAwb = (decodedText: string): string => {
 interface ScanResult {
   ok: boolean;
   message: string;
+  // true when the parcel was already handled earlier (not a real error)
+  alreadyDone?: boolean;
 }
+
+type Feedback = {
+  awb: string;
+  kind: "success" | "info" | "error";
+  message: string;
+};
+
+// Short beep + vibration so the operator knows a scan worked
+// without looking at the screen.
+const giveSuccessFeedback = () => {
+  try {
+    navigator.vibrate?.(80);
+    const Ctx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 880;
+    gain.gain.value = 0.08;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.12);
+    setTimeout(() => ctx.close(), 300);
+  } catch {
+    // feedback is optional
+  }
+};
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   // Called for every parcel scanned; return the outcome to show on screen.
   onScan: (awbNumber: string) => Promise<ScanResult>;
-  verified: number;
-  total: number;
+  title: string;
+  // e.g. "1 of 2 verified" shown next to the title
+  progressText?: string;
+  // when true, completeMessage is shown as a green banner
+  isComplete?: boolean;
+  completeMessage?: string;
 }
 
 function ScannerView({
   onScan,
+  isComplete,
+  completeMessage,
 }: {
   onScan: Props["onScan"];
+  isComplete: boolean;
+  completeMessage?: string;
 }) {
   const [cameraError, setCameraError] = useState("");
-  const [lastResult, setLastResult] = useState<
-    (ScanResult & { awb: string }) | null
-  >(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
 
   const onScanRef = useRef(onScan);
   onScanRef.current = onScan;
 
   const busyRef = useRef(false);
   const lastScanRef = useRef({ awb: "", at: 0 });
+  // Parcels already settled in this session. The camera keeps seeing
+  // the same label, so these are ignored instead of being sent again.
+  const settledRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -64,8 +106,10 @@ function ScannerView({
       const now = Date.now();
 
       // The camera reads the same code many times a second:
-      // ignore it while a check is running or just after the same code.
+      // ignore it while a check is running, after it was settled,
+      // or just after the same code was tried.
       if (busyRef.current) return;
+      if (settledRef.current.has(awb)) return;
       if (
         awb === lastScanRef.current.awb &&
         now - lastScanRef.current.at < 3000
@@ -77,7 +121,22 @@ function ScannerView({
       lastScanRef.current = { awb, at: now };
       try {
         const result = await onScanRef.current(awb);
-        setLastResult({ ...result, awb });
+
+        if (result.ok) {
+          settledRef.current.add(awb);
+          giveSuccessFeedback();
+          setFeedback({ awb, kind: "success", message: "Verified" });
+        } else if (result.alreadyDone) {
+          // Not an error: just tell the operator once, then stay quiet.
+          settledRef.current.add(awb);
+          setFeedback({
+            awb,
+            kind: "info",
+            message: result.message,
+          });
+        } else {
+          setFeedback({ awb, kind: "error", message: result.message });
+        }
       } finally {
         lastScanRef.current = { awb, at: Date.now() };
         busyRef.current = false;
@@ -145,17 +204,25 @@ function ScannerView({
         </p>
       )}
 
-      {lastResult && (
+      {feedback && (
         <div
           className={`rounded-lg px-4 py-3 text-sm ${
-            lastResult.ok
+            feedback.kind === "success"
               ? "bg-emerald-50 text-emerald-700"
+              : feedback.kind === "info"
+              ? "bg-amber-50 text-amber-700"
               : "bg-red-50 text-red-700"
           }`}
         >
-          <span className="font-semibold">{lastResult.awb}</span>
+          <span className="font-semibold">{feedback.awb}</span>
           {": "}
-          {lastResult.message}
+          {feedback.message}
+        </div>
+      )}
+
+      {isComplete && completeMessage && (
+        <div className="rounded-lg bg-emerald-600 px-4 py-3 text-center text-sm font-medium text-white">
+          {completeMessage}
         </div>
       )}
     </div>
@@ -166,18 +233,27 @@ export default function ScanAwbModal({
   isOpen,
   onClose,
   onScan,
-  verified,
-  total,
+  title,
+  progressText,
+  isComplete = false,
+  completeMessage,
 }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalHeader onClose={onClose}>
-        Scan Parcels ({verified} of {total} verified)
+        {title}
+        {progressText ? ` (${progressText})` : ""}
       </ModalHeader>
 
       <ModalBody>
         {/* Mounted only while open, so the camera is released on close */}
-        {isOpen && <ScannerView onScan={onScan} />}
+        {isOpen && (
+          <ScannerView
+            onScan={onScan}
+            isComplete={isComplete}
+            completeMessage={completeMessage}
+          />
+        )}
       </ModalBody>
 
       <ModalFooter>

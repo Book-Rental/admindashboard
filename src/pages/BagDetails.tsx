@@ -9,13 +9,13 @@ import { useAgents } from "../hooks/useAgents";
 import { useUpdateBagStatus } from "../hooks/useBagActions";
 import BagStatusBadge from "../components/bag/BagStatusBadge";
 import BagStatusStepper from "../components/bag/BagStatusStepper";
-
+import BagVerification from "../components/bag/BagVerification";
+import BagAddParcels from "../components/bag/BagAddParcels";
 import AssignBagAgentModal from "../components/bag/AssignBagAgentModal";
 import { getNextAction, goTo } from "../components/bag/bagFlow";
 import { getShipmentLabelPdfUrl } from "../api/bagApi";
 import { showToast } from "../utils/showToaster";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import BagVerification from "../components/bag/BagVerification";
 
 const formatDateTime = (value?: string) =>
   value
@@ -82,12 +82,12 @@ export default function BagDetails() {
   }
 
   const hubName = (hubId: string) =>
-    hubsData?.data.find((h) => h.hubId === hubId)?.hubName ?? hubId;
+    hubsData?.data?.find((h) => h.hubId === hubId)?.hubName ?? hubId;
 
   const agentName = (agentId?: string) => {
     if (!agentId) return "Not assigned";
     return (
-      agentsData?.data.agents.find((a) => a.agentId === agentId)
+      agentsData?.data?.agents?.find((a) => a.agentId === agentId)
         ?.fullName ?? agentId
     );
   };
@@ -104,6 +104,7 @@ export default function BagDetails() {
 
   const canShowAction = nextAction ? canActFor(nextAction.side) : false;
   const canVerify = canActFor("destination");
+  const canAddParcels = bag.status === "CREATED" && canActFor("source");
 
   const runStatusUpdate = async (
     status: NonNullable<typeof nextAction>["next"],
@@ -183,7 +184,7 @@ export default function BagDetails() {
               {bag.status === "CREATED" &&
                 bag.shipmentIds.length === 0 && (
                   <p className="text-xs text-slate-400">
-                    Add parcels from the Orders page before sealing.
+                    Add parcels below before sealing.
                   </p>
                 )}
             </div>
@@ -215,6 +216,8 @@ export default function BagDetails() {
               />
             </div>
           </div>
+
+          {canAddParcels && <BagAddParcels bag={bag} />}
 
           {bag.status === "OPENED" && (
             <BagVerification bag={bag} canAct={canVerify} />
