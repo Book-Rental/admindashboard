@@ -35,10 +35,14 @@ vi.mock("../utils/getErrorMessage", () => ({
 }));
 
 vi.mock("@rentbook/rentbook-ui-lib", () => ({
-    Modal: ({ isOpen, children }: any) =>
+    Modal: ({ isOpen, children }: 
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) =>
         isOpen ? <div role="dialog">{children}</div> : null,
 
-    ModalHeader: ({ children, onClose }: any) => (
+    ModalHeader: ({ children, onClose }: 
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <div>
             <h2>{children}</h2>
             <button type="button" onClick={onClose}>
@@ -47,8 +51,12 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         </div>
     ),
 
-    ModalBody: ({ children }: any) => <div>{children}</div>,
-    ModalFooter: ({ children }: any) => <div>{children}</div>,
+    ModalBody: ({ children }: 
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => <div>{children}</div>,
+    ModalFooter: ({ children }: 
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => <div>{children}</div>,
 
     Rb_Button: ({
         children,
@@ -56,7 +64,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         disabled,
         isLoading,
         type,
-    }: any) => (
+    }: 
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    any) => (
         <button
             type={type ?? "button"}
             onClick={onClick}
@@ -69,7 +79,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
 
     Rb_LoadingSpinner: () => <div data-testid="loading-spinner">Loading</div>,
 
-    Pagination: ({ currentPage, totalPages, disabled, onPageChange }: any) => (
+    Pagination: ({ currentPage, totalPages, disabled, onPageChange }: 
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <div data-testid="pagination">
             <span>
                 Page {currentPage} of {totalPages}
@@ -84,7 +96,9 @@ vi.mock("@rentbook/rentbook-ui-lib", () => ({
         </div>
     ),
 
-    Search: ({ value, onChange, placeholder }: any) => (
+    Search: ({ value, onChange, placeholder }: 
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        any) => (
         <input value={value} onChange={onChange} placeholder={placeholder} />
     ),
 }));
@@ -127,7 +141,9 @@ function setup({
 }: {
     isOpen?: boolean;
     blockedIds?: Set<string>;
-    shipmentList?: any[];
+    shipmentList?: 
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    any[];
     totalPages?: number;
     isLoading?: boolean;
     isFetching?: boolean;
